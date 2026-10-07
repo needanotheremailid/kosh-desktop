@@ -4,13 +4,27 @@
 
 Kosh is a research desk for Windows. Read sources beside your draft, keep notes linked to the evidence, and take your writing into Word, PDF or LaTeX.
 
-**[Download for Windows — 0.3.1 beta](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.3.1/Kosh-0.3.1-Setup.exe)** · [Release notes](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v0.3.1) · [User guide](USER_GUIDE.md)
+**[Download for Windows — 0.4.0 beta](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.4.0/Kosh-0.4.0-Setup.exe)** · [Release notes](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v0.4.0) · [User guide](USER_GUIDE.md)
 
-64-bit Windows 11 with Microsoft Edge and .NET Framework · no administrator rights needed · **unsigned beta**: Windows may warn about an unknown publisher. [SHA-256 checksums](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.3.1/SHA256SUMS.txt).
+Already using an older Kosh installation? Follow the [copy-only upgrade guide](USER_GUIDE.md#upgrade-a-bundled-installation) to gain the new controls while retaining your old installation and backup.
+
+64-bit Windows 11 with Microsoft Edge and .NET Framework · no administrator rights needed · **unsigned beta**: Windows may warn about an unknown publisher. [SHA-256 checksums](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.4.0/SHA256SUMS.txt).
 
 ![Kosh writing view with a manuscript and citation controls](assets/screenshots/kosh-writing.png)
 
-*Screenshots and the walkthrough show an example workspace. Your library starts empty.*
+*The image above, the gallery below and the walkthrough show an example workspace from 0.3.0. The two images in New in 0.4.0 show the newer controls. Your library starts empty.*
+
+## New in 0.4.0
+
+Select words on a PDF page, save a highlight with your comment, return to its source location and create a cited note. Reading states, favorites, tags and a collection label help organise the library without changing the original PDF.
+
+![Kosh 0.4.0 reading view with a saved PDF highlight and quoted passage](assets/screenshots/kosh-highlights-040.png)
+
+Focus writing keeps the draft and essential controls in view. Review an exact sentence beside its source passage, mark it checked yourself, and see when that record becomes stale. Draft search, a citation picker and complete Markdown section moves support the same writing workflow.
+
+![Kosh 0.4.0 focus writing view with the draft preview and writing controls](assets/screenshots/kosh-focus-040.png)
+
+*These examples use a demonstration workspace. Highlights and claim reviews are separate records; they do not edit the original paper or certify scientific support.*
 
 <details>
 <summary>Watch Kosh in 30 seconds</summary>
@@ -19,17 +33,17 @@ Kosh is a research desk for Windows. Read sources beside your draft, keep notes 
 
 [Watch or download the full-resolution video](https://github.com/needanotheremailid/kosh-desktop/raw/refs/heads/main/assets/presentation/Kosh%20Walkthrough.mp4) · Silent, 30 seconds. Captioned app captures follow a source-linked note through writing, export choices and the finished PDF.
 
-The screenshots and 30-second walkthrough show the core workflow in 0.3.0. Version 0.3.1 retains these layouts and adds the PDF font correction and clearer export/OCR help described below.
+The 30-second walkthrough shows the core workflow in 0.3.0. Version 0.4.0 retains these layouts, includes the 0.3.1 PDF font correction, and adds the reading and writing controls described above.
 
 </details>
 
 ## What you can do
 
-- **Read and capture the evidence.** Import PDFs, Word documents or text, search extracted passages, and save notes with a link back to the source location. Compare PDF text with the page image and create a local OCR copy when needed.
-- **Write with your sources nearby.** Draft in Markdown with source context, headings, tables, figures and equations. Autosave, saved history and conflict recovery help you return to the work.
-- **Keep citations with the manuscript.** Use Vancouver/NLM, APA 7, IEEE or Chicago notes, import a journal CSL style, and choose from 63 bundled citation locales. Footnotes and endnotes are available for note styles. Ordinary Word export keeps fixed CSL results; editable Word export uses native fields with Word's separate IEEE, APA 6th or ISO 690 numerical styles.
+- **Read and capture the evidence.** Import PDFs, Word documents or text, search extracted passages, and select PDF words for a saved highlight and comment. Saved passages link back to the file page or extracted section and can become cited notes. Annotations are separate local records; the original PDF stays unchanged. Create a local OCR copy when needed.
+- **Write with your sources nearby.** Draft in Markdown with source context, headings, tables, figures and equations. Search titles and draft text, use focus mode, or move complete Markdown sections. Autosave, saved history and conflict recovery help you return to the work.
+- **Keep citations and review claims.** Search your workspace with Insert citation, then insert a bibliography reference or an actual source locator. Record an exact selected sentence beside its quoted source passage as Needs source, Source attached or Checked by me. Changes can make the review stale; these labels record your judgement, not AI verification. Export with Vancouver/NLM, APA 7, IEEE or Chicago notes, local journal styles and 63 bundled citation locales.
 - **Export for the next step.** Create Word, PDF, compiled LaTeX PDF, HTML or a source-and-figures ZIP. Configure research article, review or case-report layouts with your own frontmatter, page settings and numbering.
-- **Organise the literature.** Keep sources and evidence notes in project workspaces. Discover references through PubMed, Crossref, Europe PMC or OpenAlex, import RIS/BibTeX/CSL JSON, and export a workspace backup.
+- **Organise the literature.** Use reading states, favorites, multiple tags and one collection label per source; combine them with source-detail/type filters and sorting. Resume the saved reading page with a next-action note. Duplicate title/DOI suggestions are read-only comparisons; they never merge or delete records automatically. Discover references through PubMed, Crossref, Europe PMC or OpenAlex and import RIS/BibTeX/CSL JSON.
 - **Use AI when it helps.** Ask for source excerpts without generation, use an installed local Ollama model, or request writing proposals through an installed Codex/Claude CLI. Review the preview and result, then save an alternative or explicitly apply an eligible selection.
 
 Choose **Broadsheet** for tabs across the top, **Stacks** for a compact icon rail, or **Commonplace** for a sidebar and centred reading/writing column. The core reading, writing, citations and exports work without AI.
@@ -66,7 +80,7 @@ The same example library in each layout:
 
 ## Get started
 
-1. **Install.** Download the Windows installer above and choose a new writable folder. You need 64-bit Windows 11, Microsoft Edge and .NET Framework; Python, Node, document tools, OCR data and offline TeX resources are bundled.
+1. **Install.** Download the Windows installer above, check the release page and checksum, then choose a new writable folder. You need 64-bit Windows 11, Microsoft Edge and .NET Framework; Python, Node, document tools, OCR data and offline TeX resources are bundled.
 2. **Bring one paper.** Open Kosh, create a workspace and import a trusted file you have permission to use. Check the import receipt.
 3. **Build a draft.** Open Read, capture a passage into a source-linked note, then use Write to develop it. Save and export to Word or PDF.
 
@@ -82,15 +96,15 @@ AI is optional. Local AI needs separately installed Ollama, a suitable model and
 
 This is an **unsigned Windows beta**: Windows may warn about an unknown publisher. Check the release origin and checksum before running it. Local data and workspace ZIPs are unencrypted; keep private material out of public reports. Review OCR, bibliographic metadata and generated writing. Layout profiles do not certify journal compliance, and frontmatter blinding does not redact manuscript content. See the [full guide](USER_GUIDE.md) and [security boundaries](SECURITY.md).
 
-In PowerShell, compare the result below with the installer's entry in [SHA256SUMS.txt](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.3.1/SHA256SUMS.txt):
+In PowerShell, compare the result below with the installer's entry in [SHA256SUMS.txt](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.4.0/SHA256SUMS.txt):
 
 ```powershell
-(Get-FileHash .\Kosh-0.3.1-Setup.exe -Algorithm SHA256).Hash
+(Get-FileHash .\Kosh-0.4.0-Setup.exe -Algorithm SHA256).Hash
 ```
 
 ## Learn more and contribute
 
-[User guide](USER_GUIDE.md) · [Capabilities and limits](FEATURES.md) · [Build from source](BUILDING.md) · [CLI and 50 MCP tools](AGENT_API.md) · [Contributing](CONTRIBUTING.md) · [Report a bug](https://github.com/needanotheremailid/kosh-desktop/issues/new?template=bug_report.yml) · [Private security reporting](SECURITY.md#reporting)
+[User guide](USER_GUIDE.md) · [Capabilities and limits](FEATURES.md) · [Build from source](BUILDING.md) · [CLI and 57 MCP tools](AGENT_API.md) · [Contributing](CONTRIBUTING.md) · [Report a bug](https://github.com/needanotheremailid/kosh-desktop/issues/new?template=bug_report.yml) · [Private security reporting](SECURITY.md#reporting)
 
 Kosh's research workflow was inspired by [Beeblio](https://github.com/alharkan7/beeblio-oss). The application code and assets are original; attributed citation, document and runtime components are listed in [CREDITS.md](CREDITS.md) and [THIRD_PARTY.md](THIRD_PARTY.md).
 

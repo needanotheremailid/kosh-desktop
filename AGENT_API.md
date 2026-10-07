@@ -2,7 +2,7 @@
 
 Use the fixed CLI or MCP stdio adapter to control the running local app. Start Kosh first. The bundled edition needs no system Python: use `.\runtime\python.exe -E -s agent.py ...` from its installation. The examples below use `python.exe` for a source edition; substitute the bundled interpreter as appropriate.
 
-This interface describes the source for 0.3.1. An older installation does not gain these commands merely because the source changed; the new package must be separately verified and installed. No installation or publication claim follows from this guide.
+This interface describes Kosh 0.4.0 beta. An older installation keeps its previous commands until upgraded to the matching package.
 
 Only current user authority for the named workspace, files and actions permits access. Local tools are not permission for private-data inspection, provider sends, formal screening, clinical abstraction or submission.
 
@@ -43,6 +43,43 @@ Imports read only explicit files, not neighbouring folders. General files have a
 `document --original --output ...` downloads the managed original. PDF `--page` images identify actual file pages. Other extracted units are not native Word pagination. Markdown markers `[[source:ID:PAGE]]` retain actual supplied locations; `[[reference:ID]]` is a document-level bibliography citation with no file locator. Scientific support remains unverified.
 
 Metadata JSON supports explicit publication fields, family/given author objects or `{"literal":"Group name"}`, rather than guessed name splitting. Inspect the current schema/desktop fields; unsupported metadata is refused. Writing check is saved-version mechanical diagnosis, not plagiarism/statistical/scientific approval.
+
+## Reading organisation, annotations and personal claim reviews
+
+The seven reading commands use an explicit workspace. Reads make no provider call. Writes use one shared reading-state version across source organisation, resume position, annotations and claims; this is separate from a note's edit version.
+
+```powershell
+python.exe agent.py reading-state --workspace WORKSPACE_ID
+python.exe agent.py reading-duplicates --workspace WORKSPACE_ID
+python.exe agent.py reading-geometry --workspace WORKSPACE_ID --document PDF_ID --page 2
+python.exe agent.py reading-source-save --workspace WORKSPACE_ID --version READING_VERSION --file 'C:\selected\source change.json'
+python.exe agent.py reading-resume-save --workspace WORKSPACE_ID --version READING_VERSION --file 'C:\selected\resume change.json'
+python.exe agent.py reading-annotation-save --workspace WORKSPACE_ID --version READING_VERSION --file 'C:\selected\annotation change.json'
+python.exe agent.py reading-claim-save --workspace WORKSPACE_ID --version READING_VERSION --file 'C:\selected\claim change.json'
+```
+
+Replace placeholder IDs and `READING_VERSION` with values returned by current reads. Each save reads one explicitly named UTF-8 JSON object, at most 64 KiB. Omit `workspace_id` and `expected_version` from that file: `--workspace` and `--version` supply them. Unknown fields are rejected. Use the returned reading version for the next write, and read back the record. A stale version returns 409 without changing saved state; retain the local JSON, reload current records and review the intended change before retrying.
+
+`reading-state` returns `{schema_version, workspace_id, version, sources, resume, annotations, claims}`. Public annotation/claim records include derived `stale` and `stale_reasons`; use this read when assessing their current condition. `reading-duplicates` returns possible pairs and match reasons from saved title/DOI metadata. This operation is read-only: it does not establish document identity or merge/delete anything. `reading-geometry` returns one actual PDF page's dimensions, text words and normalized rectangles. An index is meaningful only for that exact source page; it is not a publication page or an arbitrary drawing coordinate.
+
+The save JSON fields are:
+
+| Command | Selected-file change object |
+|---|---|
+| `reading-source-save` | `document_id`; optional `status` (`unread`, `reading`, `read`), boolean `favorite`, unique string `tags`, one string `collection`, and `last_page` |
+| `reading-resume-save` | Optional `document_id`, `page`, `note_id`, `view`, `panel`, `next_action`; source/note IDs must belong to the workspace, and a page needs a source |
+| `reading-annotation-save` create | `document_id`, actual `page`, exact `quote`; optional `comment`, `color`, `word_indices`. PDFs require consecutive actual word indices matching the quote; non-PDF records use extracted section 1 |
+| `reading-annotation-save` update | Existing `id` plus optional `comment`, `color`, boolean `archived`; source/page/quote stay immutable |
+| `reading-claim-save` create | `note_id`, saved `note_version`, exact `claim_anchor`, `status` (`needs_source`, `attached`, `checked`); optional `document_id`, actual `page`, exact `excerpt` |
+| `reading-claim-save` update | Existing `id` plus optional `status`, `document_id`, `page`, `excerpt`, boolean `archived`; recorded note/version/wording stay immutable |
+
+For an unattached claim, use `needs_source` with `document_id:null`, `page:null` and an empty `excerpt`. Attached/checked claims require an available passage from imported source text, not a catalogue-only reference or image. The selected anchor must occur in the current saved note at `note_version`. Save browser edits first; the CLI cannot flush them.
+
+The `checked` status records the caller's attestation of personal review, displayed as **Checked by me**. It is not an AI verification result. A stale note/anchor cannot be marked checked. Changing a checked source attachment requires another review and retains the previous attachment in `attachment_history`; it does not silently carry the previous check forward. Archive/restore changes visibility without deleting the record. Reading collections have bounded size; a refused operation preserves existing records.
+
+Annotations and reading records are separate local data. Creating a highlight does not change the original PDF, replace a source ID or insert a citation into a draft. The UI's **Create cited note** explicitly creates a separate Markdown note from a saved passage. Workspace snapshots include reading organisation/resume/annotations/claims and attachment history; restore validates and remaps their source/note links in a fresh workspace. Unsaved browser fields remain outside the ZIP.
+
+These operations use authenticated GET `/api/reading`, `/api/reading/duplicates`, `/api/reading/geometry` and POST `/api/reading/source`, `/api/reading/resume`, `/api/reading/annotation`, `/api/reading/claim`. POST bodies require `workspace_id` and `expected_version`; geometry requires `workspace_id`, `document_id` and a one-based `page`. They are fixed routes, not a generic HTTP/SQL capability.
 
 ## Bibliography, assets and discovery
 
@@ -153,11 +190,11 @@ Outputs need explicit filenames/existing parents, refuse existing files unless `
 
 The UI/CLI export uses authenticated POST `/api/export` with JSON fields `workspace_id`, optional `note_id`, `format`, `citation_style`, optional `citation_language`, `note_placement`, `word_style`, `template` and optional `audit`. Frontmatter stays out of URL query strings. GET `/api/export/options` returns `{profiles, defaults, locales, word_styles, compiler, outlines}`. POST `/api/citation/styles/retrieve` takes `{style_id|style|locale, approved:true}`; POST `/api/citation/locales/import` takes `{xml}`. These are fixed local service routes, not a generic agent HTTP escape hatch.
 
-Backup defaults to current originals/notes/metadata/chats/evidence. Saved note/evidence revision history is opt-in; neither option prunes local revisions. Restore creates a fresh workspace. The 47 MiB ZIP limit fits the bounded restore envelope. Browser drafts/profile, external-folder journals, the separate assistance-job/result journal and rebuildable embedding cache are excluded. Save browser edits first; CLI cannot flush another window. Complete copy-only upgrade preserves the whole stopped data tree; it is a separate helper, not a running MCP action. See USER_GUIDE.md.
+Backup defaults to current originals/notes/metadata/chats/evidence and reading organisation, resume position, annotations, claims and retained attachment history. Saved note/evidence revision history is opt-in; neither option prunes local revisions. Restore validates nested reading records and remaps their source/note IDs into a fresh workspace. The 47 MiB ZIP limit fits the bounded restore envelope. Browser drafts/profile, external-folder journals, the separate assistance-job/result journal and rebuildable embedding cache are excluded. Save browser edits first; CLI cannot flush another window. Complete copy-only upgrade preserves the whole stopped data tree; it is a separate helper, not a running MCP action. See USER_GUIDE.md.
 
 ## MCP stdio configuration
 
-`mcp_server.py` exposes **50 tools**, verified from its current fixed registry. It uses standard-library JSON-RPC stdio and the same authenticated CLI operations, with supported protocol versions `2024-11-05`, `2025-03-26`, `2025-06-18`. It does not register itself or edit Codex/Claude settings. Configure a chosen client explicitly; a typical configuration shape is:
+`mcp_server.py` exposes **57 tools**, verified from its current fixed registry. The seven additions cover reading-state/duplicate/geometry reads and source/resume/annotation/claim saves. It uses standard-library JSON-RPC stdio and the same authenticated CLI operations, with supported protocol versions `2024-11-05`, `2025-03-26`, `2025-06-18`. It does not register itself or edit Codex/Claude settings. Configure a chosen client explicitly; a typical configuration shape is:
 
 ```json
 {"mcpServers":{"kosh":{"command":"C:\\chosen\\Kosh\\runtime\\python.exe","args":["-E","-s","C:\\chosen\\Kosh\\mcp_server.py"]}}}
@@ -168,6 +205,8 @@ For a separate data directory, append `--data-dir` and its explicit path. Start 
 | Tools | Corresponding CLI / effect |
 |---|---|
 | `kosh_health`, `kosh_workspaces`, `kosh_workspace_state` | Identity, workspace metadata or explicitly scoped state reads |
+| `kosh_reading_state`, `kosh_reading_duplicates`, `kosh_reading_geometry` | Scoped reading records, read-only duplicate candidates or actual PDF word geometry |
+| `kosh_reading_source_save`, `kosh_reading_resume_save`, `kosh_reading_annotation_save`, `kosh_reading_claim_save` | Selected JSON changes with expected reading-state version; personal checked status is caller attestation |
 | `kosh_models`, `kosh_installed_agents` | Local inventory/detection; no generation/download |
 | `kosh_create_workspace` | Create an empty workspace |
 | `kosh_notes`, `kosh_evidence`, `kosh_document`, `kosh_search` | Scoped saved/source reads |

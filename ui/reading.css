@@ -1,0 +1,45 @@
+/* Reading inherits Kosh's existing light/dark and three-layout tokens. */
+.reading-tools{width:100%;min-width:0;border-top:1px solid var(--line);padding-top:var(--radius-lg);margin-top:var(--radius-lg)}
+.reading-tools details{margin-bottom:var(--radius-lg)}
+.reading-tools summary{font-weight:600;cursor:pointer;color:var(--ink);padding-block:var(--radius-lg)}
+.reading-tools h3{font-size:inherit;margin-block:var(--radius-lg)}
+.reading-tools label{display:block;margin-block:var(--radius-lg);color:var(--ink-2)}
+.reading-tools label input:not([type=checkbox]),.reading-tools select,.reading-tools textarea{display:block;width:100%;min-width:0;margin-top:var(--radius)}
+.reading-tools .reading-check{display:flex;align-items:center;gap:var(--radius-lg)}
+.reading-capture-quote,.reading-annotation blockquote{white-space:pre-wrap;overflow-wrap:anywhere;border-left:solid var(--radius) var(--accent);background:var(--accent-soft);color:var(--ink);padding:var(--radius-lg);margin-inline:0}
+.reading-capture-quote{max-height:var(--list-w);overflow:auto}
+.reading-capture-actions{display:flex;flex-wrap:wrap;gap:var(--radius-lg)}
+.reading-annotation{border-top:1px solid var(--line);padding-block:var(--radius-lg);overflow-wrap:anywhere}
+.reading-annotation p{white-space:pre-wrap}
+.reading-annotations{max-height:var(--panel-w);overflow:auto;overscroll-behavior:contain}
+.reading-library-controls{display:flex;flex-wrap:wrap;align-items:end;gap:var(--radius-lg);padding-top:var(--radius-lg);border-top:1px solid var(--line)}
+.reading-library-controls label{min-width:0;flex:1;margin:0}
+.reading-library-controls input:not([type=checkbox]),.reading-library-controls select{display:block;width:100%;margin-top:var(--radius)}
+.reading-library-controls .reading-favorite-filter{display:flex;align-items:center;gap:var(--radius);align-self:center}
+.reading-source-labels{color:var(--ink-2);overflow-wrap:anywhere;margin-top:var(--radius)}
+.reading-resume{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:var(--radius-lg);padding:var(--radius-lg);margin-block:var(--radius-lg);background:var(--sunk);border-left:solid var(--radius) var(--accent)}
+.reading-resume p{margin-block:var(--radius)}
+.reading-resume>div{flex:1;min-width:0;overflow-wrap:anywhere}
+.reading-duplicate-review{margin-block:var(--radius-lg)}
+.reading-duplicate-review summary{cursor:pointer;padding-block:var(--radius-lg)}
+.reading-duplicate-pair{border-top:1px solid var(--line);padding-block:var(--radius-lg)}
+.reading-duplicate-columns{display:flex;gap:var(--radius-lg);flex-wrap:wrap}
+.reading-duplicate-columns>section{flex:1;min-width:var(--list-w);overflow-wrap:anywhere;padding:var(--radius-lg);background:var(--sunk)}
+.reading-page{position:relative;display:block;width:100%;max-width:100%;margin-inline:auto;background:var(--surface);isolation:isolate;container-type:inline-size}
+.reading-page>img{display:block;width:100%;height:auto;margin:0;max-width:100%;border:0;box-shadow:none}
+.reading-word-layer,.reading-highlight-layer{position:absolute;inset:0}
+.reading-highlight-layer{pointer-events:none;z-index:1}
+.reading-word-layer{z-index:2;overflow:hidden;user-select:text;cursor:text}
+.reading-word{position:absolute;display:block;color:transparent;white-space:pre;line-height:1;font-size:var(--reading-word-size,1em);overflow:visible;user-select:text;transform-origin:left top}
+.reading-word::selection{background:var(--accent-soft);color:transparent}
+.reading-highlight{position:absolute;background:var(--warn);opacity:.25;mix-blend-mode:multiply}
+.reading-highlight-current{outline:solid var(--radius) var(--accent);opacity:.45}
+.reading-geometry-message{flex-basis:100%;margin-bottom:var(--radius-lg)}
+[data-design=stacks] .reading-tools{display:block}
+[data-design=stacks] .reading-tools>details:first-child{max-width:none}
+[data-design=stacks] #reading-source-form{display:flex;align-items:end;flex-wrap:wrap;gap:var(--radius-lg)}
+[data-design=stacks] #reading-source-form>label{flex:1;min-width:var(--list-w);margin:0}
+[data-design=stacks] .reading-annotations{max-height:var(--list-w)}
+[data-design=stacks] #reading-capture{max-width:calc(var(--panel-w) * 2)}
+[data-design=commonplace] .reading-tools{padding-block:var(--radius-lg)}
+[data-design=commonplace] .reading-annotations{max-height:var(--panel-w)}

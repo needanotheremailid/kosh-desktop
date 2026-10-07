@@ -1,0 +1,75 @@
+'use strict';
+const assert=require('node:assert/strict'),fs=require('node:fs'),vm=require('node:vm'),path=require('node:path');
+const listeners={};
+const context={document:{addEventListener(name,fn){listeners[name]=fn;},querySelector(){return null;}},console};
+vm.createContext(context);
+vm.runInContext(fs.readFileSync(path.join(__dirname,'../ui/writing_review.js'),'utf8'),context);
+const api=vm.runInContext('KoshWritingReview',context);
+const draft='Preamble\r\n# Draft\r\nIntro\r\n## Methods\r\n[[source:abc:2]]\r\n```md\r\n# Not a section\r\n```\r\n# Discussion\r\nFinal\r\n';
+const sections=api.sections(draft);
+assert.deepEqual(Array.from(sections,s=>s.title),['Draft','Discussion']);
+const moved=api.moveSection(draft,1,-1);
+assert.equal(moved.body,'Preamble\r\n# Discussion\r\nFinal\r\n# Draft\r\nIntro\r\n## Methods\r\n[[source:abc:2]]\r\n```md\r\n# Not a section\r\n```\r\n');
+assert.equal(api.moveSection(moved.body,0,1).body,draft);
+assert.throws(()=>api.moveSection('# A\nfirst\n# B\nlast',1,-1),/newline/i);
+assert.throws(()=>api.moveSection(draft,0,-1),/section/i);
+assert.equal(api.sections('~~~\n# Example\n~~~\n## Real\ntext\n').length,1);
+assert.deepEqual(Array.from(api.sections('# Manuscript\n\n## Methods\ntext\n## Discussion\ntext\n'),s=>s.title),['Methods','Discussion'],'A single document title stays in the preamble while manuscript sections move');
+const editor={id:'n',workspace_id:'w',body:'One exact sentence. Another sentence.',revision:4,version:2};
+const selected=api.selectionSnapshot(editor,'w',0,19);
+assert.equal(selected.claim_anchor,'One exact sentence.');
+assert.throws(()=>api.selectionSnapshot(editor,'w',2,2),/Select/);
+assert.throws(()=>api.selectionSnapshot(editor,'w',undefined,undefined),/Select/);
+assert.throws(()=>api.selectionSnapshot({...editor,body:'one\ntwo'},'w',0,7),/sentence/i);
+assert.equal(api.assertSelection(selected,editor,'w'),true);
+assert.throws(()=>api.assertSelection(selected,{...editor,revision:5},'w'),/changed/i);
+assert.throws(()=>api.assertSelection(selected,{...editor,conflict:true},'w'),/conflict/i);
+const claim={note_id:'n',note_version:2,claim_anchor:'One exact sentence.',status:'checked',stale:false};
+assert.equal(api.claimState(claim,editor).stale,false);
+assert.equal(api.claimState(claim,{...editor,dirty:true}).stale,true);
+assert.equal(api.claimState(claim,{...editor,version:3}).stale,true);
+assert.equal(api.claimState({...claim,stale:true},editor).label,'Review stale');
+assert.equal(api.claimState({...claim,status:'attached'},editor).label,'Source attached');
+assert.equal(api.claimState(claim,editor).label,'Checked by me');
+console.log('Writing review: exact Markdown section moves, selection guards and stale personal checks passed.');
+
+// Exercise the actual mounted controls and asynchronous save path with a bounded DOM double.
+function element(){return {dataset:{},value:'',innerHTML:'',textContent:'',disabled:false,classList:{toggle(){}},setAttribute(name,value){this[name]=value;},addEventListener(){},insertAdjacentHTML(){},scrollIntoView(){},focus(){this.focused=true;},setSelectionRange(start,end){this.selectionStart=start;this.selectionEnd=end;},querySelectorAll(){return [];}};}
+const elements=new Map();
+for(const selector of ['.editor-toolbar','.draft-editor','#writing-review','#wr-sections','#wr-selected','#wr-editing','#wr-form-error','#wr-source-text','#wr-location','#wr-source','#wr-page','#wr-excerpt','#wr-show-archived','#wr-claims','#wr-readiness','#draft-body'])elements.set(selector,element());
+const focusButton=element();focusButton.dataset.wrAction='focus';
+const selectButton=element();selectButton.dataset.wrAction='select-claim';
+for(const name of ['save-claim','load-source','use-passage']){const button=element();button.dataset.wrAction=name;elements.set('[data-wr-action="'+name+'"]',button);}
+elements.set('[data-wr-action="focus"]',focusButton);elements.set('[data-wr-action="select-claim"]',selectButton);
+elements.get('.editor-toolbar').querySelectorAll=()=>[focusButton,selectButton];
+const classes=new Set();let modal=false,failMutation=false,lastMutation=null,notices=[];
+context.document.querySelector=selector=>selector==='dialog[open]'?(modal?{}:null):elements.get(selector)||null;
+context.document.body={classList:{toggle(name,on){if(on)classes.add(name);else classes.delete(name);}}};
+context.state={workspace:'w',note:'n',view:'write',preview:false,data:{documents:[]}};
+context.activeEditor=()=>editor;
+context.escapeHTML=value=>String(value).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+context.rememberWriterSelection=()=>{editor.selectionStart=elements.get('#draft-body').selectionStart;editor.selectionEnd=elements.get('#draft-body').selectionEnd;};
+context.notify=(...args)=>notices.push(args);
+context.citationHasLocator=()=>false;
+context.flushEdits=async()=>{editor.version=3;editor.dirty=false;return true;};
+let reading={claims:[]};context.KoshReading={current:()=>reading,onChange(){},load:async()=>reading,mutate:async(route,payload)=>{lastMutation={route,payload};if(failMutation)throw new Error('Review changed elsewhere. Retry after refresh.');return reading;}};
+const eventFor=button=>({target:{closest:selector=>selector==='[data-wr-action]'?button:null},preventDefault(){}});
+(async()=>{
+ api.mount();await focusButton.onclick(eventFor(focusButton));assert.equal(classes.has('kosh-writing-focus'),true);
+ modal=true;listeners.keydown({key:'Escape',preventDefault(){}});assert.equal(classes.has('kosh-writing-focus'),true,'An open dialog owns Escape');
+ modal=false;listeners.keydown({key:'Escape',preventDefault(){}});assert.equal(classes.has('kosh-writing-focus'),false);assert.equal(focusButton.focused,true);
+ elements.get('#draft-body').selectionStart=0;elements.get('#draft-body').selectionEnd=19;
+ await selectButton.onclick(eventFor(selectButton));assert.equal(elements.get('#wr-selected').textContent,'One exact sentence.');
+ const panel=elements.get('#writing-review');
+ // panel delegates events; capture its registered handler rather than invoking internal functions.
+ let delegate;panel.addEventListener=(name,fn)=>delegate=fn;delete panel.dataset.bound;api.mount();
+ failMutation=true;await delegate(eventFor(elements.get('[data-wr-action="save-claim"]')));
+ assert.match(elements.get('#wr-form-error').textContent,/changed elsewhere/);assert.equal(elements.get('#wr-selected').textContent,'One exact sentence.','Failure retains selected exact claim');
+ failMutation=false;await delegate(eventFor(elements.get('[data-wr-action="save-claim"]')));
+ assert.equal(lastMutation.route,'/reading/claim');assert.equal(lastMutation.payload.note_version,3);assert.equal(lastMutation.payload.claim_anchor,'One exact sentence.');assert.equal(lastMutation.payload.status,'needs_source');assert.equal(lastMutation.payload.document_id,null);
+ assert.equal(editor.body,'One exact sentence. Another sentence.','Claim review never rewrites the Markdown');
+ reading={claims:[{id:'claim',...claim}]};editor.dirty=true;listeners.input({target:{id:'draft-body'}});assert.match(elements.get('#wr-claims').innerHTML,/Review stale/,'Actual body input updates stale review display');editor.dirty=false;
+ reading=null;api.sync();assert.match(elements.get('#wr-claims').innerHTML,/Loading saved reviews/,'Unloaded records are not reported as empty');
+ context.state.view='library';api.sync();assert.equal(classes.has('kosh-writing-focus'),false);
+ console.log('Writing review: mounted focus/Escape, exact saved claim, failure retention and unloaded state passed.');
+})().catch(error=>{console.error(error);process.exitCode=1;});

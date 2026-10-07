@@ -108,6 +108,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_content({'error': 'Unsupported route.'}, 404)
                 return
             allowed = {'/': ('index.html', 'text/html; charset=utf-8'), '/app.js': ('app.js', 'text/javascript; charset=utf-8'), '/app.css': ('app.css', 'text/css; charset=utf-8')}
+            allowed.update({('/'+name): (name, 'text/javascript; charset=utf-8' if name.endswith('.js') else 'text/css; charset=utf-8') for name in ('reading.js', 'reading.css', 'writing_review.js', 'writing_review.css')})
             if path not in allowed:
                 self.send_content({'error': 'Not found.'}, 404)
                 return

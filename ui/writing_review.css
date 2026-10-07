@@ -1,0 +1,22 @@
+/* Composition uses Kosh's established type, surface and spacing tokens. */
+.writing-review{margin-top:var(--pad);border-top:thin solid var(--line);padding-top:var(--radius-lg)}
+.writing-review>summary{font-weight:600;color:var(--ink);cursor:pointer}
+.writing-review section{margin-top:var(--pad)}
+.wr-section,.wr-list-head,.wr-claim-actions,.wr-source-fields{display:flex;align-items:center;gap:var(--radius-lg);flex-wrap:wrap}
+.wr-section>:first-child{flex:1;min-width:0;text-align:left;white-space:normal}
+.wr-list-head{justify-content:space-between}.wr-list-head h3{margin:0}
+.wr-source-fields label:first-child{flex:1;min-width:0}.wr-source-fields select,.wr-claim-form textarea{width:100%}
+.wr-source-fields input{max-width:var(--panel-top)}
+.wr-claim-form blockquote,.wr-claim-pair blockquote{margin:var(--radius-lg) 0;padding:var(--radius-lg);border-left:solid var(--accent);background:var(--sunk);white-space:pre-wrap;overflow-wrap:anywhere}
+#wr-source-text{max-height:var(--panel-w);overflow:auto;white-space:pre-wrap;padding:var(--radius-lg);background:var(--sunk);font:inherit;color:var(--ink-2)}
+.wr-claim{border-top:thin solid var(--line);padding:var(--radius-lg) 0;margin-top:var(--radius-lg)}
+.wr-claim-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--radius-lg)}
+.wr-claim-pair .text-button{white-space:normal;text-align:left}.wr-archive-toggle{display:flex;align-items:center;gap:var(--radius)}
+.kosh-writing-focus .draft-aside,.kosh-writing-focus .view-head,.kosh-writing-focus .brand,.kosh-writing-focus .ws-picker,.kosh-writing-focus #view-nav,.kosh-writing-focus .chrome-actions,.kosh-writing-focus .context-panel{display:none!important}
+.kosh-writing-focus #main-view>.page-heading,.kosh-writing-focus .writer-export,.kosh-writing-focus .format-toolbar{display:none!important}
+.kosh-writing-focus .work-area{grid-template-columns:minmax(0,1fr)!important}
+.kosh-writing-focus .app-shell{grid-template-columns:minmax(0,1fr)!important;grid-template-rows:minmax(0,1fr) auto!important;grid-template-areas:'work' 'status'!important}
+.kosh-writing-focus .draft-layout{display:block!important;padding:var(--pad)!important}
+.kosh-writing-focus .draft-editor{max-width:calc(var(--panel-w) * 2);margin:auto}
+.kosh-writing-focus .editor-toolbar{position:sticky;top:0;background:var(--surface);z-index:1;padding-bottom:var(--radius-lg)}
+@media(max-width:800px){.wr-claim-pair{grid-template-columns:minmax(0,1fr)}.wr-source-fields{align-items:stretch}.wr-source-fields label:first-child{flex-basis:100%}.kosh-writing-focus .draft-layout{padding:var(--radius-lg)!important}}

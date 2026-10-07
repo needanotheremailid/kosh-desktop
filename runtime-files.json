@@ -1,6 +1,7 @@
 [
   "runtime-files.json",
   "backend.py",
+  "reading.py",
   "server.py",
   "agent.py",
   "mcp_server.py",
@@ -31,6 +32,10 @@
   "ui/index.html",
   "ui/app.js",
   "ui/app.css",
+  "ui/reading.js",
+  "ui/reading.css",
+  "ui/writing_review.js",
+  "ui/writing_review.css",
   "word_citations.py",
   "citation_notes.py",
   "manuscript_templates.py",

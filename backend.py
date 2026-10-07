@@ -714,6 +714,9 @@ class Store:
             return {"model": model}
         with self.lock:
             self._ensure_open()
+            from reading import Reading
+            if Reading.supports(method, route):
+                return Reading(self).dispatch(method, route, body if method == 'POST' else query)
             from completion import Completion
             if Completion.supports(method, route):
                 try:
@@ -1377,11 +1380,14 @@ class Store:
             matrix = [dict(row) for row in self.db.execute("SELECT * FROM matrix WHERE workspace_id=? ORDER BY id", (workspace_id,))]
             chats = [{**dict(row), "citations": json.loads(row["citations"]), "audit": json.loads(row["audit"])} for row in self.db.execute("SELECT * FROM chats WHERE workspace_id=? ORDER BY created_at,id", (workspace_id,))]
             revisions = [dict(row) for row in self.db.execute("SELECT * FROM revisions WHERE entity_id IN (SELECT id FROM notes WHERE workspace_id=? UNION SELECT id FROM matrix WHERE workspace_id=?)", (workspace_id, workspace_id))] if include_history else []
+            from reading import Reading
+            reading_state = Reading(self).load(workspace['id'])
             self.db.commit()
         except Exception:
             self.db.rollback()
             raise
         snapshot = {"version": 1, "app": "pg-research-desktop", "created_at": now(), "workspace": workspace, "documents": documents, "notes": notes, "matrix": matrix, "chats": chats, "revisions": revisions, "history_included": include_history}
+        snapshot['reading'] = reading_state
         if not include_history:
             snapshot["snapshot_note"] = "Current-state snapshot: earlier edit revisions are excluded from this archive and retained in the original local workspace. Originals, current notes, evidence rows and chats are included."
         return snapshot
@@ -1431,7 +1437,7 @@ class Store:
             if "manifest.json" not in names:
                 raise AppError("Backup manifest is missing.")
             manifest = json.loads(archive.read("manifest.json"))
-            if not isinstance(manifest, dict) or set(manifest) - {"version", "app", "created_at", "workspace", "documents", "notes", "matrix", "chats", "revisions", "history_included", "snapshot_note"} or manifest.get("version") != 1 or manifest.get("app") != "pg-research-desktop":
+            if not isinstance(manifest, dict) or set(manifest) - {"version", "app", "created_at", "workspace", "documents", "notes", "matrix", "chats", "revisions", "history_included", "snapshot_note", "reading"} or manifest.get("version") != 1 or manifest.get("app") != "pg-research-desktop":
                 raise AppError("This is not a supported Research Desktop backup.")
             if type(manifest.get("history_included", True)) is not bool:
                 raise AppError("Backup history state is invalid.")
@@ -1571,6 +1577,10 @@ class Store:
                                 row['warning'] = warning + ('\n' if warning else '') + notice
                     if entity != "chat" and (type(row.get("version")) is not int or not 1 <= row["version"] <= 1_000_000):
                         raise AppError("Backup edit version is invalid.")
+            from reading import validate_backup
+            if 'reading' in manifest and manifest['reading'] is None:
+                raise AppError('Backup reading state must be an object.')
+            reading_state = validate_backup(manifest.get('reading'), old_workspace_id, documents, collections['notes'], originals, citation_page_limits)
             for revision in collections["revisions"]:
                 entity = revision.get("entity_type")
                 if entity not in {"note", "matrix"} or revision.get("entity_id") not in record_ids[entity] or type(revision.get("version")) is not int or revision["version"] < 1:
@@ -1640,6 +1650,8 @@ class Store:
                 elif payload.get("document_id") in mapping:
                     payload["document_id"] = mapping[payload["document_id"]]
                 self.db.execute("INSERT INTO revisions VALUES(?,?,?,?)", (revision["entity_type"], mapping[revision["entity_id"]], revision["version"], json.dumps(payload, ensure_ascii=False)))
+            from reading import Reading, remap_backup
+            Reading(self).save(remap_backup(reading_state, workspace_id, mapping, remap_refs))
         return {"workspace_id": workspace_id, "title": restored_title, "documents": len(documents), "notes": len(collections["notes"]),
                 'unverified_citations': sum(chat.get('audit', {}).get('restored_unverified_count', 0) for chat in collections['chats'])}
 

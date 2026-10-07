@@ -2,11 +2,11 @@
 
 ## First launch and a first useful session
 
-**[Download the Kosh 0.3.1 Windows beta installer](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.3.1/Kosh-0.3.1-Setup.exe)** from [this repository's release](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v0.3.1). Use 64-bit Windows 11 with Microsoft Edge and .NET Framework. The installer is unsigned; Windows may warn about an unknown publisher. Check the release origin and published checksum before deciding whether to run it. Keep a backup and try a permitted non-sensitive paper first. No separate Python, Node, TeX, AI account or model is required for the ordinary bundled reading/writing/export workflow.
+**[Download the Kosh 0.4.0 Windows beta installer](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.4.0/Kosh-0.4.0-Setup.exe)** from [this repository's release](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v0.4.0). Use 64-bit Windows 11 with Microsoft Edge and .NET Framework. The installer is unsigned; Windows may warn about an unknown publisher. Check the release origin and published checksum before deciding whether to run it. Keep a backup and try a permitted non-sensitive paper first. No separate Python, Node, TeX, AI account or model is required for the ordinary bundled reading/writing/export workflow.
 
-The bundled edition installs with `Kosh-0.3.1-Setup.exe` into a new folder for your Windows user. Edge and .NET Framework are prerequisites; the prepared Python/document runtime and Node.js 24.14.1 local citation tool are included. Installation does not need an administrator or download packages. Existing shortcuts are preserved.
+The bundled edition installs with `Kosh-0.4.0-Setup.exe` into a new folder for your Windows user. Edge and .NET Framework are prerequisites; the prepared Python/document runtime and Node.js 24.14.1 local citation tool are included. Installation does not need an administrator or download packages. Existing shortcuts are preserved.
 
-This guide describes 0.3.1. An existing older installation keeps its prior behavior until upgraded. The optional [signing workflow](SIGNING.md) requires an already provisioned trusted publisher identity; the installer is not signed just because that workflow is available. Tests on one computer do not prove another clean Windows computer or every real manuscript.
+This guide describes Kosh 0.4.0. Older installations keep their prior behavior until upgraded. The optional [signing workflow](SIGNING.md) requires an already provisioned trusted publisher identity; the installer is not signed just because that workflow is available. Tests on one computer do not prove another clean Windows computer or every real manuscript.
 
 The library starts empty. Open the Kosh shortcut after setup; automatic launch is off by default so an upgrade can copy data before first use. Getting started opens on first use and can be reopened from Help. Skip/reopen it without changing research. Help explains reading, source locations, saving and controls. Choose Broadsheet, Stacks or Commonplace in the status-bar Layout control. Settings changes light/dark appearance and optional hover explanations; these are browser preferences, not changes to your papers.
 
@@ -32,6 +32,10 @@ Enter/check bibliographic fields against the publication. Use explicit family/gi
 
 ## Reading, exact search and OCR
 
+**Filter source details** narrows the library by saved title, filename, author, year or DOI as you type. Words may match across fields; matching ignores case and accents. Combine it with **File type**, or sort by recently imported, title or publication year. Year sorting uses a four-digit saved year, newest first, with missing or nonnumeric years last. These controls change only the displayed list, not your records. Filters survive opening a source and returning; changing workspace clears them. **Clear filters** restores the full active or archived list. The Stacks reading sidebar continues to show all active sources.
+
+**Search passages** is separate: it searches extracted text across all active sources in the workspace, regardless of list filters. Its results show that scope explicitly. List controls pause while searching or showing passage results; **Source list** restores your existing filters and keeps your query available. Editing the passage query clears old results before the next submission. Clearing, cancelling or changing scope discards late responses; a failed search shows a retry action. Ctrl+K still focuses passage search. These library improvements require Kosh 0.4.0; installer 0.3.1 retains its earlier controls.
+
 PDF page numbers are actual one-based file pages even when printed numbering differs. Read can show the original image and extracted text. DOCX/text locations are extraction sections, not native Word pagination. DOCX extraction includes paragraphs/tables and headers/footers, with exclusions for text boxes, drawings and embedded objects. Check the extraction notice.
 
 Lexical search returns matching extracted passages. Open the source and inspect context; a different term can miss relevant material. Importing/searching a document does not mean every page was automatically analysed.
@@ -41,6 +45,18 @@ For a scanned PDF, select **Create OCR copy of this page**. Local capabilities d
 OCR creates a separate managed PDF. Original bytes and existing source citations stay intact. The receipt maps derived-page numbers to original file pages. Captures from the derivative refer to its own ID/pages; consult the mapping to inspect the original. Recognition can change words, digits and negation, so review against images before using it as evidence. The CLI can select up to 20 distinct actual pages, sorted into a derivative; each page has a 20-million-pixel limit and the output has a 32 MiB limit.
 
 The bundled Windows installer includes English, Hindi and Punjabi OCR data and its licence notices. Optional embedding weights remain a separate installation.
+
+## Reading place, organisation and saved passages
+
+In Read, expand **Reading place and organization**. Choose **Unread**, **Reading** or **Read**, mark a favorite, enter comma-separated tags and one collection label, and record a next action. Choose **Save reading place and details** to save those fields. Opening a source page remembers its reading position automatically; the Library's **Continue reading** returns to the saved source location. A next action is your own note, not a scheduled task.
+
+Library filters for reading state, favorites, an exact tag and collection narrow the displayed source list alongside the existing metadata/type controls. Tags are multiple labels; Collection is one label per source, not a nested folder tree. Switching workspace clears the display filters. Passage search still searches all active sources and pauses the list filters.
+
+For a PDF with extracted words, select complete words over the original page image, add a comment and choose **Save highlight**. Text view can also capture a quote; PDF quotes must match complete, consecutive source words. If the same quote occurs more than once on the page, select it on the image to identify the exact occurrence. Image-only pages need a separately created OCR copy before word selection is available. For DOCX/text, select a passage in extracted text and choose **Save passage**; its locator is an extraction section, not Word pagination.
+
+Saved passages show the exact quote and your separate comment. **Go to passage** opens the saved location; PDF highlights overlay that page in Kosh. **Create cited note** creates a separate Markdown note containing the source locator, quoted passage and comment. Annotations are stored separately from the source: Kosh does not write highlights or comments into the original PDF or replace its bytes. Saving a passage is not verification of its meaning. Failed or conflicting saves retain the capture for review and retry.
+
+In Library, expand **Review possible duplicate sources** and choose **Find review candidates**. Kosh compares saved title and DOI values and displays possible pairs with source details. This is a read-only suggestion list: matching metadata does not establish identical papers, and Kosh never merges records, rewrites citation IDs or deletes originals automatically.
 
 ## Optional semantic retrieval
 
@@ -60,6 +76,12 @@ Results contain source ID, page, offset and excerpt, with current original hashe
 
 Notes/Write store Markdown. The supported formatted subset includes headings, emphasis, links, lists, quotes, code and pipe tables. Source beside draft keeps the selected extracted source visible while writing. Outlines insert headings, not invented methods/results.
 
+**Find drafts** in Write and **Find notes** in the Notes panel search titles and Markdown bodies in the active workspace. Every word you enter must occur somewhere in the title/body; matching ignores case and accents. Excerpts show context near a matching word. Unsaved text held in this window participates, with an Unsaved or Conflict label where applicable. **Recently saved** uses the last saved date; **Title A–Z** sorts by the displayed title. Filtering and sorting do not change your text or switch the open draft. If it falls outside the results, a notice explains why it is still open. **Clear search** restores the list; navigation retains the search, and switching workspace clears it. These controls require Kosh 0.4.0 and are not in installer 0.3.1.
+
+Choose **Focus writing** to hide navigation, the source sidebar, export controls and formatting toolbar while keeping the title, editor and writing controls visible. **Exit focus · Esc** or Escape returns to the normal layout. An open dialog keeps its normal Escape behavior. Focus mode changes the view only; Markdown, citations, autosave and recovery keep their existing behavior.
+
+Expand **Claim review & sections** to navigate or reorder Markdown sections. A single document title stays in the preamble when peer sections exist below it. The arrows swap adjacent complete sections, including their nested headings, tables, quotes and citation markers; they do not convert Markdown into rich text. Moves are disabled in Preview or for a conflicted draft. If the final section has no trailing newline, Kosh asks you to add one before moving it so every existing character stays intact. Normal autosave and revision history apply.
+
 Import a permitted PNG/JPEG/WebP figure with the figure control and supply its caption. Managed markers use `![Caption](kosh-asset:ID)`; exports resolve only workspace-scoped managed bytes. No external-image URL is fetched. Figures have size/dimension validation, captions and alt text. An imported image's empty extraction unit is not a bibliographic source or textual evidence locator.
 
 For tables, choose CSV/TSV or paste delimited cells, preview exact rows and insert them. The first row becomes headings. Unequal widths are refused; cell line breaks become spaces in Markdown. Original input is unchanged; insertion performs no statistics or derived findings.
@@ -70,11 +92,28 @@ PDF typesets the supported parsed equation subset using vector layout and select
 
 Note and draft title/body edits trigger autosave after 900 milliseconds without another edit. The status bar shows pending edits, **Saving…**, **All changes saved**, or a conflict. You can also choose **Save now** or press Ctrl+S. Genuine edits retain prior versions; unchanged saves create no new revision. Saved history lets you inspect earlier bodies without silently overwriting the current draft. Ctrl+K focuses search; Escape dismisses dialogs.
 
+In note search, Escape first clears a non-empty query while keeping the panel and search focus. Selecting a note places keyboard focus in its title. Note-search and sorting controls have optional hover explanations, controlled by the existing Settings preference.
+
 Expected versions protect concurrent writers. A stale update returns a conflict and leaves saved data intact; autosave pauses for that conflicted draft. Your edits remain in the window and browser recovery. Compare both versions and use **Keep mine as a new draft** to preserve an alternative, or **Load saved & preserve mine** to open the saved version after saving your edits as a separate note. When saving fails, keep the window open and read the error. Browser recovery is separate from server-saved history and ZIP backups. A CLI/another window cannot flush your unsaved draft.
 
 ## Citations and evidence
 
 The app inserts `[[source:ID:PAGE_OR_UNIT]]` for an explicitly captured location. `[[reference:ID]]` cites bibliographic metadata without asserting a file page. Evidence-matrix source headings use document references; they never invent page 1. Missing/foreign/invalid markers remain explicit export warnings.
+
+Choose **Write → Insert citation** to search the active workspace by title, filename, author, year or DOI. Select a reference, then choose **Bibliography reference** or, when available, **Page / section locator**. PDF locators use actual file pages; other documents use extracted sections. Bibliography-only records cannot supply a paper page. Archived sources are hidden unless you enable **Include archived references**. Insertion uses your saved cursor and follows any selected text without replacing it; from Preview it appends to the draft. Cancel leaves the draft unchanged. Normal autosave applies, and your export style formats the citation.
+
+The writer's **Source references** sidebar lists both citation types, their repeated occurrences and unresolved markers. Open a bibliography chip to review saved metadata, or a location chip to read that source page/section. Preview displays the same readable links. Code examples remain literal. These navigation aids do not establish that a source supports a claim; use **Writing check** and inspect the original. The picker and expanded reference navigation require Kosh 0.4.0 and are not in installer 0.3.1.
+
+### Review an exact claim beside its source
+
+1. In Edit Markdown, select one exact sentence on a single line and choose **Review selected claim**. Kosh retains that selected wording; it does not identify or judge every claim automatically.
+2. Leave the source empty to record **Needs source**, or select an imported text source and its actual PDF file page/extracted section. Choose **Read this location**, select a passage in the displayed source text and choose **Use selected source passage**, or paste an exact passage from that location.
+3. Choose **Save claim review**. Pending draft edits save first. The attachment must be present at the stated source location; catalogue-only references and image records cannot supply an evidence passage. A successful match establishes text/location, not support for the claim.
+4. Read the original and its context, then choose **Checked by me** when you have personally checked the claim. This is your review decision, not AI verification or scientific approval.
+
+Saved reviews show claim and source passage side by side. Changing the saved note version, losing the recorded wording, or changing/unavailable source text can mark a review **Review stale**; unsaved edits also make it stale in this window. **Review current wording** starts a new review for the current sentence. **Edit attachment** changes its source passage and resets a checked attachment to Source attached; earlier attachments remain retained. Archive/restore changes review visibility without deleting it. A conflicting save loads the latest review state while retaining your pending selection/fields for review; do not blindly retry an old check.
+
+**Before export** reports the saved review count, stale reviews and claims needing a source. **Save & run writing check** invokes the existing saved-draft mechanical check. Neither is a readiness certificate: inspect figures, captions, required sections, metadata and claim support yourself before sharing. Claim-review records stay separate from manuscript text; saving a review does not insert or rewrite a citation.
 
 Default manuscript exports replace markers using the offline citeproc-js CSL processor and include cited-only references. Built-in pinned styles are APA 7, IEEE and Vancouver using the official NLM citation-sequence independent parent. The selected style controls numbering or author-date text, sorting, citation grouping and ambiguity resolution across the chosen export scope. Valid DOI duplicates share a reference. Citation superscripts/subscripts are preserved in the supported manuscript export formats.
 
@@ -140,7 +179,7 @@ The portable TeX fonts are TeX Gyre Termes for the Times choice and TeX Gyre Her
 
 Version 0.3.1 corrects the incomplete default Latin Modern font bundle from 0.3.0. The bundled roman, sans and monospace font definitions now have all their referenced files, including optical sizes needed by footnotes. The default 11-point no-template Chicago-note export and the existing research-profile export are checked against the shipped runtime. You no longer need to switch manuscript profiles to work around that omission. This does not guarantee support for every Unicode character or arbitrary TeX command; review the exported document before sharing.
 
-Workspace backup is different: current originals/notes/metadata/chats/evidence, with optional saved note/evidence revisions. Neither choice prunes local history. Restore validates schema/paths/sizes/hashes and creates a fresh workspace. Save and verify restored records. ZIPs are unencrypted and exclude source/runtime/model weights, Edge/unsaved browser recovery, external-folder journals, rebuildable embeddings and the separate assistance-job/result journal. Use a stopped complete data-copy upgrade when that local job history/recovery must travel too.
+Workspace backup is different: current originals/notes/metadata/chats/evidence plus reading organisation, saved resume position, annotations and claim reviews, including retained attachment history. Saved note/evidence revisions are optional; neither choice prunes local history. Restore validates schema/paths/sizes/hashes and creates a fresh workspace, remapping source/note links in the reading records. Save and verify restored records. ZIPs are unencrypted and exclude source/runtime/model weights, Edge/unsaved browser recovery, external-folder journals, rebuildable embeddings and the separate assistance-job/result journal. Use a stopped complete data-copy upgrade when that local job history/recovery must travel too.
 
 Bounds include 32 MiB per imported file, 47 MiB per export/backup ZIP, 1,000 items per main backup collection and 5,000 included revisions, with separate extraction/manifest limits. Oversized history/archive is refused without deleting records.
 

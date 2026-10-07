@@ -36,3 +36,33 @@ dialog{background:var(--surface);color:var(--ink);border:1px solid var(--line);b
 #folder-assist-dialog{width:calc(var(--panel-w) * 2)}
 #folder-assist-content input,#folder-assist-content select,#folder-assist-content textarea{width:100%;margin-bottom:var(--radius)}
 .export-menu .text-button{white-space:normal}
+.library-controls{display:flex;flex-wrap:wrap;align-items:end;gap:var(--radius-lg);margin-bottom:var(--radius-lg)}
+.library-controls label{margin:0;min-width:0}
+.library-controls .library-filter-label{flex:1;flex-basis:var(--list-w)}
+.library-controls input[type=search],.library-controls select{display:block;width:100%;margin-top:var(--radius)}
+.library-controls .archive-toggle{align-self:center}
+.library-browse{margin-bottom:var(--radius-lg)}
+.library-browse p{margin-bottom:var(--radius-lg)}
+#search-form.library-toolbar{flex-wrap:wrap}
+#search-form .search-field{flex-basis:var(--list-w)}
+.notes-navigation{min-width:0;margin-top:var(--pad-sm,12px)}
+.notes-navigation input,.notes-navigation select{display:block;width:100%;min-width:0}
+.notes-navigation label{display:block;margin:10px 0 4px}
+.notes-navigation p{margin:6px 0 12px}
+.notes-results{max-height:360px;overflow:auto;overscroll-behavior:contain;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.note-name{display:block;font-weight:600}
+.note-excerpt{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;overflow:hidden;margin-top:6px;color:var(--ink-2);font-size:12px;line-height:1.5;white-space:normal;overflow-wrap:anywhere}
+.notes-results .note-item+.note-item{border-top:1px solid var(--line)}
+:root{--citation-list-height:20rem}
+#citation-dialog{width:calc(var(--panel-w)*2)}
+.citation-picker-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:var(--pad)}
+.citation-picker-layout select{width:100%}
+.citation-picker-choice{overflow-wrap:anywhere}
+.citation-picker-choice label{display:block;margin-top:var(--radius-lg)}
+.citation-picker-choice p{margin-top:var(--radius-lg)}
+.citation-picker-results{max-height:var(--citation-list-height);overflow:auto;border-block:1px solid var(--line)}
+.citation-picker-results .note-item+.note-item{border-top:1px solid var(--line)}
+.citation-picker-results [aria-pressed=true]{background:var(--accent-soft);box-shadow:inset 3px 0 var(--accent)}
+#writer-citations small{display:block;color:var(--ink-3)}
+#writer-citations code{overflow-wrap:anywhere}
+@media(max-width:800px){.citation-picker-layout{grid-template-columns:minmax(0,1fr)}}

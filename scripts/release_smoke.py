@@ -1,5 +1,6 @@
 """Check a fresh installed package with synthetic inputs and no provider calls."""
 import argparse
+import base64
 import hashlib
 import io
 import json
@@ -7,6 +8,96 @@ from pathlib import Path
 import sys
 import tempfile
 import zipfile
+
+
+def check_reading_workflow(store):
+    """Exercise persisted reading records and restored identities in a temp store."""
+    workspace = store.dispatch('POST', '/api/workspaces', {'title': 'Synthetic reading release check'})['id']
+    with pymupdf.open() as document:
+        document.new_page().insert_text((40, 50), 'Synthetic widgets have wheels.')
+        document.new_page().insert_text((40, 50), 'Synthetic wheels have spokes.')
+        original = document.tobytes()
+    source = store.dispatch('POST', '/api/import', {'workspace_id': workspace, 'files': [
+        {'name': 'synthetic-reading.pdf', 'data': base64.b64encode(original).decode('ascii')}
+    ]})['results'][0]['document']
+    source_id = source['id']
+    assert source['sha256'] == hashlib.sha256(original).hexdigest()
+    assert source['pages'] == 2
+    assert store.file_response('/api/file', {'id': source_id})[0] == original
+    note = store.dispatch('POST', '/api/notes', {'workspace_id': workspace, 'title': 'Synthetic claim',
+        'body': 'Synthetic wheels have spokes. [[source:' + source_id + ':2]]'})
+
+    def current(workspace_id=workspace):
+        return store.dispatch('GET', '/api/reading?workspace_id=' + workspace_id)
+
+    def save(operation, **fields):
+        return store.dispatch('POST', '/api/reading/' + operation, {
+            'workspace_id': workspace, 'expected_version': current()['version'], **fields})
+
+    save('source', document_id=source_id, tags=['release-check'], collection='Methods',
+         status='reading', favorite=True, last_page=2)
+    save('resume', document_id=source_id, page=2, note_id=note['id'], view='write',
+         panel='notes', next_action='Return to the synthetic spokes claim')
+    geometry = store.dispatch('GET', '/api/reading/geometry?workspace_id=' + workspace +
+        '&document_id=' + source_id + '&page=2')
+    assert [word['text'] for word in geometry['words']] == ['Synthetic', 'wheels', 'have', 'spokes.']
+    indices = [0, 1, 2, 3]
+    annotation = save('annotation', document_id=source_id, page=2,
+        quote='Synthetic wheels have spokes.', word_indices=indices,
+        comment='Synthetic annotation only', color='yellow')['annotations'][0]
+    assert annotation['rects'] == [word['rect'] for word in geometry['words']]
+    assert all(0 <= coordinate <= 1 for rect in annotation['rects'] for coordinate in rect)
+    archived = save('annotation', id=annotation['id'], archived=True)['annotations'][0]
+    assert archived['archived'] and archived['quote'] == 'Synthetic wheels have spokes.'
+    save('annotation', id=annotation['id'], archived=False)
+    claim = save('claim', note_id=note['id'], note_version=1,
+        claim_anchor='Synthetic wheels have spokes.', status='attached', document_id=source_id,
+        page=2, excerpt='Synthetic wheels have spokes.')['claims'][0]
+    checked = save('claim', id=claim['id'], status='checked')['claims'][0]
+    assert checked['status'] == 'checked' and checked['stale'] is False
+    changed_note = store.dispatch('POST', '/api/notes', {'workspace_id': workspace,
+        'id': note['id'], 'version': 1, 'title': 'Synthetic claim',
+        'body': 'Synthetic wheels might have spokes. [[source:' + source_id + ':2]]'})
+    stale = current()['claims'][0]
+    assert stale['status'] == 'checked' and stale['stale']
+    assert 'note_version_changed' in stale['stale_reasons']
+    try:
+        save('claim', id=claim['id'], status='checked')
+    except backend.AppError as error:
+        assert error.status == 409
+    else:
+        raise AssertionError('A stale claim was marked checked.')
+    before = current()
+    backup = store.file_response('/api/backup', {'workspace_id': workspace, 'history': '0'})[0]
+    restored_workspace = store.dispatch('POST', '/api/restore', {
+        'data': base64.b64encode(backup).decode('ascii')})['workspace_id']
+    assert restored_workspace != workspace
+    restored = current(restored_workspace)
+    restored_source = restored['sources'][0]['document_id']
+    restored_note = restored['resume']['note_id']
+    assert restored_source != source_id and restored_note != note['id']
+    assert restored['resume']['document_id'] == restored_source and restored['resume']['page'] == 2
+    assert restored['resume']['next_action'] == 'Return to the synthetic spokes claim'
+    assert restored['sources'][0] == {**before['sources'][0], 'document_id': restored_source}
+    assert restored['annotations'][0]['id'] != annotation['id']
+    assert restored['annotations'][0]['document_id'] == restored_source
+    assert restored['annotations'][0]['quote'] == annotation['quote']
+    assert restored['annotations'][0]['rects'] == annotation['rects']
+    assert restored['annotations'][0]['archived'] is False
+    assert restored['claims'][0]['id'] != claim['id']
+    assert restored['claims'][0]['note_id'] == restored_note
+    assert restored['claims'][0]['document_id'] == restored_source
+    assert restored['claims'][0]['note_version'] == 1 and restored['claims'][0]['status'] == 'checked'
+    assert restored['claims'][0]['stale'] and 'note_version_changed' in restored['claims'][0]['stale_reasons']
+    restored_state = store.dispatch('GET', '/api/state?workspace_id=' + restored_workspace)
+    assert restored_state['notes'][0]['version'] == changed_note['version']
+    assert '[[source:' + restored_source + ':2]]' in restored_state['notes'][0]['body']
+    assert store.file_response('/api/file', {'id': restored_source})[0] == original
+    assert store.file_response('/api/file', {'id': source_id})[0] == original
+    assert current() == before, 'Restore changed the original workspace reading records.'
+    return {'source_pages': 2, 'annotations': 1, 'claims': 1,
+            'stale_check_rejected': True, 'backup_restore_ids': True, 'originals_preserved': True}
+
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--install-dir', type=Path, required=True)
@@ -22,15 +113,16 @@ for row in manifest['files']:
     assert path.stat().st_size == row['size']
     assert hashlib.sha256(path.read_bytes()).hexdigest() == row['sha256'], row['path']
 sys.path.insert(0, str(root))
-import backend, csl_engine, csl_styles, manuscript, manuscript_templates, tex_compile, word_citations
+import backend, csl_engine, csl_styles, manuscript, manuscript_templates, reading, tex_compile, word_citations
 import pymupdf, docx, lxml
-for module in (backend, csl_engine, csl_styles, manuscript, manuscript_templates,
+for module in (backend, csl_engine, csl_styles, manuscript, manuscript_templates, reading,
                tex_compile, word_citations, pymupdf, docx, lxml):
     assert Path(module.__file__).resolve().is_relative_to(root), module.__name__
 with tempfile.TemporaryDirectory(prefix='kosh-release-smoke-') as temporary:
     store = backend.Store(Path(temporary) / 'data')
     try:
         assert store.dispatch('GET', '/api/workspaces', {})['workspaces'] == []
+        reading_checks = check_reading_workflow(store)
     finally:
         store.close()
     library = csl_styles.StyleLibrary(Path(temporary) / 'styles')
@@ -69,5 +161,6 @@ with zipfile.ZipFile(io.BytesIO(word)) as archive:
     assert b'Synthetic widgets' in archive.read('customXml/item1.xml')
 print(json.dumps({'ok':True,'build':manifest['build'],'verified_payload_files':len(manifest['files']),
                   'bundled_origins':True,'empty_library':True,'csl_locales':63,
+                  'reading_workflow':reading_checks,
                   'offline_compiled_pdf_pages':pages,'default_chicago_pdf_pages':chicago_pages,'native_word_fields':True,
                   'scope':'Fresh installed runtime checks; synthetic inputs; no desktop UI or native Word automation.'}))

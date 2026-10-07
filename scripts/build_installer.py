@@ -27,6 +27,7 @@ LEGAL_TEMPLATES = {'pymupdf': 'pymupdf-{}.tar.gz', 'python-docx': 'python_docx-{
                    'lxml': 'lxml-{}.tar.gz', 'typing-extensions': 'typing_extensions-{}.tar.gz',
                    'python': 'Python-{}.tar.xz', 'mupdf': 'mupdf-{}-source.tar.gz'}
 SOURCE_FILES.add('BUILDING.md')
+SOURCE_FILES.add('reading.py')
 
 
 def normalized_name(name):

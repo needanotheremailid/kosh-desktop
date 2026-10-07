@@ -31,6 +31,14 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Python syntax check failed.' }
           node --check ui/app.js
           if ($LASTEXITCODE -ne 0) { throw 'JavaScript syntax check failed.' }
+          node --check ui/reading.js
+          if ($LASTEXITCODE -ne 0) { throw 'Reading JavaScript syntax check failed.' }
+          node --check ui/writing_review.js
+          if ($LASTEXITCODE -ne 0) { throw 'Writing review JavaScript syntax check failed.' }
+          node tests/test_reading_ui.js
+          if ($LASTEXITCODE -ne 0) { throw 'Reading UI checks failed.' }
+          node tests/test_writing_review_ui.js
+          if ($LASTEXITCODE -ne 0) { throw 'Writing review checks failed.' }
       - name: Check bibliography parsing and folder recovery
         shell: pwsh
         run: |

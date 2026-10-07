@@ -182,6 +182,17 @@ def build_parser():
         if name == 'state':
             item.add_argument('--workspace', help='Return only this workspace; omit for explicitly requested global state')
     commands.add_parser('folder-history',help='Read retained folder-edit receipts; no target writes')
+    for name in ('reading-state', 'reading-duplicates', 'reading-geometry'):
+        item = commands.add_parser(name, help='Read explicitly scoped local reading records; no provider call')
+        item.add_argument('--workspace', required=True)
+        if name == 'reading-geometry':
+            item.add_argument('--document', required=True)
+            item.add_argument('--page', type=int, required=True)
+    for name in ('reading-source-save', 'reading-resume-save', 'reading-annotation-save', 'reading-claim-save'):
+        item = commands.add_parser(name, help='Save reviewed local reading fields with the expected reading-state version; no permanent deletion')
+        item.add_argument('--workspace', required=True)
+        item.add_argument('--version', required=True, type=int)
+        item.add_argument('--file', required=True, type=Path, help='Explicit UTF-8 JSON change object; workspace/version come from flags')
     style_import = commands.add_parser('citation-style-import', help='Import one explicitly selected local UTF-8 CSL style; missing dependencies require separate approved retrieval')
     style_import.add_argument('--file', required=True, type=Path, help='Explicit local CSL XML file, at most 1 MiB')
     locale_import=commands.add_parser('citation-locale-import',help='Import selected local CSL locale XML')
@@ -361,6 +372,21 @@ def execute(args, client):
         return health
     if command == 'workspaces':
         return client.request('/api/workspaces')
+    if command in ('reading-state', 'reading-duplicates', 'reading-geometry'):
+        query = {'workspace_id': args.workspace}
+        route = {'reading-state':'/api/reading', 'reading-duplicates':'/api/reading/duplicates', 'reading-geometry':'/api/reading/geometry'}[command]
+        if command == 'reading-geometry': query.update(document_id=args.document, page=args.page)
+        return client.request(route+'?'+urlencode(query))
+    if command in ('reading-source-save', 'reading-resume-save', 'reading-annotation-save', 'reading-claim-save'):
+        try:
+            change = json.loads(selected_bytes(args.file, 64*1024).decode('utf-8-sig'))
+        except (ValueError, UnicodeError):
+            raise AgentError('Reading changes must be a UTF-8 JSON object.') from None
+        if not isinstance(change, dict) or {'workspace_id', 'expected_version'} & change.keys():
+            raise AgentError('Use a change object without workspace_id or expected_version; explicit CLI flags supply scope and version.')
+        if args.version < 0: raise AgentError('Expected reading-state version must be non-negative.')
+        route = {'reading-source-save':'source', 'reading-resume-save':'resume', 'reading-annotation-save':'annotation', 'reading-claim-save':'claim'}[command]
+        return client.request('/api/reading/'+route, {**change, 'workspace_id':args.workspace, 'expected_version':args.version})
     if command == 'citation-styles':
         return client.request('/api/citation/styles')
     if command == 'export-options': return client.request('/api/export/options')

@@ -185,7 +185,7 @@ class CompletionIntegration(unittest.TestCase):
         result = mcp_server.Server(client=client).handle({'jsonrpc': '2.0', 'id': 1, 'method': 'tools/call', 'params': {'name': 'kosh_assist_apply', 'arguments': {'result': 'r', 'version': 1, 'selected_text_file': str(selected)}}})
         self.assertFalse(result['result']['isError'])
         self.assertIn('kosh_literature_lookup', mcp_server.TOOLS)
-        self.assertEqual(len(mcp_server.TOOLS), 50)
+        self.assertEqual(len(mcp_server.TOOLS), 57)
         selected.write_text('x' * 32_001, encoding='utf-8')
         with self.assertRaises(agent.AgentError):
             agent.execute(args, client)

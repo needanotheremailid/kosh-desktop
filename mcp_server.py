@@ -48,6 +48,11 @@ def manifest():
     add('health', 'health', 'Verify the current local app identity and build; no research content.')
     add('workspaces', 'workspaces', 'List workspace metadata only; no note or source contents.')
     add('workspace_state', 'state', 'Read only the explicitly selected workspace snapshot.', {'workspace': workspace}, ('workspace',))
+    add('reading_state', 'reading-state', 'Read annotations, organisation, resume and user claim-review records for the selected workspace.', {'workspace':workspace}, ('workspace',))
+    add('reading_duplicates', 'reading-duplicates', 'List possible duplicate references for review; does not merge or delete originals.', {'workspace':workspace}, ('workspace',))
+    add('reading_geometry', 'reading-geometry', 'Read normalized word positions from one actual PDF page in the selected workspace.', {'workspace':workspace, 'document':identifier, 'page':integer(1)}, ('workspace','document','page'))
+    for suffix in ('source', 'resume', 'annotation', 'claim'):
+        add('reading_'+suffix+'_save', 'reading-'+suffix+'-save', 'Save reviewed '+suffix+' fields from a selected local JSON file using the expected reading-state version. Claim checked status is caller-attested human review, not machine verification.', {'workspace':workspace, 'version':integer(), 'file':path}, ('workspace','version','file'))
     add('models', 'models', 'Read installed local Ollama inventory; no model generation or download.')
     add('installed_agents', 'installed-agent-list', 'Detect supported installed agents; detection does not prove provider sign-in.')
     add('citation_styles', 'citation-styles', 'Read installed bundled and imported CSL style IDs; no document contents or network.')
