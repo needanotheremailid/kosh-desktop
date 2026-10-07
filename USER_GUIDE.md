@@ -4,7 +4,7 @@
 
 **[Download the Kosh 0.3.0 Windows beta installer](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.3.0/Kosh-0.3.0-final-Setup.exe)** from [this repository's release](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v0.3.0). Use 64-bit Windows 11 with Microsoft Edge and .NET Framework. The installer is unsigned; Windows may warn about an unknown publisher. Check the release origin and published checksum before deciding whether to run it. Keep a backup and try a permitted non-sensitive paper first. No separate Python, Node, TeX, AI account or model is required for the ordinary bundled reading/writing/export workflow.
 
-The bundled edition installs with `KoshSetup.exe` into a new folder for your Windows user. Edge and .NET Framework are prerequisites; the prepared Python/document runtime and Node.js 24.14.1 local citation tool are included. Installation does not need an administrator or download packages. Existing shortcuts are preserved. The source edition instead needs the runtime in requirements.txt and matching local Node: `tools/node/node.exe`, or the already installed development fallback at `C:\Program Files\nodejs\node.exe`. Run Setup Research.cmd, then Open Research.cmd. Setup checks/builds, without downloading software or models. A missing citation component requires repair or a separately approved run of the pinned component-fetch helper; it is never downloaded automatically.
+The bundled edition installs with `Kosh-0.3.0-final-Setup.exe` into a new folder for your Windows user. Edge and .NET Framework are prerequisites; the prepared Python/document runtime and Node.js 24.14.1 local citation tool are included. Installation does not need an administrator or download packages. Existing shortcuts are preserved.
 
 This guide describes 0.3.0. An existing older installation keeps its prior behavior until upgraded. The optional [signing workflow](SIGNING.md) requires an already provisioned trusted publisher identity; the installer is not signed just because that workflow is available. Tests on one computer do not prove another clean Windows computer or every real manuscript.
 
@@ -68,9 +68,9 @@ Use `$x^2$` for inline equations or `$$...$$` for display equations. A limited s
 
 PDF typesets the supported parsed equation subset using vector layout and selectable text, including fractions, roots and scripts. Unsupported or empty expressions, or glyphs unavailable to the renderer, retain source notation in a labelled literal fallback. Inspect the exported equation and its fallback notice before sharing; arbitrary TeX and every mathematical construct are outside this grammar.
 
-Save state is visible. Ctrl+S saves; Ctrl+K focuses search; Escape dismisses dialogs. Genuine edits retain prior versions; unchanged saves create no new revision. Saved history lets you inspect earlier bodies without silently overwriting the current draft.
+Note and draft title/body edits trigger autosave after 900 milliseconds without another edit. The status bar shows pending edits, **Saving…**, **All changes saved**, or a conflict. You can also choose **Save now** or press Ctrl+S. Genuine edits retain prior versions; unchanged saves create no new revision. Saved history lets you inspect earlier bodies without silently overwriting the current draft. Ctrl+K focuses search; Escape dismisses dialogs.
 
-Expected versions protect concurrent writers. A stale update returns a conflict and leaves saved data intact. Compare both versions and preserve an alternative as another titled note. When saving fails, keep the window open and read the error. Browser recovery is separate from server-saved history and ZIP backups. A CLI/another window cannot flush your unsaved draft.
+Expected versions protect concurrent writers. A stale update returns a conflict and leaves saved data intact; autosave pauses for that conflicted draft. Your edits remain in the window and browser recovery. Compare both versions and use **Keep mine as a new draft** to preserve an alternative, or **Load saved & preserve mine** to open the saved version after saving your edits as a separate note. When saving fails, keep the window open and read the error. Browser recovery is separate from server-saved history and ZIP backups. A CLI/another window cannot flush your unsaved draft.
 
 ## Citations and evidence
 
@@ -136,6 +136,10 @@ Compiled LaTeX PDF (`texpdf`) uses the bundled compiler and resources without pa
 
 The portable TeX fonts are TeX Gyre Termes for the Times choice and TeX Gyre Heros for Arial/Calibri choices. These are equivalent serif/sans families, not exact Microsoft font matches. Inspect pagination and typography before sharing. If the compiler/resources are missing, the dialog reports that status and disables compiled PDF; source/figure ZIP exports remain available.
 
+### PDF export font limitation in 0.3.0
+
+Chicago-note PDF export with **No manuscript template** can fail with a generic compilation error. The default 11-point document requests a 9-point Latin Modern font for its footnotes, and the compact runtime does not include that font. This is a packaging defect, not necessarily an equation error in your draft. Choose **Research article** in **Exports & backup** and use its default Times font; the same example draft successfully exports through that path. Ordinary non-template Vancouver PDF also passed. These checks do not establish that every manuscript or font combination works. The documentation refresh does not correct runtime fonts; a complete font-bundle correction requires a later app release.
+
 Workspace backup is different: current originals/notes/metadata/chats/evidence, with optional saved note/evidence revisions. Neither choice prunes local history. Restore validates schema/paths/sizes/hashes and creates a fresh workspace. Save and verify restored records. ZIPs are unencrypted and exclude source/runtime/model weights, Edge/unsaved browser recovery, external-folder journals, rebuildable embeddings and the separate assistance-job/result journal. Use a stopped complete data-copy upgrade when that local job history/recovery must travel too.
 
 Bounds include 32 MiB per imported file, 47 MiB per export/backup ZIP, 1,000 items per main backup collection and 5,000 included revisions, with separate extraction/manifest limits. Oversized history/archive is refused without deleting records.
@@ -158,6 +162,10 @@ After restore, PDF/Word quotes that no longer match the current text extractor a
 The helper verifies installed manifests, stopped services/profiles, complete copy hashes, SQLite integrity/counts/logical hashes and supported schema version. SQLite backup operates on staging, retaining raw DB/WAL recovery and old bytes. It starts/stops no service and migrates no schema. Existing destination data/receipts are never overwritten. Shortcut changes retain backups and preserve unrelated targets.
 
 Failures retain staging. Data can have published successfully even if a later receipt/shortcut action failed; read the reported publication state and retained error/receipt before retrying. Shortcut batches can be partial. A successful copy is not proof of launching the new app. The app's own supported schema initialization is a separate step.
+
+## Source edition
+
+The source edition needs the runtime in `requirements.txt` and matching local Node: `tools/node/node.exe`, or the already installed development fallback at `C:\Program Files\nodejs\node.exe`. Run `Setup Research.cmd`, then `Open Research.cmd`. Setup checks/builds without downloading software or models. A missing citation component requires repair or a separately approved run of the pinned component-fetch helper; it is never downloaded automatically. See [Build from source](BUILDING.md) for the offline preparation instructions. These steps are separate from the bundled installer workflow above.
 
 ## Troubleshooting and privacy
 

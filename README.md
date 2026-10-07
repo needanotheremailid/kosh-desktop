@@ -6,16 +6,20 @@ Kosh is a research desk for Windows. Read sources beside your draft, keep notes 
 
 **[Download for Windows — 0.3.0 beta](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.3.0/Kosh-0.3.0-final-Setup.exe)** · [Release notes](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v0.3.0) · [User guide](USER_GUIDE.md)
 
+64-bit Windows 11 with Microsoft Edge and .NET Framework · no administrator rights needed · **unsigned beta**: Windows may warn about an unknown publisher. [SHA-256 checksums](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.3.0/SHA256SUMS.txt).
+
 ![Kosh writing view with a manuscript and citation controls](assets/screenshots/kosh-writing.png)
 
 *Screenshots and the walkthrough show an example workspace. Your library starts empty.*
 
 <details>
-<summary>Watch Kosh in 24 seconds</summary>
+<summary>Watch Kosh in 30 seconds</summary>
 
 ![Kosh walkthrough: read, write, preview, export and switch layouts](https://raw.githubusercontent.com/needanotheremailid/kosh-desktop/main/assets/presentation/Kosh%20Walkthrough.gif)
 
-[Watch or download the full-resolution video](https://github.com/needanotheremailid/kosh-desktop/raw/refs/heads/main/assets/presentation/Kosh%20Walkthrough.mp4) · Silent, 24 seconds.
+[Watch or download the full-resolution video](https://github.com/needanotheremailid/kosh-desktop/raw/refs/heads/main/assets/presentation/Kosh%20Walkthrough.mp4) · Silent, 30 seconds. Captioned app captures follow a source-linked note through writing, export choices and the finished PDF.
+
+The presentation and packaged documentation were refreshed after the initial 0.3.0 release. Runtime features are unchanged; the release verification record distinguishes the original runtime checks from the refreshed package checks.
 
 </details>
 
@@ -23,23 +27,38 @@ Kosh is a research desk for Windows. Read sources beside your draft, keep notes 
 
 - **Read and capture the evidence.** Import PDFs, Word documents or text, search extracted passages, and save notes with a link back to the source location. Compare PDF text with the page image and create a local OCR copy when needed.
 - **Write with your sources nearby.** Draft in Markdown with source context, headings, tables, figures and equations. Autosave, saved history and conflict recovery help you return to the work.
-- **Keep citations with the manuscript.** Use Vancouver/NLM, APA 7, IEEE or Chicago notes, import a journal CSL style, and choose from 63 bundled citation locales. Footnotes and endnotes are available for note styles; editable Word export uses separate native Word citation fields.
+- **Keep citations with the manuscript.** Use Vancouver/NLM, APA 7, IEEE or Chicago notes, import a journal CSL style, and choose from 63 bundled citation locales. Footnotes and endnotes are available for note styles. Ordinary Word export keeps fixed CSL results; editable Word export uses native fields with Word's separate IEEE, APA 6th or ISO 690 numerical styles.
 - **Export for the next step.** Create Word, PDF, compiled LaTeX PDF, HTML or a source-and-figures ZIP. Configure research article, review or case-report layouts with your own frontmatter, page settings and numbering.
 - **Organise the literature.** Keep sources and evidence notes in project workspaces. Discover references through PubMed, Crossref, Europe PMC or OpenAlex, import RIS/BibTeX/CSL JSON, and export a workspace backup.
 - **Use AI when it helps.** Ask for source excerpts without generation, use an installed local Ollama model, or request writing proposals through an installed Codex/Claude CLI. Review the preview and result, then save an alternative or explicitly apply an eligible selection.
 
-Choose Broadsheet, Stacks or Commonplace to suit how you work. The core reading, writing, citations and exports work without AI.
+Choose **Broadsheet** for tabs across the top, **Stacks** for a compact icon rail, or **Commonplace** for a sidebar and centred reading/writing column. The core reading, writing, citations and exports work without AI.
 
-![Kosh reading a paper with its page image and source text](assets/screenshots/kosh-reading.png)
+![Kosh reading view showing the original PDF page image](assets/screenshots/kosh-reading.png)
 
 <details>
-<summary>Explore the other layouts</summary>
+<summary>See manuscript export options</summary>
 
-**Stacks**
+Choose a manuscript layout, page settings and export format in **Exports & backup**.
+
+![Kosh Exports and backup dialog with manuscript layout and export controls](assets/screenshots/kosh-export-options.png)
+
+</details>
+
+<details>
+<summary>Compare the three layouts</summary>
+
+The same example library in each layout:
+
+**Broadsheet** — tabs across the top and a wide workspace.
+
+![Kosh library in the Broadsheet layout](assets/screenshots/kosh-broadsheet.png)
+
+**Stacks** — a compact icon rail and denser workspace.
 
 ![Kosh in the Stacks layout](assets/screenshots/kosh-stacks.png)
 
-**Commonplace**
+**Commonplace** — a sidebar and centred content column.
 
 ![Kosh in the Commonplace layout](assets/screenshots/kosh-commonplace.png)
 
@@ -53,6 +72,8 @@ Choose Broadsheet, Stacks or Commonplace to suit how you work. The core reading,
 
 No AI account or separate Python/Node/TeX installation is needed for the bundled core workflow. Already using Kosh? Follow the [copy-only upgrade guide](USER_GUIDE.md#upgrade-a-bundled-installation) and retain your old installation and backup.
 
+**Known 0.3.0 export issue:** Chicago-note PDF export with **No manuscript template** can fail because the compact TeX bundle lacks a required font. Choose the **Research article** profile for this export; that path is verified with the example manuscript shown above. The font bundle has not yet been corrected. See [PDF export details](USER_GUIDE.md#pdf-export-font-limitation-in-030).
+
 ## Local first, optional AI
 
 Kosh has no application account, telemetry or cloud sync. Ordinary reading, saving, lexical search, citations, exports, local style import and backups run locally. Discover sends the query or identifier you submit; official CSL retrieval is a separate consented request for named files and dependencies.
@@ -60,6 +81,12 @@ Kosh has no application account, telemetry or cloud sync. Ordinary reading, savi
 AI is optional. Local AI needs separately installed Ollama, a suitable model and sufficient hardware. Codex/Claude help needs your own installed CLI and authenticated provider access; provider charges and limits are separate from Kosh. Approved content may reach that provider, and its CLI can add instructions or environment metadata. Kosh downloads no model weights.
 
 This is an **unsigned Windows beta**: Windows may warn about an unknown publisher. Check the release origin and checksum before running it. Local data and workspace ZIPs are unencrypted; keep private material out of public reports. Review OCR, bibliographic metadata and generated writing. Layout profiles do not certify journal compliance, and frontmatter blinding does not redact manuscript content. See the [full guide](USER_GUIDE.md) and [security boundaries](SECURITY.md).
+
+In PowerShell, compare the result below with the installer's entry in [SHA256SUMS.txt](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.3.0/SHA256SUMS.txt):
+
+```powershell
+(Get-FileHash .\Kosh-0.3.0-final-Setup.exe -Algorithm SHA256).Hash
+```
 
 ## Learn more and contribute
 
