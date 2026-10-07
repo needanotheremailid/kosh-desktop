@@ -16,6 +16,8 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          gh auth setup-git --hostname github.com
+          if ($LASTEXITCODE -ne 0) { throw 'Git authentication setup failed.' }
           gh repo clone "$env:GITHUB_REPOSITORY" . -- --no-checkout
           if ($LASTEXITCODE -ne 0) { throw 'Checkout failed.' }
           git fetch origin "$env:GITHUB_REF" --depth=1
