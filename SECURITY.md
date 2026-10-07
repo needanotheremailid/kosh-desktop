@@ -22,7 +22,7 @@ For the bundled beta, include release version and Windows architecture; system P
 
 ## Beta support and additional boundaries
 
-0.3.0 is an unsigned Windows beta. No trusted publisher identity or universal clean-machine acceptance is claimed. Older installations require a separate upgrade; no automatic updater is enabled. Preserve backups when testing.
+0.3.1 is an unsigned Windows beta. No trusted publisher identity or universal clean-machine acceptance is claimed. Older installations require a separate upgrade; no automatic updater is enabled. Preserve backups when testing.
 
 Local CSL import does not use network access. The separately approved official retrieval action sends named style/locale identifiers and required dependency requests to fixed pinned CSL repositories; no manuscript content is sent, and export never automatically fetches missing resources. Compiled PDF uses bundled Tectonic/resources with generated escaped structure, an equation command/environment allowlist and shell escape disabled. It is not an arbitrary TeX upload interface or an OS filesystem sandbox. Missing glyphs refuse PDF output rather than silently discarding characters. Template blinding omits supplied author frontmatter only, not identifying material in the manuscript.
 

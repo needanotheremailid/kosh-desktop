@@ -8,6 +8,7 @@ import argparse
 import hashlib
 import json
 from pathlib import Path
+import re
 import zipfile
 import shutil
 import tarfile
@@ -17,6 +18,48 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
+def latin_modern_resources(resources, legal_input=None):
+    """Close default TU font families from the already reviewed local archive."""
+    definitions = ('tulmr.fd', 'tulmss.fd', 'tulmtt.fd')
+    referenced = set()
+    for name in definitions:
+        if name not in resources:
+            raise ValueError('Latin Modern font definition is missing: ' + name)
+        names = re.findall(r'\\UnicodeFontFile\{([^}]+)\}', resources[name].decode('utf-8'))
+        if not names or any(not re.fullmatch(r'lm[a-z0-9-]+', value) for value in names):
+            raise ValueError('Unexpected Latin Modern font definition.')
+        referenced.update(value + '.otf' for value in names)
+    missing = referenced - resources.keys()
+    if not legal_input:
+        if missing:
+            raise ValueError('Default Latin Modern fonts are incomplete; supply reviewed lm.r61719.tar.xz source inputs.')
+        return {}, {'definitions': list(definitions), 'referenced_fonts': len(referenced), 'added_fonts': []}
+    source_name = 'lm.r61719.tar.xz'
+    source = legal_input / source_name
+    receipt = json.loads((legal_input / 'receipt.json').read_text())
+    rows = [row for row in receipt['files'] if row['file'] == source_name]
+    if len(rows) != 1 or digest(source) != rows[0]['sha256']:
+        raise ValueError('Reviewed Latin Modern source archive receipt mismatch.')
+    additions, matches = {}, []
+    with tarfile.open(source, 'r:xz') as archive:
+        members = {member.name: member for member in archive.getmembers() if member.isfile()}
+        for name in sorted(referenced):
+            origin = 'fonts/opentype/public/lm/' + name
+            member = members.get(origin)
+            if member is None or not 0 < member.size <= 2_000_000:
+                raise ValueError('Reviewed Latin Modern archive omits font: ' + name)
+            data = archive.extractfile(member).read()
+            if name in resources and resources[name] != data:
+                raise ValueError('Cached Latin Modern font differs from reviewed source: ' + name)
+            if name in missing:
+                additions[name] = data
+            matches.append({'runtime_file': name, 'source_archive': source_name, 'original_member': origin,
+                            'sha256': hashlib.sha256(data).hexdigest()})
+    return additions, {'definitions': list(definitions), 'referenced_fonts': len(referenced),
+                       'added_fonts': sorted(additions), 'source_archive': source_name,
+                       'source_archive_sha256': digest(source), 'matched_files': matches}
+
+
 def pack(cache, output, binary_archive, source_archive, legal_input=None):
     output = output.resolve()
     roots = list((cache / 'bundles' / 'data').glob('*.index'))
@@ -24,8 +67,10 @@ def pack(cache, output, binary_archive, source_archive, legal_input=None):
         raise ValueError('Expected exactly one approved bundle cache.')
     bundle_id = roots[0].stem
     resources = roots[0].with_suffix('')
-    files = sorted(path for path in resources.iterdir() if path.is_file())
-    if not files or sum(path.stat().st_size for path in files) > 100_000_000:
+    files = {path.name: path.read_bytes() for path in resources.iterdir() if path.is_file()}
+    additions, latin_modern = latin_modern_resources(files, legal_input)
+    files.update(additions)
+    if not files or sum(len(content) for content in files.values()) > 100_000_000:
         raise ValueError('Empty or oversized resource subset.')
     output.mkdir(parents=True, exist_ok=True)
     archive = output / 'kosh-tex.zip'
@@ -37,9 +82,9 @@ def pack(cache, output, binary_archive, source_archive, legal_input=None):
             entry.compress_type = zipfile.ZIP_DEFLATED
             package.writestr(entry, content)
         write_entry('SHA256SUM', (bundle_id + '\n').encode())
-        for path in files:
-            write_entry(path.name, path.read_bytes())
-            entries.append({'name': path.name, 'bytes': path.stat().st_size, 'sha256': digest(path)})
+        for name, content in sorted(files.items(), key=lambda item: item[0].casefold()):
+            write_entry(name, content)
+            entries.append({'name': name, 'bytes': len(content), 'sha256': hashlib.sha256(content).hexdigest()})
     receipt = {'compiler_version': '0.17.0',
                'binary_url': 'https://github.com/tectonic-typesetting/tectonic/releases/download/tectonic%400.17.0/tectonic-0.17.0-x86_64-pc-windows-msvc.zip',
                'binary_archive_sha256': digest(binary_archive),
@@ -48,7 +93,7 @@ def pack(cache, output, binary_archive, source_archive, legal_input=None):
                'bundle_url': 'https://relay.fullyjustified.net/default_bundle_v33.tar',
                'upstream_bundle_identity': bundle_id,
                'bundle_index_sha256': digest(roots[0]),
-               'archive_sha256': digest(archive), 'files': entries,
+               'archive_sha256': digest(archive), 'files': entries, 'latin_modern': latin_modern,
                'scope': 'Selected official resource bytes, unchanged; no runtime network or system TeX installation.',
                'license_boundary': 'Per-file embedded notices retained. Matching external package source/license coverage must be supplied before distribution.'}
     root = Path(__file__).resolve().parent.parent

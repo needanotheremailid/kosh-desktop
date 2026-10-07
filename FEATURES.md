@@ -2,7 +2,7 @@
 
 Kosh is a local Windows research desk with original application code and an attributed offline citation processor, CSL styles and runtimes. Its library starts empty. It adapts research/writing workflows; another research product's accounts, subscriptions, application code and cloud infrastructure are not included. [CREDITS.md](CREDITS.md) and [THIRD_PARTY.md](THIRD_PARTY.md) identify the included dependencies.
 
-This describes the source for 0.3.0. Source, synthetic tests, rendered output, the installed release and a different clean computer are separate proof layers. An existing 0.2.1 installation does not acquire these changes until the new package is separately verified and installed; no installation/publication claim follows from this document. Release receipts establish build identity and acceptance; a remembered test count does not.
+This describes the source for 0.3.1. Source, synthetic tests, rendered output, the installed release and a different clean computer are separate proof layers. An older installation does not acquire these changes until the new package is separately verified and installed; no installation/publication claim follows from this document. Release receipts establish build identity and acceptance; a remembered test count does not.
 
 ## Available workflow
 

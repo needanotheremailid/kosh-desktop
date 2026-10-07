@@ -311,7 +311,7 @@ def extract(data, kind):
             raise
         except Exception:
             raise AppError("The PDF could not be read; its original was kept.") from None
-        notice = "Actual PDF file pages, starting at 1. Text follows PDF extraction order. Image-only pages have no searchable text; OCR is not performed."
+        notice = "Actual PDF file pages, starting at 1. Text follows PDF extraction order. Image-only pages have no searchable text; OCR is not automatic. Use Create OCR copy to recognise a selected page locally."
     elif kind == "docx":
         if WordDocument is None:
             raise AppError("DOCX support is unavailable on this installation.")

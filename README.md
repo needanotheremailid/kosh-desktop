@@ -4,9 +4,9 @@
 
 Kosh is a research desk for Windows. Read sources beside your draft, keep notes linked to the evidence, and take your writing into Word, PDF or LaTeX.
 
-**[Download for Windows — 0.3.0 beta](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.3.0/Kosh-0.3.0-final-Setup.exe)** · [Release notes](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v0.3.0) · [User guide](USER_GUIDE.md)
+**[Download for Windows — 0.3.1 beta](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.3.1/Kosh-0.3.1-Setup.exe)** · [Release notes](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v0.3.1) · [User guide](USER_GUIDE.md)
 
-64-bit Windows 11 with Microsoft Edge and .NET Framework · no administrator rights needed · **unsigned beta**: Windows may warn about an unknown publisher. [SHA-256 checksums](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.3.0/SHA256SUMS.txt).
+64-bit Windows 11 with Microsoft Edge and .NET Framework · no administrator rights needed · **unsigned beta**: Windows may warn about an unknown publisher. [SHA-256 checksums](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.3.1/SHA256SUMS.txt).
 
 ![Kosh writing view with a manuscript and citation controls](assets/screenshots/kosh-writing.png)
 
@@ -19,7 +19,7 @@ Kosh is a research desk for Windows. Read sources beside your draft, keep notes 
 
 [Watch or download the full-resolution video](https://github.com/needanotheremailid/kosh-desktop/raw/refs/heads/main/assets/presentation/Kosh%20Walkthrough.mp4) · Silent, 30 seconds. Captioned app captures follow a source-linked note through writing, export choices and the finished PDF.
 
-The presentation and packaged documentation were refreshed after the initial 0.3.0 release. Runtime features are unchanged; the release verification record distinguishes the original runtime checks from the refreshed package checks.
+The screenshots and 30-second walkthrough show the core workflow in 0.3.0. Version 0.3.1 retains these layouts and adds the PDF font correction and clearer export/OCR help described below.
 
 </details>
 
@@ -72,7 +72,7 @@ The same example library in each layout:
 
 No AI account or separate Python/Node/TeX installation is needed for the bundled core workflow. Already using Kosh? Follow the [copy-only upgrade guide](USER_GUIDE.md#upgrade-a-bundled-installation) and retain your old installation and backup.
 
-**Known 0.3.0 export issue:** Chicago-note PDF export with **No manuscript template** can fail because the compact TeX bundle lacks a required font. Choose the **Research article** profile for this export; that path is verified with the example manuscript shown above. The font bundle has not yet been corrected. See [PDF export details](USER_GUIDE.md#pdf-export-font-limitation-in-030).
+**Fixed in 0.3.1:** Chicago-note PDF export now includes the default Latin Modern font families needed for footnotes, including **No manuscript template**. The previous 0.3.0 font omission is corrected. See [PDF export details](USER_GUIDE.md#pdf-export-fonts-in-031).
 
 ## Local first, optional AI
 
@@ -82,10 +82,10 @@ AI is optional. Local AI needs separately installed Ollama, a suitable model and
 
 This is an **unsigned Windows beta**: Windows may warn about an unknown publisher. Check the release origin and checksum before running it. Local data and workspace ZIPs are unencrypted; keep private material out of public reports. Review OCR, bibliographic metadata and generated writing. Layout profiles do not certify journal compliance, and frontmatter blinding does not redact manuscript content. See the [full guide](USER_GUIDE.md) and [security boundaries](SECURITY.md).
 
-In PowerShell, compare the result below with the installer's entry in [SHA256SUMS.txt](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.3.0/SHA256SUMS.txt):
+In PowerShell, compare the result below with the installer's entry in [SHA256SUMS.txt](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.3.1/SHA256SUMS.txt):
 
 ```powershell
-(Get-FileHash .\Kosh-0.3.0-final-Setup.exe -Algorithm SHA256).Hash
+(Get-FileHash .\Kosh-0.3.1-Setup.exe -Algorithm SHA256).Hash
 ```
 
 ## Learn more and contribute

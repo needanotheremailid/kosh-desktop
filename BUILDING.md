@@ -44,7 +44,7 @@ See `scripts/build_installer.py` for exact filenames/version checks. The legal a
 
 ## Offline TeX preparation is partly manual
 
-For rebuilding from released component bytes, use the offline donor recipe below; manual cache preparation is needed only when regenerating or changing the component set. The public [0.3.0 release](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v0.3.0) provides the installer, application source and dependency-source assets. The installer contains the already prepared runtime/resources/receipts; the dependency-source asset supplies corresponding source material. This is reuse of verified released components, not rebuilding Python, Node, Tectonic or fonts from their upstream source.
+For rebuilding from released component bytes, use the offline donor recipe below; manual cache preparation is needed only when regenerating or changing the component set. The public [0.3.1 release](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v0.3.1) provides the installer, application source and dependency-source assets. The installer contains the already prepared runtime/resources/receipts; the dependency-source asset supplies corresponding source material. This is reuse of verified released components, not rebuilding Python, Node, Tectonic or fonts from their upstream source.
 
 The compiler is Tectonic 0.17.0. `vendor/tex/receipt.json` records the compiler binary/source archive hashes, official bundle URL/identity, selected resource filenames/hashes and payload inventory. The runtime only reads the bundled subset and never uses network package fallback.
 
@@ -60,12 +60,12 @@ The executable must already be present at `tools/tectonic/tectonic.exe`. The hel
 
 ## Offline rebuild using a verified installed component donor
 
-Install the matching 0.3.0 release into a separate folder without launching it or copying user data. Verify its installed manifest against the release verification material. Use a fresh source checkout from that same release and empty preparation directories. The donor and checkout must have matching `vendor/tex/receipt.json` and `vendor/csl/components.json`; do not pair an older resource subset with newer source receipts.
+Install the matching 0.3.1 release into a separate folder without launching it or copying user data. Verify its installed manifest against the release verification material. Use a fresh source checkout from that same release and empty preparation directories. The donor and checkout must have matching `vendor/tex/receipt.json` and `vendor/csl/components.json`; do not pair an older resource subset with newer source receipts.
 
 The paths below are examples to replace with your exact verified donor/checkout locations. Only runtime and dependency/legal components are copied: no `data`, browser profile, user documents, session capability or recovery tree. The installed layout supplies `legal/node-v24.14.1.tar.xz`, base component sources/receipts, `legal/tex/*`, `tessdata`, `licences`, `tools/node` and `tools/tectonic`.
 
 ```powershell
-$donorInstall = 'C:\isolated\Kosh-0.3.0-final'
+$donorInstall = 'C:\isolated\Kosh-0.3.1'
 $buildCheckout = 'C:\chosen\kosh-desktop'
 $preparedLegal = 'C:\prepared\kosh-legal'
 $preparedOcr = 'C:\prepared\kosh-ocr'

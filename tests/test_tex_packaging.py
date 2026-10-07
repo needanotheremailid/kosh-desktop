@@ -2,9 +2,11 @@ import hashlib
 import importlib.util
 import json
 from pathlib import Path
+import re
 import tempfile
 import unittest
 from unittest.mock import patch
+import zipfile
 
 ROOT = Path(__file__).resolve().parents[1]
 SPEC = importlib.util.spec_from_file_location('tex_builder_test', ROOT / 'scripts/build_installer.py')
@@ -25,6 +27,19 @@ REQUIRED_SOURCES.update('work/tex-components/' + name for name in (
     'amsfonts.doc.r61937.tar.xz', 'amsfonts.source.r61937.tar.xz', 'amsfonts.r61937.tar.xz',
     'cm.doc.r57963.tar.xz', 'cm.r57963.tar.xz', 'lm.doc.r61719.tar.xz', 'lm.r61719.tar.xz',
     'zapfding.r61719.tar.xz'))
+
+
+class PreparedTexResources(unittest.TestCase):
+    @unittest.skipUnless((ROOT / 'vendor/tex/kosh-tex.zip').is_file(), 'Prepared local resource bundle required')
+    def test_every_default_latin_modern_font_reference_is_bundled(self):
+        with zipfile.ZipFile(ROOT / 'vendor/tex/kosh-tex.zip') as archive:
+            available = set(archive.namelist())
+            for definition in ('tulmr.fd', 'tulmss.fd', 'tulmtt.fd'):
+                source = archive.read(definition).decode('utf-8')
+                references = set(re.findall(r'\\UnicodeFontFile\{([^}]+)\}', source))
+                self.assertTrue(references, definition)
+                missing = sorted(name + '.otf' for name in references if name + '.otf' not in available)
+                self.assertEqual(missing, [], definition + ' refers to absent fonts')
 
 
 class TexPackaging(unittest.TestCase):

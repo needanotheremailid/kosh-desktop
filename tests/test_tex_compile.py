@@ -5,6 +5,16 @@ from tex_compile import TexError, prepare_math, restore_math, validate_math
 import tex_compile
 
 
+class DefaultFontCompilationTests(unittest.TestCase):
+    @unittest.skipUnless(tex_compile.compiler_status()['ready'], 'Prepared local compiler/resources required')
+    def test_default_eleven_point_footnote_compiles_offline(self):
+        source = (r'\documentclass[11pt]{article}' '\n'
+                  r'\usepackage{fontspec}' '\n'
+                  r'\begin{document}Body\footnote{Text and \emph{citation title}.}\end{document}')
+        result = tex_compile.compile_tex(source)
+        self.assertTrue(result.startswith(b'%PDF-'))
+
+
 class MathBoundaryTests(unittest.TestCase):
     def test_advanced_math_roundtrip(self):
         expression = r'\begin{aligned} a &= \sum_{i=1}^{n} i \\ b &= \int_0^1 x^2\,dx \end{aligned}'

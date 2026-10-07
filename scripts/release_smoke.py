@@ -50,6 +50,16 @@ with pymupdf.open(stream=pdf, filetype='pdf') as document:
     text = '\n'.join(page.get_text() for page in document)
     assert 'Synthetic release check' in text and len(document) >= 2
     pages = len(document)
+sys.path.insert(0, str(root / 'tests'))
+from test_exports_completion import FakeStore, query
+from exports import export_workspace
+chicago_pdf, chicago_mime, _ = export_workspace(
+    FakeStore(), query('pdf', citation_style='chicago-note', note_placement='footnote'))
+assert chicago_mime == 'application/pdf'
+with pymupdf.open(stream=chicago_pdf, filetype='pdf') as document:
+    chicago_text = '\n'.join(page.get_text() for page in document)
+    assert 'Widgets' in chicago_text and 'Doe' in chicago_text
+    chicago_pages = len(document)
 source = {'id':'a'*32,'kind':'pdf','pages':1,'name':'synthetic.pdf',
           'metadata':{'type':'journal_article','title':'Synthetic widgets','year':'2024'}}
 word = word_citations.render_live_docx('Claim [[source:'+'a'*32+':1]].', [source])
@@ -59,5 +69,5 @@ with zipfile.ZipFile(io.BytesIO(word)) as archive:
     assert b'Synthetic widgets' in archive.read('customXml/item1.xml')
 print(json.dumps({'ok':True,'build':manifest['build'],'verified_payload_files':len(manifest['files']),
                   'bundled_origins':True,'empty_library':True,'csl_locales':63,
-                  'offline_compiled_pdf_pages':pages,'native_word_fields':True,
+                  'offline_compiled_pdf_pages':pages,'default_chicago_pdf_pages':chicago_pages,'native_word_fields':True,
                   'scope':'Fresh installed runtime checks; synthetic inputs; no desktop UI or native Word automation.'}))

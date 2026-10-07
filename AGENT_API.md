@@ -2,7 +2,7 @@
 
 Use the fixed CLI or MCP stdio adapter to control the running local app. Start Kosh first. The bundled edition needs no system Python: use `.\runtime\python.exe -E -s agent.py ...` from its installation. The examples below use `python.exe` for a source edition; substitute the bundled interpreter as appropriate.
 
-This interface describes the source for 0.3.0. An existing 0.2.1 installation does not gain these commands merely because the source changed; the new package must be separately verified and installed. No installation or publication claim follows from this guide.
+This interface describes the source for 0.3.1. An older installation does not gain these commands merely because the source changed; the new package must be separately verified and installed. No installation or publication claim follows from this guide.
 
 Only current user authority for the named workspace, files and actions permits access. Local tools are not permission for private-data inspection, provider sends, formal screening, clinical abstraction or submission.
 
