@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Private vulnerability reporting
+    url: https://github.com/needanotheremailid/kosh-desktop/security/advisories/new
+    about: Use GitHub Security to report vulnerabilities privately when enabled; do not put exploit details or private data in public issues.

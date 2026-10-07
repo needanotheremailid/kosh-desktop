@@ -1,0 +1,56 @@
+name: Bug report
+description: Report a reproducible Kosh defect using non-sensitive information.
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        For security vulnerabilities, use the repository Security tab and private vulnerability reporting rather than this public form.
+        Do not include patient information, unpublished papers/data, credentials, session tokens, your data folder, browser profile, or unredacted screenshots. Use a small synthetic reproduction.
+  - type: checkboxes
+    id: privacy
+    attributes:
+      label: Public report safety
+      options:
+        - label: I checked that this report and any attachments contain no private or sensitive data.
+          required: true
+  - type: input
+    id: release
+    attributes:
+      label: Kosh version or source revision
+      description: Include whether you used the bundled installer or source edition.
+      placeholder: "0.3.0 Windows beta, bundled installer"
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: Windows environment
+      description: Windows version/architecture and relevant Edge or Word version. System Python is only relevant to the source edition.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Give concrete steps using synthetic content. Include export format/style/profile when relevant.
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected result
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual result
+      description: Quote the sanitised error, and describe whether the problem affects source, generated output or the installed app.
+    validations:
+      required: true
+  - type: textarea
+    id: attachments
+    attributes:
+      label: Optional synthetic fixture or screenshot
+      description: Attach only what is necessary, after checking for identifying content and credentials. Never upload the whole installation or data directory.

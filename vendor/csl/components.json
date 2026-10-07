@@ -1,0 +1,541 @@
+{
+  "pins": {
+    "citeproc": "cc9153c45293af878de08cafddbefe6ea150c380",
+    "styles": "89c63834393a5f806e375b0816dc110c3be93d44",
+    "locales": "a89adece41013402236e2c9020972d7e931fbab8"
+  },
+  "node": "24.14.1",
+  "files": [
+    {
+      "path": "vendor/csl/citeproc.js",
+      "url": "https://raw.githubusercontent.com/Juris-M/citeproc-js/cc9153c45293af878de08cafddbefe6ea150c380/citeproc_commonjs.js",
+      "size": 970041,
+      "sha256": "2c659319b3b133c0204d60eba3e5daa566e1457e36b19cb6bfe4c8b1b4662650"
+    },
+    {
+      "path": "vendor/csl/citeproc-LICENSE",
+      "url": "https://raw.githubusercontent.com/Juris-M/citeproc-js/cc9153c45293af878de08cafddbefe6ea150c380/LICENSE",
+      "size": 1017,
+      "sha256": "b96ca8e1716f93449b480083c7510c18d129fa9afa4644d62c6347c06177ce30"
+    },
+    {
+      "path": "vendor/csl/citeproc-AGPLv3",
+      "url": "https://raw.githubusercontent.com/Juris-M/citeproc-js/cc9153c45293af878de08cafddbefe6ea150c380/AGPLv3",
+      "size": 34520,
+      "sha256": "57c8ff33c9c0cfc3ef00e650a1cc910d7ee479a8bc509f6c9209a7c2a11399d6"
+    },
+    {
+      "path": "vendor/csl/styles/vancouver.csl",
+      "url": "https://raw.githubusercontent.com/citation-style-language/styles/89c63834393a5f806e375b0816dc110c3be93d44/nlm-citation-sequence.csl",
+      "size": 18126,
+      "sha256": "492f7935df42054b33d515f7275122f419780df990ea35925dcbbff0fecf1137"
+    },
+    {
+      "path": "vendor/csl/styles/apa.csl",
+      "url": "https://raw.githubusercontent.com/citation-style-language/styles/89c63834393a5f806e375b0816dc110c3be93d44/apa.csl",
+      "size": 85817,
+      "sha256": "3917def5fc951b104d64216c3373096042368b9704ba269ca83c14ebaba889fc"
+    },
+    {
+      "path": "vendor/csl/styles/ieee.csl",
+      "url": "https://raw.githubusercontent.com/citation-style-language/styles/89c63834393a5f806e375b0816dc110c3be93d44/ieee.csl",
+      "size": 17587,
+      "sha256": "b4c7619fc16c45a31e4cc3271eab94ffe83192d3b4c7fc729470a3b459448de3"
+    },
+    {
+      "path": "vendor/csl/vancouver-nlm.csl",
+      "url": "https://raw.githubusercontent.com/citation-style-language/styles/89c63834393a5f806e375b0816dc110c3be93d44/dependent/vancouver-nlm.csl",
+      "size": 954,
+      "sha256": "f06d4e6a8876f2a95146e175f0ae046ed2ba8511b7fbb3bcd93d82d23085c6df"
+    },
+    {
+      "path": "vendor/csl/styles-README.md",
+      "url": "https://raw.githubusercontent.com/citation-style-language/styles/89c63834393a5f806e375b0816dc110c3be93d44/README.md",
+      "size": 6573,
+      "sha256": "eeda35e6ab1c71ef74ba98e8d63f3f5c07e1b1c458b92d54cdd7515afcb1b04e"
+    },
+    {
+      "path": "vendor/csl/locales/locales-en-US.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-en-US.xml",
+      "size": 32649,
+      "sha256": "ac864c7c21166b4390d82c31792cdc509400727fa0060b43d8aa17e07f9cb079"
+    },
+    {
+      "path": "vendor/csl/locales-README.md",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/README.md",
+      "size": 1777,
+      "sha256": "f8e1b34d3e1b66f101b45bc45e5fca0397aa923fe4abeab6f98139c8f731c320"
+    },
+    {
+      "path": "work/csl-components/node-v24.14.1-win-x64.zip",
+      "url": "https://nodejs.org/dist/v24.14.1/node-v24.14.1-win-x64.zip",
+      "size": 36358527,
+      "sha256": "6e50ce5498c0cebc20fd39ab3ff5df836ed2f8a31aa093cecad8497cff126d70"
+    },
+    {
+      "path": "work/csl-components/node-v24.14.1.tar.xz",
+      "url": "https://nodejs.org/dist/v24.14.1/node-v24.14.1.tar.xz",
+      "size": 54102840,
+      "sha256": "7822507713f202cf2a551899d250259643f477b671706db421a6fb55c4aa0991"
+    },
+    {
+      "path": "tools/node/node.exe",
+      "size": 91426304,
+      "sha256": "58e74bf02fc5bbacc41dcb8bef089961cd5bddd37830b87784e4fc624d145d1f",
+      "archive": "node-v24.14.1-win-x64.zip"
+    },
+    {
+      "path": "tools/node/LICENSE",
+      "size": 159872,
+      "sha256": "8efdacdc1cfa3460aeb7fe98e3c54337b971d5da70e6eee292b73b981acb220c",
+      "archive": "node-v24.14.1-win-x64.zip"
+    },
+    {
+      "path": "vendor/csl/styles/chicago-note.csl",
+      "url": "https://raw.githubusercontent.com/citation-style-language/styles/89c63834393a5f806e375b0816dc110c3be93d44/chicago-notes-bibliography.csl",
+      "size": 242663,
+      "sha256": "4b6be4bceaf8f3c31b49331c9f9e38c977f666d6ab80e19a2ac8482c7511abeb"
+    },
+    {
+      "path": "vendor/csl/locales/locales-fr-FR.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-fr-FR.xml",
+      "size": 31110,
+      "sha256": "bd6820660e6a4dab73bfd48df7348320708263b413c06fdd2e5445bcdf788bfb"
+    },
+    {
+      "path": "vendor/csl/locales/locales-de-DE.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-de-DE.xml",
+      "size": 25679,
+      "sha256": "befaeb7c9b4f2ce8e4b7e4ef028500c317ba4e92a5edf2125dad267b9b9951ad"
+    },
+    {
+      "path": "vendor/csl/locales/locales-es-ES.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-es-ES.xml",
+      "size": 24794,
+      "sha256": "ae4a12f612be754e54843ba88ae6641eb708647cea164b5b922bb6bf9b21c91f"
+    },
+    {
+      "path": "vendor/csl/locales/locales-en-GB.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-en-GB.xml",
+      "size": 32644,
+      "sha256": "e4a1fed9cec04b5fed5e9027b4055925cd4d8f7c9fe233eb0ceca6d4be3999f6"
+    },
+    {
+      "path": "vendor/csl/locales/locales-af-ZA.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-af-ZA.xml",
+      "size": 30352,
+      "sha256": "c20462bef7e05b51ad1f9f246b36ed0cf9686254445299ef72ad9b898280b282"
+    },
+    {
+      "path": "vendor/csl/locales/locales-ar.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-ar.xml",
+      "size": 25850,
+      "sha256": "d25602b8b39497bef229b8aaa75ae92b34a529bed7f55b5367e4a26c99611319"
+    },
+    {
+      "path": "vendor/csl/locales/locales-bal-PK.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-bal-PK.xml",
+      "size": 18502,
+      "sha256": "e7c0822879ba318f832a8b08ad7e39c2193d613b08af73848478e2c499ebe30b"
+    },
+    {
+      "path": "vendor/csl/locales/locales-bg-BG.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-bg-BG.xml",
+      "size": 27982,
+      "sha256": "7c6dd2fdf0be4f8ada9833c090becb23ebeb58157a858bb0ea00184decb230f5"
+    },
+    {
+      "path": "vendor/csl/locales/locales-brh-PK.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-brh-PK.xml",
+      "size": 18732,
+      "sha256": "c06b830ab39fcdcd184f5279239aefa16aa7091f0144a616e329ae013f4bb681"
+    },
+    {
+      "path": "vendor/csl/locales/locales-ca-AD.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-ca-AD.xml",
+      "size": 26856,
+      "sha256": "9474ed02f4535544f7225d7d3c55d8d3376f8423cfe78e9ffb8cacbd109f0377"
+    },
+    {
+      "path": "vendor/csl/locales/locales-cs-CZ.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-cs-CZ.xml",
+      "size": 25114,
+      "sha256": "146e942d19c150c05cf3ad6900c7ac1f1b5c122294a6212478a604186f0d35e6"
+    },
+    {
+      "path": "vendor/csl/locales/locales-cy-GB.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-cy-GB.xml",
+      "size": 25064,
+      "sha256": "e509a2d60c2fc32e9cdd71c2a4c295ad47aaf1ff85c8486c67c6357073bf8a5a"
+    },
+    {
+      "path": "vendor/csl/locales/locales-da-DK.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-da-DK.xml",
+      "size": 24975,
+      "sha256": "b89e559961e0af32dd4113c65c3034812317c8630adc6fc8803b17db691586f3"
+    },
+    {
+      "path": "vendor/csl/locales/locales-de-AT.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-de-AT.xml",
+      "size": 25715,
+      "sha256": "12f4934b58701c0cb4a59ec1389f7ba03a0341357a5789d7e9ee82210c522e09"
+    },
+    {
+      "path": "vendor/csl/locales/locales-de-CH.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-de-CH.xml",
+      "size": 25510,
+      "sha256": "200568ef48f331585e3f7d186cfd34129f9f9ba2ceeaf28105ac5b3dc550450d"
+    },
+    {
+      "path": "vendor/csl/locales/locales-el-GR.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-el-GR.xml",
+      "size": 26733,
+      "sha256": "f3c1220eb768a6bde9189158679443d81fa6587c182c6a65fbc483cb29f37333"
+    },
+    {
+      "path": "vendor/csl/locales/locales-es-CL.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-es-CL.xml",
+      "size": 24869,
+      "sha256": "3e25e64d5f872dc139182ca71c142d97c863c0c709d58b87c8467f86b6acfe30"
+    },
+    {
+      "path": "vendor/csl/locales/locales-es-MX.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-es-MX.xml",
+      "size": 26025,
+      "sha256": "2287c429cb73361034d3d1dc03a6a5444c5e4cd322d08a3b1e06854aa4c35477"
+    },
+    {
+      "path": "vendor/csl/locales/locales-et-EE.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-et-EE.xml",
+      "size": 24775,
+      "sha256": "df90c1e533e6131b43c1195798a0d7583aae1e065eeaea5e68b423df082e8a44"
+    },
+    {
+      "path": "vendor/csl/locales/locales-eu.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-eu.xml",
+      "size": 25350,
+      "sha256": "b7a45bc0eba06d3be3507f26c3f52e2059b1d9c7b5bfe2990723e36c02736852"
+    },
+    {
+      "path": "vendor/csl/locales/locales-fa-IR.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-fa-IR.xml",
+      "size": 25951,
+      "sha256": "7bef62d4f29b33a9e0bdd823222cbf04dc86a0af59e0d5acf697cc098be78cf6"
+    },
+    {
+      "path": "vendor/csl/locales/locales-fi-FI.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-fi-FI.xml",
+      "size": 25323,
+      "sha256": "84ce3b48bdfcb2a5c5ec36495aeb8ee966015922ac83d266dd85dbbbfb87666b"
+    },
+    {
+      "path": "vendor/csl/locales/locales-fr-CA.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-fr-CA.xml",
+      "size": 31828,
+      "sha256": "5dfed8e5c0632a79ad95fabad22e3a84f301aab46385ac5615a91a1aab0edfbd"
+    },
+    {
+      "path": "vendor/csl/locales/locales-gl-ES.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-gl-ES.xml",
+      "size": 26258,
+      "sha256": "8907a8c07369566c3c595b165e2845cfa2bd52a51ad7ab858819d46d594cecaf"
+    },
+    {
+      "path": "vendor/csl/locales/locales-he-IL.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-he-IL.xml",
+      "size": 25941,
+      "sha256": "27b469638930ea3854728232dac3016fa3133b44cceae544db86d150d51d9264"
+    },
+    {
+      "path": "vendor/csl/locales/locales-hi-IN.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-hi-IN.xml",
+      "size": 28054,
+      "sha256": "6c0bdea2834a8684a8ddad04e238adb0942e12f2ad81178cd955d4d25e93944b"
+    },
+    {
+      "path": "vendor/csl/locales/locales-hr-HR.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-hr-HR.xml",
+      "size": 24845,
+      "sha256": "7cc37b61e0c2e6ff3c15e0733dc6891bc91db88799393451d808c38a01b72237"
+    },
+    {
+      "path": "vendor/csl/locales/locales-hu-HU.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-hu-HU.xml",
+      "size": 25415,
+      "sha256": "e01306dce1d06963562d987347d36fb60bb57d37233cd03ee24bd36a1ef4ca15"
+    },
+    {
+      "path": "vendor/csl/locales/locales-hy-AM.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-hy-AM.xml",
+      "size": 30908,
+      "sha256": "7abf9fb398898921aec687006beeb90afd3f2bfc7311adaac115ba3be1fc4357"
+    },
+    {
+      "path": "vendor/csl/locales/locales-id-ID.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-id-ID.xml",
+      "size": 25245,
+      "sha256": "47135d3f246528535ee58f0104772e1d643799a0586737c7f428d21826bee4af"
+    },
+    {
+      "path": "vendor/csl/locales/locales-is-IS.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-is-IS.xml",
+      "size": 25193,
+      "sha256": "fd0f6661c198b442264ccff5aa9696d7ad9d053bda6c4aa95289f907fe64b64d"
+    },
+    {
+      "path": "vendor/csl/locales/locales-it-IT.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-it-IT.xml",
+      "size": 27219,
+      "sha256": "71ac17266a44a9054f4203d75fcf7a14588c621d06280177902bbc922f124778"
+    },
+    {
+      "path": "vendor/csl/locales/locales-ja-JP.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-ja-JP.xml",
+      "size": 24352,
+      "sha256": "5167d0686946405a0531c484b61a6e0e43b652631443f06908b3396ce6ffb543"
+    },
+    {
+      "path": "vendor/csl/locales/locales-km-KH.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-km-KH.xml",
+      "size": 25514,
+      "sha256": "f4ef777bf40094b6b35b37983c49b8e7b0ff99909553dd58f6de66887c3a0599"
+    },
+    {
+      "path": "vendor/csl/locales/locales-ko-KR.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-ko-KR.xml",
+      "size": 24902,
+      "sha256": "15098745c3b0af03b6fc420d6373fb7b00426dfbbb2bf53005b855cd0ed11e0f"
+    },
+    {
+      "path": "vendor/csl/locales/locales-la.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-la.xml",
+      "size": 24957,
+      "sha256": "babd9ba17e824df58d4f170f99491c5c43bb963775ba95badaec9c7b50f8cf4e"
+    },
+    {
+      "path": "vendor/csl/locales/locales-lij-IT.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-lij-IT.xml",
+      "size": 27253,
+      "sha256": "199d9df22efa595aaa9c33575d8019f13e7e6bc10a06a8346cd09fecc57fdc7b"
+    },
+    {
+      "path": "vendor/csl/locales/locales-lt-LT.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-lt-LT.xml",
+      "size": 26195,
+      "sha256": "3e162b21502d2951433785551d970de568e0f7b06cd3b55e8dd567a9d0b123af"
+    },
+    {
+      "path": "vendor/csl/locales/locales-lv-LV.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-lv-LV.xml",
+      "size": 27254,
+      "sha256": "01294b42627684164999649cb376bb1a694f8d816cd1db2f693361014782543b"
+    },
+    {
+      "path": "vendor/csl/locales/locales-mn-MN.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-mn-MN.xml",
+      "size": 25485,
+      "sha256": "60d3cebf7c4f5ec45fec7171bbb21604d12925e64ac2811a568f0c1927946bb7"
+    },
+    {
+      "path": "vendor/csl/locales/locales-ms-MY.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-ms-MY.xml",
+      "size": 11815,
+      "sha256": "d1df2e46b1d6fa7f3510604afed360b1463807caf809976413a656f193e343aa"
+    },
+    {
+      "path": "vendor/csl/locales/locales-nb-NO.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-nb-NO.xml",
+      "size": 22093,
+      "sha256": "148b44e4ea4dfcb9396d24c679bef734fcfd1513cedf63c694c4484f5270d39f"
+    },
+    {
+      "path": "vendor/csl/locales/locales-nl-NL.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-nl-NL.xml",
+      "size": 26431,
+      "sha256": "6e5e7f23ed696903b05e36d766b4334b6a6863653d5a1176706df23492deb6d5"
+    },
+    {
+      "path": "vendor/csl/locales/locales-nn-NO.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-nn-NO.xml",
+      "size": 22082,
+      "sha256": "16bca07435dc6461bfa52221063fe3a94cce51e022e2b9ae625b38c3b5812d76"
+    },
+    {
+      "path": "vendor/csl/locales/locales-pa-PK.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-pa-PK.xml",
+      "size": 21183,
+      "sha256": "5b22373c95d7fe571e1a3df75e6f73c71298e1c2c13e1eb4944c38c4d255f8f2"
+    },
+    {
+      "path": "vendor/csl/locales/locales-pl-PL.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-pl-PL.xml",
+      "size": 25348,
+      "sha256": "6b87b767e2b08bdd3fd18f459b0001c30fc9980c53d90dea3e3c166d6c23327f"
+    },
+    {
+      "path": "vendor/csl/locales/locales-pt-BR.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-pt-BR.xml",
+      "size": 27363,
+      "sha256": "f67d781260405ea7617d43e20eb0c363e4e3db4e420d9b017ba9c9c2b797e12b"
+    },
+    {
+      "path": "vendor/csl/locales/locales-pt-PT.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-pt-PT.xml",
+      "size": 26377,
+      "sha256": "319c2d60bd46355155f549b646078c345e492309b2347db5ea309d2469b689b3"
+    },
+    {
+      "path": "vendor/csl/locales/locales-ro-RO.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-ro-RO.xml",
+      "size": 25555,
+      "sha256": "578a95c8b3d7dac6013e0fadbb31dd8d925f27f2b9ed97fbc7e718c449ceef2b"
+    },
+    {
+      "path": "vendor/csl/locales/locales-ru-RU.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-ru-RU.xml",
+      "size": 29254,
+      "sha256": "382aaf40e674267ede7fbb5529a721a9edb5f127970f93278b2a62596c186071"
+    },
+    {
+      "path": "vendor/csl/locales/locales-sk-SK.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-sk-SK.xml",
+      "size": 25336,
+      "sha256": "51600e20de1f57ab128af5f6a8b1a79b3a65bb1c03d39f075a73a484bdf573e0"
+    },
+    {
+      "path": "vendor/csl/locales/locales-sl-SI.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-sl-SI.xml",
+      "size": 24880,
+      "sha256": "73e67a69a2105edac46742079ec42b5b06e4edc29a028506366da4429dc4161f"
+    },
+    {
+      "path": "vendor/csl/locales/locales-sr-Cyrl-RS.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-sr-Cyrl-RS.xml",
+      "size": 25647,
+      "sha256": "dd5cba7677eb65ee6c2f4b72f542430a28f8021a269728a1004b8f2c44360c49"
+    },
+    {
+      "path": "vendor/csl/locales/locales-sr-Latn-RS.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-sr-Latn-RS.xml",
+      "size": 22243,
+      "sha256": "08d2f2534c202ed9d6f93c35609971926e954848403d05c6004b2e3e4bb8a240"
+    },
+    {
+      "path": "vendor/csl/locales/locales-sv-SE.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-sv-SE.xml",
+      "size": 22711,
+      "sha256": "f0c6bdc4974f2df06ee250ffcec585f5665c230b3e7bc047b0b0ad6e328154ba"
+    },
+    {
+      "path": "vendor/csl/locales/locales-th-TH.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-th-TH.xml",
+      "size": 27244,
+      "sha256": "fc076aca10db217767fe1f5351e6cd5a41c58de069d691c5750fc96d08c5438b"
+    },
+    {
+      "path": "vendor/csl/locales/locales-tl-PH.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-tl-PH.xml",
+      "size": 32918,
+      "sha256": "3aa28cf29e92ae69cfaaa433d28e8a7cb53d2955c545679d2288c355dc8e2c57"
+    },
+    {
+      "path": "vendor/csl/locales/locales-tr-TR.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-tr-TR.xml",
+      "size": 25478,
+      "sha256": "018b01a383c0e619c5366146b339f3a79cff594738f12c3012733c0f97e9680d"
+    },
+    {
+      "path": "vendor/csl/locales/locales-uk-UA.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-uk-UA.xml",
+      "size": 26752,
+      "sha256": "e967c8d1a13606d918c1074e0fc4d10add62f5eff56eadb42c25b3dad78e580d"
+    },
+    {
+      "path": "vendor/csl/locales/locales-vi-VN.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-vi-VN.xml",
+      "size": 26563,
+      "sha256": "5d06474f045a78fd15a4c7e1f9a01bd63e1bbb3b982bef5f5bc9a9d931141c2e"
+    },
+    {
+      "path": "vendor/csl/locales/locales-zh-CN.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-zh-CN.xml",
+      "size": 18641,
+      "sha256": "95cebc667f2da8fb5b9864e49941e3f867d59f79feba929bc58e8ed6bfd4d582"
+    },
+    {
+      "path": "vendor/csl/locales/locales-zh-TW.xml",
+      "url": "https://raw.githubusercontent.com/citation-style-language/locales/a89adece41013402236e2c9020972d7e931fbab8/locales-zh-TW.xml",
+      "size": 22273,
+      "sha256": "207f39ff0c6f287fbffbd08d48b263d6aee8053125b7db54f4ef26899f5a7912"
+    }
+  ],
+  "approval": "PG explicitly approved these component sources and file classes in the Kosh signing/citation/math fix request.",
+  "locale_inventory": {
+    "url": "https://api.github.com/repos/citation-style-language/locales/git/trees/a89adece41013402236e2c9020972d7e931fbab8",
+    "files": [
+      "locales-af-ZA.xml",
+      "locales-ar.xml",
+      "locales-bal-PK.xml",
+      "locales-bg-BG.xml",
+      "locales-brh-PK.xml",
+      "locales-ca-AD.xml",
+      "locales-cs-CZ.xml",
+      "locales-cy-GB.xml",
+      "locales-da-DK.xml",
+      "locales-de-AT.xml",
+      "locales-de-CH.xml",
+      "locales-de-DE.xml",
+      "locales-el-GR.xml",
+      "locales-en-GB.xml",
+      "locales-en-US.xml",
+      "locales-es-CL.xml",
+      "locales-es-ES.xml",
+      "locales-es-MX.xml",
+      "locales-et-EE.xml",
+      "locales-eu.xml",
+      "locales-fa-IR.xml",
+      "locales-fi-FI.xml",
+      "locales-fr-CA.xml",
+      "locales-fr-FR.xml",
+      "locales-gl-ES.xml",
+      "locales-he-IL.xml",
+      "locales-hi-IN.xml",
+      "locales-hr-HR.xml",
+      "locales-hu-HU.xml",
+      "locales-hy-AM.xml",
+      "locales-id-ID.xml",
+      "locales-is-IS.xml",
+      "locales-it-IT.xml",
+      "locales-ja-JP.xml",
+      "locales-km-KH.xml",
+      "locales-ko-KR.xml",
+      "locales-la.xml",
+      "locales-lij-IT.xml",
+      "locales-lt-LT.xml",
+      "locales-lv-LV.xml",
+      "locales-mn-MN.xml",
+      "locales-ms-MY.xml",
+      "locales-nb-NO.xml",
+      "locales-nl-NL.xml",
+      "locales-nn-NO.xml",
+      "locales-pa-PK.xml",
+      "locales-pl-PL.xml",
+      "locales-pt-BR.xml",
+      "locales-pt-PT.xml",
+      "locales-ro-RO.xml",
+      "locales-ru-RU.xml",
+      "locales-sk-SK.xml",
+      "locales-sl-SI.xml",
+      "locales-sr-Cyrl-RS.xml",
+      "locales-sr-Latn-RS.xml",
+      "locales-sv-SE.xml",
+      "locales-th-TH.xml",
+      "locales-tl-PH.xml",
+      "locales-tr-TR.xml",
+      "locales-uk-UA.xml",
+      "locales-vi-VN.xml",
+      "locales-zh-CN.xml",
+      "locales-zh-TW.xml"
+    ]
+  }
+}

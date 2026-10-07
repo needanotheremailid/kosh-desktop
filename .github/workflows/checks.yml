@@ -1,0 +1,38 @@
+name: Source checks
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  source:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - name: Read the requested repository revision
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh repo clone "$env:GITHUB_REPOSITORY" . -- --no-checkout
+          if ($LASTEXITCODE -ne 0) { throw 'Checkout failed.' }
+          git fetch origin "$env:GITHUB_REF" --depth=1
+          if ($LASTEXITCODE -ne 0) { throw 'Revision fetch failed.' }
+          git checkout --detach FETCH_HEAD
+          if ($LASTEXITCODE -ne 0) { throw 'Revision checkout failed.' }
+      - name: Check Python and JavaScript syntax
+        shell: pwsh
+        run: |
+          python -m compileall -q -x 'vendor|work|data' .
+          if ($LASTEXITCODE -ne 0) { throw 'Python syntax check failed.' }
+          node --check ui/app.js
+          if ($LASTEXITCODE -ne 0) { throw 'JavaScript syntax check failed.' }
+      - name: Check bibliography parsing and folder recovery
+        shell: pwsh
+        run: |
+          python -m unittest discover -s tests -p test_bibliography.py -v
+          if ($LASTEXITCODE -ne 0) { throw 'Bibliography checks failed.' }
+          python -m unittest discover -s tests -p test_folder_edits.py -v
+          if ($LASTEXITCODE -ne 0) { throw 'Folder recovery checks failed.' }
