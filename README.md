@@ -94,4 +94,6 @@ In PowerShell, compare the result below with the installer's entry in [SHA256SUM
 
 Kosh's research workflow was inspired by [Beeblio](https://github.com/alharkan7/beeblio-oss). The application code and assets are original; attributed citation, document and runtime components are listed in [CREDITS.md](CREDITS.md) and [THIRD_PARTY.md](THIRD_PARTY.md).
 
+Built with assistance from **OpenAI Codex** for implementation, integration, testing, packaging and documentation, and **Anthropic Claude** for design and independent reviews. See [development credits](CREDITS.md#development-assistance).
+
 Licensed **AGPL-3.0-only**. Your papers and notes are not relicensed. See [LICENSE](LICENSE).

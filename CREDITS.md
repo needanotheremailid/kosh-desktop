@@ -1,5 +1,16 @@
 # Credits
 
+## Development assistance
+
+Kosh was built with assistance from **OpenAI Codex** and **Anthropic Claude**:
+
+- **OpenAI Codex** assisted with implementation, integration, testing, packaging, documentation and review.
+- **Anthropic Claude**, including **Claude Opus**, assisted with product design and independent feature, presentation and privacy reviews.
+
+These credits recognise AI-assisted development. They do not imply endorsement, sponsorship or human authorship by OpenAI or Anthropic. Project decisions and responsibility remain with the maintainer.
+
+## Inspiration and components
+
 Kosh is an original Windows research desk. The original research-workspace inspiration is **Beeblio by Al Harkan ([alharkan7](https://github.com/alharkan7))**: [Beeblio source repository](https://github.com/alharkan7/beeblio-oss). Its public source was inspected to understand workflow and licence. No Beeblio application code, branding or visual assets were copied into Kosh. This credit does not imply endorsement, affiliation or authorship of Kosh by the Beeblio creator. Beeblio retains its own terms/notices.
 
 Other approved workflow references were [Jenni](https://jenni.ai/), [Paperpal](https://paperpal.com/), [SciSpace](https://scispace.com/), [Yomu](https://www.yomu.ai/), [Elicit](https://elicit.com/) and [Zotero](https://www.zotero.org/). Design observations included Lekh and public [Mobbin](https://mobbin.com/) screens. These are inspiration credits, not copied code/assets, bundled services or claims of equal product quality. The original Kosh icon is included with the application source.
