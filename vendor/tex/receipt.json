@@ -2755,11 +2755,6 @@
       "sha256": "d8bcfb012dcd10b640a64b00552e3b882b088c542a7eed3f517b9aff74e15586"
     },
     {
-      "path": "work/tex-components/source-version-audit.json",
-      "bytes": 63026,
-      "sha256": "31ec0af1a1f55d216dc57e12b180ae7f30dd75be3c74e77faa5449ecbf315d63"
-    },
-    {
       "path": "work/tex-components/tectonic-0.17.0-source.tar.gz",
       "bytes": 3290231,
       "sha256": "12c599e81092ffcb6c29a72a9d313ec86d67f25a7fc6639a274663ef645f4899"
@@ -2781,13 +2776,23 @@
     },
     {
       "path": "work/tex-components/texlive-source-receipt.json",
-      "bytes": 9131,
-      "sha256": "c51e039ddb712914f6179bfc0396698992aba5da43d5a3b931f1726371eebc68"
+      "bytes": 9670,
+      "sha256": "71b527df119a0dd722e4875f3f627fef5de7581fa66926b40c596dea9042b879"
     },
     {
       "path": "work/tex-components/unicode-data.doc.r60516.tar.xz",
       "bytes": 3832,
       "sha256": "a8d3d751a85b5cfc163d2d691ca03043111dc378e2048b340d6b754da1631add"
+    },
+    {
+      "path": "work/tex-components/zapfding.r61719.tar.xz",
+      "bytes": 46944,
+      "sha256": "4271ddebc57d58e7bab81f224b4284a3bf333f8910dc51dbf41e79a44d5c5e51"
+    },
+    {
+      "path": "work/tex-components/source-version-audit.json",
+      "bytes": 64268,
+      "sha256": "1de612a4c3c6865f3971b89bd174c7a68b3a947115fc967413ebb7075900ed96"
     }
   ]
 }

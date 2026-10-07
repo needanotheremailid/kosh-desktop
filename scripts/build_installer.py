@@ -267,7 +267,7 @@ def tex_payload(files):
                    'setspace.doc.r24881.tar.xz', 'unicode-data.doc.r60516.tar.xz'}
     legal_names.update({'amsfonts.doc.r61937.tar.xz', 'amsfonts.source.r61937.tar.xz',
                        'amsfonts.r61937.tar.xz', 'cm.doc.r57963.tar.xz', 'cm.r57963.tar.xz',
-                       'lm.doc.r61719.tar.xz', 'lm.r61719.tar.xz'})
+                       'lm.doc.r61719.tar.xz', 'lm.r61719.tar.xz', 'zapfding.r61719.tar.xz'})
     for package, revision in [('amsmath',61041), ('fancyhdr',57672), ('fontspec',61617),
                               ('geometry',61719), ('graphics',61315), ('hyperref',62142),
                               ('hyph-utf8',61719), ('latex',61232), ('lineno',61719), ('tex-gyre',48058)]:

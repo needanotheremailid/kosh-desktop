@@ -23,7 +23,8 @@ REQUIRED_SOURCES = {
      for kind in (('doc',) if name in ('setspace', 'unicode-data') else ('doc', 'source'))}
 REQUIRED_SOURCES.update('work/tex-components/' + name for name in (
     'amsfonts.doc.r61937.tar.xz', 'amsfonts.source.r61937.tar.xz', 'amsfonts.r61937.tar.xz',
-    'cm.doc.r57963.tar.xz', 'cm.r57963.tar.xz', 'lm.doc.r61719.tar.xz', 'lm.r61719.tar.xz'))
+    'cm.doc.r57963.tar.xz', 'cm.r57963.tar.xz', 'lm.doc.r61719.tar.xz', 'lm.r61719.tar.xz',
+    'zapfding.r61719.tar.xz'))
 
 
 class TexPackaging(unittest.TestCase):

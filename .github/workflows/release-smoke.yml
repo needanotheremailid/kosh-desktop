@@ -1,0 +1,40 @@
+name: Installed release smoke
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  installed:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - name: Read source and release assets
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh auth setup-git --hostname github.com
+          if ($LASTEXITCODE -ne 0) { throw 'Git authentication setup failed.' }
+          gh repo clone "$env:GITHUB_REPOSITORY" . -- --no-checkout
+          if ($LASTEXITCODE -ne 0) { throw 'Checkout failed.' }
+          git checkout --detach "$env:GITHUB_SHA"
+          if ($LASTEXITCODE -ne 0) { throw 'Revision checkout failed.' }
+          gh release download v0.3.0 --repo "$env:GITHUB_REPOSITORY" --pattern Kosh-0.3.0-final-Setup.exe --pattern SHA256SUMS.txt --dir "$env:RUNNER_TEMP\release"
+          if ($LASTEXITCODE -ne 0) { throw 'Release download failed.' }
+      - name: Verify and install into an empty folder
+        shell: pwsh
+        run: |
+          $installer = Join-Path $env:RUNNER_TEMP 'release\Kosh-0.3.0-final-Setup.exe'
+          $sums = Get-Content -LiteralPath (Join-Path $env:RUNNER_TEMP 'release\SHA256SUMS.txt')
+          $entry = @($sums | Where-Object { $_ -match '^[a-f0-9]{64}  Kosh-0.3.0-final-Setup.exe$' })
+          if ($entry.Count -ne 1) { throw 'Missing or ambiguous installer checksum.' }
+          if ((Get-FileHash -LiteralPath $installer -Algorithm SHA256).Hash.ToLowerInvariant() -ne $entry[0].Substring(0,64)) { throw 'Installer checksum mismatch.' }
+          $target = Join-Path $env:RUNNER_TEMP 'Kosh-smoke'
+          $process = Start-Process -FilePath $installer -ArgumentList @('--quiet','--no-shortcuts','--no-launch','--install-dir',"`"$target`"") -WindowStyle Hidden -Wait -PassThru
+          if ($process.ExitCode -ne 0) { throw 'Installer failed.' }
+      - name: Verify bundled runtime and synthetic exports
+        shell: pwsh
+        run: |
+          $target = Join-Path $env:RUNNER_TEMP 'Kosh-smoke'
+          & (Join-Path $target 'runtime\python.exe') -E -s scripts/release_smoke.py --install-dir $target
+          if ($LASTEXITCODE -ne 0) { throw 'Installed runtime check failed.' }

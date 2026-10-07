@@ -17,6 +17,7 @@ foreach ($vendorFile in Get-ChildItem -LiteralPath (Join-Path $appRoot 'vendor\c
 }
 $runtimeFiles = Get-Content -LiteralPath (Join-Path $appRoot 'runtime-files.json') -Raw | ConvertFrom-Json
 $files += 'BUILDING.md'
+$files += 'scripts/release_smoke.py'
 $files += $runtimeFiles
 foreach ($asset in @('assets/App.ico','assets/Kosh.svg','assets/Kosh.png')) {
     if (Test-Path -LiteralPath (Join-Path $appRoot $asset) -PathType Leaf) { $files += $asset }
