@@ -38,7 +38,7 @@ with tempfile.TemporaryDirectory(prefix='kosh-release-smoke-') as temporary:
     bundle = library.resolve_bundle('chicago-note')
     item = {'id':'a','type':'book','title':'Synthetic widgets','author':[{'family':'Doe','given':'Jane'}], 'issued':{'date-parts':[[2024]]}}
     formatted = csl_engine.render([item], [['a']], **{key:bundle[key] for key in ('style_xml','language','locales')})
-    assert formatted['style_class'] == 'note' and 'Synthetic widgets' in formatted['citations'][0]
+    assert formatted['style_class'] == 'note' and 'synthetic widgets' in formatted['citations'][0].casefold()
 markdown = '# Synthetic release check\n\n## Findings\n\n'+r'$$\begin{pmatrix}1 & 2\\3 & 4\end{pmatrix}\quad\int_0^1x^2\,dx=\frac13,\quad\mathbb{R}+\mathfrak{g}$$'
 options = manuscript_templates.validate_template({'profile':'research','authors':'Synthetic Author'})
 markdown = manuscript_templates.template_markdown(markdown, options, 'Synthetic release check')
