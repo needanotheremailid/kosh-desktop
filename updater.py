@@ -16,13 +16,13 @@ from pathlib import Path
 import re
 import subprocess
 import threading
-from urllib.parse import urlsplit
+from urllib.parse import quote, unquote, urlsplit
 from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
 import uuid
 
 import upgrade
 
-CURRENT_VERSION = '0.6.0'
+CURRENT_VERSION = '1.0.0-rc.1'
 REPOSITORY = 'needanotheremailid/kosh-desktop'
 RELEASES_URL = 'https://api.github.com/repos/' + REPOSITORY + '/releases?per_page=10'
 RELEASE_BASE = 'https://github.com/' + REPOSITORY + '/releases/'
@@ -39,9 +39,31 @@ class UpdateError(ValueError):
 
 
 def version_tuple(value):
-    if not isinstance(value, str) or not re.fullmatch(r'(?:0|[1-9][0-9]{0,2})\.(?:0|[1-9][0-9]{0,2})\.(?:0|[1-9][0-9]{0,2})', value):
-        raise UpdateError('Release version is invalid. Choose a published numeric Kosh release.')
-    return tuple(map(int, value.split('.')))
+    """SemVer precedence: numeric identifiers precede text; build labels ignored."""
+    if not isinstance(value, str) or len(value) > 128:
+        raise UpdateError('Release version is invalid. Choose a published Kosh semantic version.')
+    match = re.fullmatch(r'(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)(?:-([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?(?:\+([0-9A-Za-z-]+(?:\.[0-9A-Za-z-]+)*))?', value)
+    if not match:
+        raise UpdateError('Release version is invalid. Choose a published Kosh semantic version.')
+    prerelease = match.group(4)
+    identifiers = prerelease.split('.') if prerelease else []
+    if any(identifier.isdigit() and len(identifier) > 1 and identifier.startswith('0') for identifier in identifiers):
+        raise UpdateError('Numeric prerelease identifiers cannot have leading zeroes.')
+    keys = tuple((0, int(identifier)) if identifier.isdigit() else (1, identifier) for identifier in identifiers)
+    return (*map(int, match.group(1, 2, 3)), 0 if prerelease else 1, keys)
+
+
+def includes_prereleases(version):
+    parsed = version_tuple(version)
+    # Kosh's numeric pre-1.0 releases are explicitly beta. Final 1.0+ defaults
+    # to final releases; an RC/beta build keeps its prerelease update channel.
+    return parsed[0] == 0 or parsed[3] == 0
+
+
+def release_url(version, filename=None):
+    version_tuple(version)
+    tag = quote('v' + version, safe='.-')
+    return RELEASE_BASE + ('tag/' + tag if filename is None else 'download/' + tag + '/' + quote(filename, safe='.-'))
 
 
 @dataclass(frozen=True)
@@ -55,14 +77,14 @@ class Candidate:
     def filename(self): return 'Kosh-' + self.version + '-Setup.exe'
 
     @property
-    def installer_url(self): return RELEASE_BASE + 'download/v' + self.version + '/' + self.filename
+    def installer_url(self): return release_url(self.version, self.filename)
 
     @property
-    def checksum_url(self): return RELEASE_BASE + 'download/v' + self.version + '/SHA256SUMS.txt'
+    def checksum_url(self): return release_url(self.version, 'SHA256SUMS.txt')
 
     def public(self):
         return {'version': self.version, 'prerelease': self.prerelease, 'size': self.size,
-                'release_url': RELEASE_BASE + 'tag/v' + self.version}
+                'release_url': release_url(self.version)}
 
 
 def parse_release(value):
@@ -71,8 +93,10 @@ def parse_release(value):
     tag = value.get('tag_name')
     if not isinstance(tag, str) or not tag.startswith('v'):
         raise UpdateError('Release tag is invalid.')
-    version = tag[1:]; version_tuple(version)
-    if value.get('html_url') != RELEASE_BASE + 'tag/v' + version:
+    version = tag[1:]; parsed = version_tuple(version)
+    if parsed[3] == 0 and value['prerelease'] is not True:
+        raise UpdateError('A prerelease version must be labelled as a GitHub prerelease.')
+    if value.get('html_url') not in {release_url(version), unquote(release_url(version))}:
         raise UpdateError('Release belongs to an unexpected repository or URL.')
     assets = value.get('assets')
     if not isinstance(assets, list) or len(assets) > 30 or any(not isinstance(a, dict) for a in assets):
@@ -83,7 +107,8 @@ def parse_release(value):
         if len(matches) != 1:
             raise UpdateError('Release needs one installer and one checksum file with their exact names.')
         asset = matches[0]
-        if asset.get('state') != 'uploaded' or asset.get('browser_download_url') != RELEASE_BASE + 'download/v' + version + '/' + name:
+        expected_url = release_url(version, name)
+        if asset.get('state') != 'uploaded' or asset.get('browser_download_url') not in {expected_url, unquote(expected_url)}:
             raise UpdateError('Release asset location/state is not trusted.')
         limit = MAX_CHECKSUMS if name == 'SHA256SUMS.txt' else MAX_INSTALLER
         if type(asset.get('size')) is not int or not 0 < asset['size'] <= limit:
@@ -104,7 +129,7 @@ def parse_checksum(content, filename):
     matches = []
     for line in lines:
         if not line.strip(): continue
-        row = re.fullmatch(r'([a-f0-9]{64}) [ *]([A-Za-z0-9][A-Za-z0-9._-]{0,200})', line)
+        row = re.fullmatch(r'([a-f0-9]{64}) [ *]([A-Za-z0-9][A-Za-z0-9._+-]{0,200})', line)
         if not row:
             raise UpdateError('Checksum file contains an invalid filename or checksum.')
         if row.group(2) == filename: matches.append(row.group(1))
@@ -130,8 +155,15 @@ class GithubTransport:
 
     def open(self, url):
         # All caller URLs are constructed by this module; no route accepts URLs.
-        if url != RELEASES_URL and not re.fullmatch(re.escape(RELEASE_BASE) + r'download/v[0-9.]+/(?:Kosh-[0-9.]+-Setup\.exe|SHA256SUMS\.txt)', url):
-            raise UpdateError('Unapproved release source.')
+        if url != RELEASES_URL:
+            prefix = RELEASE_BASE + 'download/'
+            if not isinstance(url, str) or not url.startswith(prefix): raise UpdateError('Unapproved release source.')
+            parts = url[len(prefix):].split('/')
+            if len(parts) != 2 or not unquote(parts[0]).startswith('v'): raise UpdateError('Unapproved release source.')
+            version = unquote(parts[0])[1:]; version_tuple(version)
+            candidate = Candidate(version, True, 1, None)
+            if url not in {candidate.installer_url, candidate.checksum_url}:
+                raise UpdateError('Unapproved release source.')
         return self.opener.open(Request(url, headers={'Accept': 'application/vnd.github+json' if url == RELEASES_URL else 'application/octet-stream', 'User-Agent': 'Kosh-explicit-updater'}), timeout=30)
 
 
@@ -168,51 +200,147 @@ def write_receipt(directory, value):
     return record
 
 
-def activation_ready(root, build=None, cache_dir=None):
-    """A verification service accepts writes only after its durable worker proof.
+READY_FIELDS = {'format', 'app', 'repository', 'job_id', 'version', 'build', 'new_install', 'phase'}
 
-    The caller supplies its own runtime build, never a browser-provided identity.
-    Cache override is solely a trusted embedding/test hook, not an HTTP input.
-    """
+
+def _marker_bound(marker, root, build, expected_version=None):
+    expected_version = CURRENT_VERSION if expected_version is None else expected_version
+    if (not isinstance(marker, dict) or set(marker) != READY_FIELDS or type(marker['format']) is not int or marker['format'] != 1
+            or marker['app'] != 'Kosh' or marker['repository'] != REPOSITORY
+            or marker['phase'] != 'installed_verified' or marker['new_install'] != str(root)
+            or not isinstance(marker['job_id'], str) or not JOB_ID.fullmatch(marker['job_id'])
+            or marker['version'] != expected_version or not isinstance(marker['build'], str) or not SHA.fullmatch(marker['build'])):
+        return False
+    version_tuple(marker['version'])
+    if build is not None and marker['build'] != build: return False
+    pending = root / 'UPDATE_PENDING.json'
+    if pending.exists() or pending.is_symlink():
+        if read_json(pending) != {'job_id': marker['job_id'], 'new_install': str(root)}: return False
+    installed = upgrade._json(root / 'INSTALL_RECEIPT.json'); manifest = upgrade._json(root / 'package-manifest.json')
+    return (isinstance(installed, dict) and isinstance(manifest, dict) and installed.get('app') == 'Kosh'
+            and installed.get('runtime_checked') is True and installed.get('build') == marker['build']
+            and manifest.get('app') == 'pg-research-desktop' and manifest.get('format') == 1 and manifest.get('build') == marker['build'])
+
+
+def _retained_startup(marker, root, cache_dir):
+    directory = (Path(cache_dir) if cache_dir is not None else cache_root()) / marker['job_id']
+    current = read_json(directory / 'receipt.json')
+    if not isinstance(current, dict) or current.get('job_id') != marker['job_id'] or current.get('phase') not in {'installed_verified', 'activation_failed'}:
+        return False  # An orphaned append-only success cannot override rollback.
+    job = read_json(directory / 'job.json')
+    if (not isinstance(job, dict) or job.get('format') != 1 or job.get('app') != 'Kosh'
+            or job.get('new_install') != str(root) or job.get('job_id') != marker['job_id']
+            or job.get('version') != marker['version'] or job.get('repository') != REPOSITORY
+            or job.get('approve_install') is not True or job.get('accept_unsigned') is not True): return False
+    upgrade._check_chain(directory / 'receipts')
+    receipts = list((directory / 'receipts').glob('*.json'))
+    if len(receipts) > 80: return False
+    for path in receipts:
+        receipt = read_json(path)
+        if (isinstance(receipt, dict) and receipt.get('format') == 1 and receipt.get('app') == 'Kosh'
+                and receipt.get('phase') == 'installed_verified' and receipt.get('job_id') == marker['job_id']
+                and receipt.get('repository') == REPOSITORY and receipt.get('version') == marker['version']
+                and receipt.get('build') == marker['build']
+                and receipt.get('startup') == {'app': 'pg-research-desktop', 'build': marker['build'], 'ready': True}): return True
+    return False
+
+
+def _local_activation(root, build, expected_version=None):
+    """Previously approved activation remains local when its cache drive is gone."""
+    path = root / 'UPDATE_ACTIVATED.json'
+    if not path.exists(): return False
+    proof = read_json(path)
+    hashes = {'manifest_sha256', 'install_receipt_sha256'}
+    if not isinstance(proof, dict) or set(proof) != READY_FIELDS | hashes or proof.get('phase') != 'activated': return False
+    marker = {key: proof[key] for key in READY_FIELDS}; marker['phase'] = 'installed_verified'
+    return (_marker_bound(marker, root, build, expected_version)
+            and proof['manifest_sha256'] == upgrade._hash(root / 'package-manifest.json')
+            and proof['install_receipt_sha256'] == upgrade._hash(root / 'INSTALL_RECEIPT.json'))
+
+
+def activation_ready(root, build=None, cache_dir=None):
+    """Read-only proof check; no cache failure can unlock an unproved candidate."""
     root = Path(root).resolve()
     try:
+        if _local_activation(root, build): return True
         marker = read_json(root / 'UPDATE_READY.json')
-        required = {'format', 'app', 'repository', 'job_id', 'version', 'build', 'new_install', 'phase'}
-        if (not isinstance(marker, dict) or set(marker) != required or marker['format'] != 1
-                or marker['app'] != 'Kosh' or marker['repository'] != REPOSITORY
-                or marker['phase'] != 'installed_verified' or marker['new_install'] != str(root)
-                or not isinstance(marker['job_id'], str) or not JOB_ID.fullmatch(marker['job_id'])
-                or not isinstance(marker['build'], str) or not SHA.fullmatch(marker['build'])):
-            return False
-        version_tuple(marker['version'])
-        if marker['version'] != CURRENT_VERSION: return False
-        pending_path = root / 'UPDATE_PENDING.json'
-        if pending_path.exists() or pending_path.is_symlink():
-            pending = read_json(pending_path)
-            if pending != {'job_id': marker['job_id'], 'new_install': str(root)}: return False
-        installed = upgrade._json(root / 'INSTALL_RECEIPT.json')
-        manifest = upgrade._json(root / 'package-manifest.json')
-        if installed.get('runtime_checked') is not True or installed.get('build') != marker['build'] or manifest.get('build') != marker['build']:
-            return False
-        if build is not None and marker['build'] != build: return False
-        directory = (Path(cache_dir) if cache_dir is not None else cache_root()) / marker['job_id']
-        job = read_json(directory / 'job.json')
-        if (job.get('new_install') != str(root) or job.get('job_id') != marker['job_id']
-                or job.get('version') != marker['version'] or job.get('repository') != REPOSITORY
-                or job.get('approve_install') is not True or job.get('accept_unsigned') is not True):
-            return False
-        upgrade._check_chain(directory / 'receipts')
-        receipts = list((directory / 'receipts').glob('*.json'))
-        if len(receipts) > 80: return False
-        for path in receipts:
-            receipt = read_json(path)
-            if (receipt.get('phase') == 'installed_verified' and receipt.get('job_id') == marker['job_id']
-                    and receipt.get('repository') == REPOSITORY and receipt.get('version') == marker['version']
-                    and receipt.get('build') == marker['build']
-                    and receipt.get('startup') == {'app': 'pg-research-desktop', 'build': marker['build'], 'ready': True}):
-                return True
-        return False
+        return _marker_bound(marker, root, build) and _retained_startup(marker, root, cache_dir)
     except (OSError, ValueError, TypeError): return False
+
+
+def _publish_proof_new(path, value):
+    """A torn write may leave owned scratch, never a half-written authority file."""
+    temporary = path.with_name(path.stem + '.pending-' + uuid.uuid4().hex + '.json')
+    upgrade._check_chain(path)
+    upgrade._write_json_new(temporary, value)
+    try:
+        if os.name == 'nt': os.rename(temporary, path)  # Windows refuses an existing target.
+        else:
+            os.link(temporary, path)
+            temporary.unlink()
+    except FileExistsError:
+        if read_json(path) != value: raise UpdateError('An existing proof differs and was preserved.') from None
+
+
+def recover_ready(root, build, cache_dir=None):
+    """Explicitly finish a missing marker after already verified completion only."""
+    root = Path(root).resolve()
+    if activation_ready(root, build, cache_dir): return True
+    path = root / 'UPDATE_READY.json'
+    broken = None
+    try:
+        upgrade._check_chain(path)
+        if path.exists():
+            if not path.is_file() or path.stat().st_size > MAX_CHECKSUMS or path.stat().st_nlink > 1: return False
+            broken = path.read_bytes()
+            try: json.loads(broken.decode('utf-8'))
+            except (ValueError, UnicodeError): pass
+            else: return False  # A well-formed mismatched marker remains untouched.
+        pending = read_json(root / 'UPDATE_PENDING.json')
+        if not isinstance(pending, dict) or set(pending) != {'job_id', 'new_install'}: return False
+        marker = {'format': 1, 'app': 'Kosh', 'repository': REPOSITORY, 'job_id': pending['job_id'],
+                  'version': CURRENT_VERSION, 'build': build, 'new_install': str(root), 'phase': 'installed_verified'}
+        if not _marker_bound(marker, root, build) or not _retained_startup(marker, root, cache_dir): return False
+        if upgrade._verify_install(root) != build: return False
+        copied = upgrade._json(root / 'UPGRADE_RECEIPT.json')
+        if (not isinstance(copied, dict) or copied.get('app') != 'Kosh' or copied.get('action') != 'offline-copy-only-upgrade'
+                or copied.get('new_install') != str(root) or copied.get('new_build') != build
+                or copied.get('old_install_preserved') is not True or copied.get('schema_migration_performed') is not False
+                or not isinstance(copied.get('database'), dict) or copied['database'].get('integrity') != 'ok'): return False
+    except (OSError, ValueError, TypeError): return False
+    try:
+        if broken is None: _publish_proof_new(path, marker)
+        else:
+            cache = Path(cache_dir) if cache_dir is not None else cache_root()
+            with cache_guard(cache):
+                worker = cache / marker['job_id'] / 'worker.json'
+                if worker.exists() and worker_alive(worker): return False
+                if path.read_bytes() != broken: return False
+                preserved = root / ('UPDATE_READY.recovery-' + uuid.uuid4().hex + '.json')
+                upgrade._copy_file(path, preserved)
+                if preserved.read_bytes() != broken or path.read_bytes() != broken: return False
+                temporary = root / ('UPDATE_READY.pending-' + uuid.uuid4().hex + '.json')
+                upgrade._write_json_new(temporary, marker)
+                os.replace(temporary, path)  # Explicit repair; exact broken bytes are retained above.
+    except OSError: raise UpdateError('Completion proof was retained, but its readiness marker could not be saved. Check the installation drive and retry Finish opening explicitly.') from None
+    return activation_ready(root, build, cache_dir)
+
+
+def confirm_activation(root, build, cache_dir=None):
+    """Called after the existing approval/proof gate, before enabling user writes."""
+    root = Path(root).resolve()
+    try:
+        if _local_activation(root, build): return True
+        if not activation_ready(root, build, cache_dir) or upgrade._verify_install(root) != build:
+            raise UpdateError('Activation has no matching approved completion and installed package. The candidate remains read-only.')
+        marker = read_json(root / 'UPDATE_READY.json')
+        proof = {**marker, 'phase': 'activated', 'manifest_sha256': upgrade._hash(root / 'package-manifest.json'),
+                 'install_receipt_sha256': upgrade._hash(root / 'INSTALL_RECEIPT.json')}
+        path = root / 'UPDATE_ACTIVATED.json'; upgrade._check_chain(path)
+        _publish_proof_new(path, proof)
+        if not _local_activation(root, build): raise UpdateError('Local activation proof readback failed; the candidate remains read-only.')
+        return True
+    except OSError: raise UpdateError('Local activation proof could not be saved. Check the installation drive and retry explicitly; the candidate remains read-only.') from None
 
 
 def verification_required(root, build, explicit=False):
@@ -273,6 +401,18 @@ def active_install(cache):
     return {**lease, 'directory': directory, 'receipt': receipt}
 
 
+def worker_alive(marker):
+    record = read_json(marker)
+    if not isinstance(record, dict) or set(record) not in ({'pid'}, {'pid', 'process_identity'}):
+        raise UpdateError('Worker identity record is invalid; retained recovery needs review.')
+    if not upgrade._pid_alive(record.get('pid')): return False
+    identity = record.get('process_identity')
+    if identity is None: return True  # Legacy workers carry only a PID; fail safely.
+    if not isinstance(identity, str) or not re.fullmatch(r'[0-9]{1,32}', identity):
+        raise UpdateError('Worker birth identity is invalid; retained recovery needs review.')
+    return identity == upgrade._process_identity(record['pid'])
+
+
 def claim_install(directory, old):
     with cache_guard(directory.parent):
         active = active_install(directory.parent)
@@ -300,12 +440,15 @@ class Updater:
         self.current_version = current_version; version_tuple(current_version)
         self.transport = transport if transport is not None else GithubTransport()
         self.candidate = None; self.job_dir = None; self.phase = 'idle'
+        self.notice = ''
         self._lock = threading.Lock()
 
     def status(self):
         value = {'phase': self.phase, 'current_version': self.current_version, 'repository': REPOSITORY,
                  'signature': 'not_verified', 'candidate': self.candidate.public() if self.candidate else None,
+                 'release_channel': 'prerelease' if includes_prereleases(self.current_version) else 'stable',
                  'install_supported': os.name == 'nt' and (self.root / 'INSTALL_RECEIPT.json').is_file()}
+        if self.notice: value['message'] = self.notice
         previous = self.previous_installation()
         if previous is not None: value['previous_installation'] = previous
         directory = self.job_dir
@@ -322,7 +465,7 @@ class Updater:
         active = active_install(self.cache)
         if active and active['receipt'].get('phase') not in TERMINAL:
             phase = active['receipt'].get('phase'); marker = active['directory'] / 'worker.json'
-            alive = upgrade._pid_alive(read_json(marker).get('pid')) if marker.exists() else upgrade._pid_alive(active['prepared_pid'])
+            alive = worker_alive(marker) if marker.exists() else (False if phase == 'close_timeout' else upgrade._pid_alive(active['prepared_pid']))
             if not alive and phase != 'close_timeout':
                 phase = 'interrupted_needs_recovery'
             value['active_update'] = {'job_id': active['job_id'], 'phase': phase, 'same_installation': active['old_install'] == str(self.root)}
@@ -364,6 +507,7 @@ class Updater:
             if self.job_dir and self.status()['phase'] in {'awaiting_close', 'installing', 'copying', 'starting', 'retargeting'}:
                 raise UpdateError('Finish the prepared update before checking another release.')
             self.phase = 'checking'; self.candidate = None; self.job_dir = None
+            self.notice = ''
             with self.transport.open(RELEASES_URL) as response: raw = response.read(MAX_METADATA + 1)
             if len(raw) > MAX_METADATA: raise UpdateError('Release metadata is oversized.')
             values = json.loads(raw)
@@ -376,9 +520,12 @@ class Updater:
                 if value['draft'] or not isinstance(tag, str) or not tag.startswith('v'): continue
                 try: version = version_tuple(tag[1:])
                 except UpdateError: continue
+                if not includes_prereleases(self.current_version) and (value.get('prerelease') is True or version[3] == 0): continue
                 if version > version_tuple(self.current_version): eligible.append((version, value))
             self.candidate = parse_release(max(eligible, key=lambda row: row[0])[1]) if eligible else None
             self.phase = 'available' if self.candidate else 'up_to_date'
+            if self.candidate is None:
+                self.notice = 'No newer eligible release was found in the latest 10 GitHub release records. This bounded check does not inspect older release pages.'
             return self.status()
         except (OSError, ValueError) as error:
             self.phase = 'check_failed'
@@ -485,7 +632,7 @@ class Updater:
                 if not active or active['old_install'] != str(self.root) or active['receipt'].get('phase') in TERMINAL:
                     raise UpdateError('No recoverable update belongs to this installation.')
                 directory = active['directory']; marker = directory / 'worker.json'
-                if marker.exists() and upgrade._pid_alive(read_json(marker).get('pid')):
+                if marker.exists() and worker_alive(marker):
                     raise UpdateError('That update worker is still running; close the old window and wait.')
                 phase = active['receipt'].get('phase')
                 if phase not in {'close_timeout', 'awaiting_close', 'installing', 'copying', 'starting', 'retargeting'}:

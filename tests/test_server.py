@@ -59,6 +59,46 @@ class BoundaryTests(unittest.TestCase):
     def test_document_reads_require_session(self):
         self.assertEqual(self.request('/api/file?id=fixture', token=False)[0], 401)
 
+    def test_watchdog_waits_for_background_backup(self):
+        from unittest.mock import Mock
+        backup = self.server.store.auto_backups
+        with patch.object(backup, 'status', create=True,
+                          side_effect=[{'running': True}, {'running': False}]) as status, \
+                patch('server.time.sleep'), patch('server.time.monotonic', return_value=10000), \
+                patch.object(self.server, 'shutdown') as shutdown, \
+                patch.object(self.server, 'last_activity', 0):
+            self.server.watchdog()
+            self.assertEqual(status.call_count, 2)
+            shutdown.assert_called_once()
+
+    def test_unattended_verification_releases_port_soon_then_restores_normal_idle(self):
+        try:
+            self.server.set_verification(True)
+            self.assertEqual(self.server.idle_seconds, 120)
+            self.assertTrue(self.server.update_verification)
+            self.server.set_verification(False)
+            self.assertEqual(self.server.idle_seconds, self.server.normal_idle_seconds)
+        finally:
+            self.server.set_verification(False)
+
+    def test_update_quiesces_scheduler_and_restarts_on_refusal(self):
+        from unittest.mock import Mock
+        from updater import UpdateError
+        backup = SimpleNamespace(status=lambda: {'running': False}, stop=Mock(), start=Mock())
+        events = []
+        backup.stop.side_effect = lambda: events.append('stopped')
+        def refuse(**kwargs):
+            self.assertEqual(events, ['stopped'])
+            raise UpdateError('Fixture refusal')
+        with patch.object(self.server.store, 'auto_backups', backup), \
+                patch.object(self.server.store, 'active_asks', 0, create=True), \
+                patch.object(self.server, 'updater', SimpleNamespace(install=refuse)):
+            status, _, _ = self.request('/api/updates/install', method='POST',
+                                       body={'approve': True, 'accept_unsigned': True})
+            self.assertEqual(status, 409)
+            backup.start.assert_called_once()
+            self.assertFalse(self.server.update_handoff)
+
     def test_foreign_origin_blocked_even_with_valid_session(self):
         self.assertEqual(self.request('/api/state', origin='https://unrelated.example')[0], 403)
 

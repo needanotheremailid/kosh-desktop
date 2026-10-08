@@ -8,6 +8,7 @@ import random
 from pathlib import Path
 import sys
 import tempfile
+import time
 import zipfile
 
 
@@ -36,7 +37,7 @@ def check_next_workflows(store, temporary, installed):
     assert result['comments'][0]['note_id'] != note['id'] and not result['comments'][0]['stale']
     updates = Updater(installed,cache_dir=Path(temporary)/'updates')
     status = updates.status()
-    assert status['current_version'] == '0.6.0' and status['phase'] == 'idle' and status['signature'] == 'not_verified'
+    assert status['current_version'] == '1.0.0-rc.1' and status['phase'] == 'idle' and status['signature'] == 'not_verified'
     return {'reviewer_letter':True,'dashboard':True,'automatic_backup_restore':True,'update_status_no_network':True}
 
 
@@ -62,11 +63,21 @@ def check_large_backup_and_revisions(store, temporary):
     assert store.dispatch('GET', query + '&version=1')['revisions'][0]['body'] == 'Before\n'
     assert store.dispatch('GET', query + '&version=2')['revisions'][0]['body'] == changed['body']
     archive = Path(temporary) / 'large-workspace.zip'
-    receipt = store.write_backup(workspace, archive)
+    def wait_job(body):
+        job = store.auto_backups.start_job(body)
+        deadline = time.monotonic() + 120
+        while job['state'] in {'queued', 'running'}:
+            assert time.monotonic() < deadline, 'Local backup job timed out.'
+            time.sleep(0.05)
+            job = store.auto_backups.job_status(job['job_id'])
+        assert job['state'] == 'complete', job.get('error')
+        return job['result']
+    receipt = wait_job({'operation':'backup', 'workspace_id':workspace,
+                        'path':str(archive), 'include_history':True})
     assert receipt['bytes'] > 47 * 1024 * 1024
-    preview = store.restore_backup_file(archive, preview_only=True, expected_sha256=receipt['sha256'], expected_size=receipt['bytes'])
+    preview = wait_job({'operation':'preview', 'path':str(archive)})
     assert preview['documents'] == 2 and preview['revisions'] == 1
-    restored = store.restore_backup_file(archive, expected_sha256=receipt['sha256'], expected_size=receipt['bytes'])
+    restored = store.auto_backups.restore_local({'preview_id':preview['preview_id'], 'approve':True})
     state = store.dispatch('GET', '/api/state?workspace_id=' + restored['workspace_id'])
     assert sorted(row['sha256'] for row in state['documents']) == sorted(hashes)
     assert state['notes'][0]['body'] == changed['body'] and state['notes'][0]['version'] == 2
@@ -178,6 +189,9 @@ for row in manifest['files']:
     assert hashlib.sha256(path.read_bytes()).hexdigest() == row['sha256'], row['path']
 sys.path.insert(0, str(root))
 import backend, csl_engine, csl_styles, manuscript, manuscript_templates, reading, tex_compile, word_citations
+from installation_health import check as installation_check
+diagnostics = installation_check(root, app_version='1.0.0-rc.1', app_build=manifest['build'])
+assert all(row['status'] == 'available' for row in diagnostics['components'].values() if row['requirement'] == 'required')
 import pymupdf, docx, lxml
 for module in (backend, csl_engine, csl_styles, manuscript, manuscript_templates, reading,
                tex_compile, word_citations, pymupdf, docx, lxml):
@@ -230,5 +244,6 @@ print(json.dumps({'ok':True,'build':manifest['build'],'verified_payload_files':l
                   'reading_workflow':reading_checks,
                   'next_workflows':next_checks,
                   'large_backup_and_revisions':large_checks,
+                  'installation_health':diagnostics,
                   'offline_compiled_pdf_pages':pages,'default_chicago_pdf_pages':chicago_pages,'native_word_fields':True,
                   'scope':'Fresh installed runtime checks; synthetic inputs; no desktop UI or native Word automation.'}))

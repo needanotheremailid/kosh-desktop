@@ -1,6 +1,6 @@
 'use strict';
 window.KoshAutoBackup = (() => {
-  let hooks, dialog, statusView, busy = false, preview = null, savedSets = [], timer;
+  let hooks, dialog, statusView, busy = false, preview = null, savedSets = [], timer, activeJob = null, trackingInterrupted = false;
   const find = selector => dialog.querySelector(selector);
   const stamp = seconds => seconds === null || seconds === undefined ? 'Never' : new Date(seconds * 1000).toLocaleString();
   const errorText = message => { find('#auto-backup-error').textContent = message || ''; };
@@ -14,6 +14,8 @@ window.KoshAutoBackup = (() => {
     busy = value;
     for (const control of dialog.querySelectorAll('input,select,button:not([data-auto-close])')) control.disabled = value;
     find('#auto-backup-restore').disabled = value || !preview || !find('#auto-backup-approve').checked;
+    find('#local-backup-cancel').disabled = !activeJob?.cancellable || activeJob.cancel_requested || !['queued','running'].includes(activeJob.state);
+    find('#local-backup-resume').disabled = value || !trackingInterrupted || !activeJob;
   }
   function renderPending() {
     const pending = hooks.pendingSummary(), exclusions = [];
@@ -34,6 +36,82 @@ window.KoshAutoBackup = (() => {
     find('#auto-backup-last-error').textContent = [status.last_error, status.clock_warning].filter(Boolean).join(' ');
     find('#auto-backup-notice').textContent = status.notice;
     renderPending();
+    if (!busy && status.active_job) renderJob(status.active_job);
+  }
+  const phases = {queued:'Queued',starting:'Starting',preparing_backup:'Preparing saved backup',writing_source:'Writing an original',checking_archive:'Checking written ZIP bytes',preparing_preview:'Preparing restore preview',staging_archive:'Staging a verified ZIP',validating_archive:'Validating archive entries',verifying_source:'Verifying an original',reading_source:'Reading an original',extracting_source:'Checking source extraction',saving_validation_text:'Saving temporary validation text',validating_records:'Checking saved records',checking_annotation:'Checking annotation geometry',validating_history:'Checking saved history',preview_ready:'Completing preview',preview_committed:'Completing preview',publishing:'Publishing validated backup',complete:'Complete',failed:'Failed',cancelled:'Cancelled'};
+  function renderJob(job) {
+    activeJob = job;
+    const label = job.operation === 'backup' ? 'Local backup' : job.operation === 'automatic' ? 'All-workspace backup' : 'Restore preview';
+    const bytes = Number.isFinite(job.bytes_total) && job.bytes_total > 0 ? ' · ' + (job.bytes_done / 1048576).toFixed(1) + ' / ' + (job.bytes_total / 1048576).toFixed(1) + ' MiB in this phase' : '';
+    find('#local-backup-job-status').textContent = label + ': ' + (job.cancel_requested && !['complete','failed','cancelled'].includes(job.state) ? 'Cancellation requested; waiting for the current safe checkpoint' : phases[job.phase] || job.phase) + bytes;
+    const progress = find('#local-backup-progress');
+    progress.hidden = !bytes;
+    if (bytes) progress.value = Math.min(100, Math.floor(job.bytes_done * 100 / job.bytes_total));
+    find('#local-backup-cancel').disabled = !job.cancellable || job.cancel_requested || !['queued','running'].includes(job.state);
+    find('#local-backup-recovery').textContent = job.recovery_path && ['failed','cancelled'].includes(job.state) ? 'Retained incomplete output: ' + job.recovery_path + ' · ' + (typeof job.retained_bytes === 'number' ? job.retained_bytes + ' known bytes' : 'size unavailable') + '. Existing work is unchanged.' : '';
+  }
+  async function runJob(body) {
+    clearPreview();
+    let job = await hooks.request('/local-backup/jobs', body);
+    trackingInterrupted = false;
+    return waitForJob(job);
+  }
+  async function waitForJob(job) {
+    let failures = 0;
+    renderJob(job);
+    while (!['complete','failed','cancelled'].includes(job.state)) {
+      await new Promise(resolve => setTimeout(resolve, 350));
+      try {
+        job = await hooks.request('/local-backup/jobs?job_id=' + encodeURIComponent(job.job_id));
+        failures = 0;
+      } catch (error) {
+        if (++failures < 3) continue;
+        trackingInterrupted = true;
+        throw new Error(error.message + ' Tracking is interrupted; the job may still be running or completed. Use Resume tracking to read this same job. No write was replayed.');
+      }
+      renderJob(job);
+    }
+    trackingInterrupted = false;
+    if (job.state !== 'complete') throw new Error(job.error || 'Operation did not complete. Existing saved work was retained.');
+    return job.result;
+  }
+  function renderPreview(value) {
+    preview = value;
+    const details = find('#auto-backup-preview-details');
+    details.replaceChildren();
+    details.append(element('h4', preview.title));
+    details.append(element('p', preview.documents + ' source(s) · ' + preview.notes + ' note(s) · ' + preview.revisions + ' earlier revision(s)'));
+    details.append(element('p', preview.history_included ? 'Revision history included.' : 'Revision history excluded.'));
+    details.append(element('p', preview.notice, 'muted small'));
+    details.append(element('p', 'SHA-256: ' + preview.sha256, 'auto-backup-path'));
+    if (preview.path) details.append(element('p', preview.path, 'auto-backup-path'));
+    if (preview.unverified_citations) details.append(element('p', preview.unverified_citations + ' earlier citation(s) remain unverified. Review their retained originals after restoring.', 'transformation-warning'));
+    find('#auto-backup-approval').hidden = false;
+  }
+  async function saveLocal(typedPath = null) {
+    await open();
+    await perform(async () => {
+      const workspace = hooks.workspace();
+      if (!workspace) throw new Error('Create or choose a workspace first.');
+      if (!await hooks.flushEdits()) throw new Error('Pending ordinary edits could not save. Keep this window open and resolve the error first.');
+      renderPending();
+      if (hooks.workspace() !== workspace) throw new Error('The workspace changed. Choose the workspace again before backing up.');
+      const selected = typeof typedPath === 'string' ? {cancelled:false,path:typedPath.trim()} : await hooks.request('/local-dialog', {kind:'backup-save'});
+      if (selected.cancelled) return;
+      if (!selected.path) throw new Error('Enter a complete local ZIP output path. The parent folder must already exist.');
+      const result = await runJob({operation:'backup',workspace_id:workspace,path:selected.path,include_history:true});
+      find('#local-backup-job-status').textContent = 'Saved and validated local ZIP: ' + result.path + ' · ' + result.bytes + ' bytes. Revision history included.';
+      await refreshStatus();
+    });
+  }
+  async function openLocal(typedPath = null) {
+    await open();
+    await perform(async () => {
+      const selected = typeof typedPath === 'string' ? {cancelled:false,path:typedPath.trim()} : await hooks.request('/local-dialog', {kind:'backup-open'});
+      if (selected.cancelled) return;
+      if (!selected.path) throw new Error('Enter the complete path of one existing local ZIP.');
+      renderPreview(await runJob({operation:'preview',path:selected.path}));
+    });
   }
   async function refreshStatus(populate = false) {
     const status = await hooks.request('/auto-backup');
@@ -105,10 +183,11 @@ window.KoshAutoBackup = (() => {
     dialog = element('dialog');
     dialog.id = 'auto-backup-dialog';
     dialog.setAttribute('aria-labelledby', 'auto-backup-title');
-    dialog.innerHTML = '<div class="dialog-heading"><h2 id="auto-backup-title">Automatic local backups</h2><button class="icon-button" data-auto-close aria-label="Close backup preferences">×</button></div>' +
-      '<p>Choose a local folder outside Kosh’s application and data folders. A separate drive provides better protection against loss of this computer.</p><p class="muted small">Large libraries are saved directly to disk in chunks. The 47 MiB browser-transfer limit does not apply here. Existing per-source, record and manifest limits still apply. Restore these sets in this panel with Kosh 0.6.0 or later.</p>' +
+    dialog.innerHTML = '<div class="dialog-heading"><h2 id="auto-backup-title">Local backup &amp; restore</h2><button class="icon-button" data-auto-close aria-label="Close backup preferences">×</button></div>' +
+      '<p>Save a workspace ZIP with history or choose a local ZIP for a read-only restore preview. Large libraries use the same streaming route as automatic backups. ZIPs are unencrypted; existing source, record and manifest bounds still apply.</p><div class="dialog-actions"><button class="button primary" id="local-backup-save">Save workspace ZIP locally</button><button class="button" id="local-backup-open">Choose ZIP &amp; preview restore</button></div><details><summary>Type a local path instead of using a dialog</summary><p class="muted small">Use a complete absolute path. Save needs an existing parent folder and a new .zip filename; restore reads only the named existing ZIP.</p><label for="local-backup-save-path">New local ZIP output path</label><input id="local-backup-save-path" autocomplete="off"><button class="button" id="local-backup-save-typed">Save ZIP at this path</button><label for="local-backup-open-path">Existing local ZIP path</label><input id="local-backup-open-path" autocomplete="off"><button class="button" id="local-backup-open-typed">Preview this ZIP</button></details><p id="local-backup-job-status" role="status" aria-live="polite"></p><progress id="local-backup-progress" max="100" hidden></progress><button class="button" id="local-backup-cancel" disabled>Cancel current operation</button><button class="button" id="local-backup-resume" disabled>Resume tracking</button><p class="muted small">Cancellation stops at a safe checkpoint before publication. A current PDF/image parser must finish first. Approved restore apply runs to completion.</p><p class="auto-backup-path" id="local-backup-recovery"></p><h3>Automatic backup schedule</h3>' +
+      '<p>Choose a local folder outside Kosh’s application and data folders. A separate drive provides better protection against loss of this computer. Scheduled backups include every workspace.</p>' +
       '<label class="backup-history"><input id="auto-backup-enabled" type="checkbox"> Enable automatic local backups</label>' +
-      '<label for="auto-backup-destination">Existing local backup folder · absolute path</label><input id="auto-backup-destination" autocomplete="off" placeholder="Paste the folder path you choose">' +
+      '<label for="auto-backup-destination">Existing local backup folder</label><button class="button" id="auto-backup-choose-folder">Choose backup folder</button><input id="auto-backup-destination" autocomplete="off" placeholder="Choose or paste the existing folder path">' +
       '<label for="auto-backup-interval">Interval while Kosh is open · minutes</label><input id="auto-backup-interval" type="number" min="15" max="10080" step="1">' +
       '<p class="muted small">15 minutes to 7 days. Backups catch up when Kosh next opens. No scheduled Windows task is installed; no earlier backup is deleted.</p>' +
       '<div class="dialog-actions"><button class="button" id="auto-backup-save">Save backup preferences</button><button class="button primary" id="auto-backup-run">Back up saved work now</button></div>' +
@@ -128,13 +207,35 @@ window.KoshAutoBackup = (() => {
     }
     const tools = document.querySelector('#backup-button')?.closest('.tool-section');
     if (tools) {
-      const button = element('button', 'Large local backups & restore', 'button');
-      button.addEventListener('click', open);
-      tools.append(button);
-      tools.append(element('p', 'Browser ZIP transfer is limited to 47 MiB. For larger libraries, use Large local backups & restore.', 'muted small'));
+      const compatibility = element('details');
+      compatibility.append(element('summary', 'Portable browser ZIP alternative · 47 MiB limit'));
+      for (const node of [...tools.childNodes]) compatibility.append(node);
+      tools.append(element('h3', 'Local workspace backup & restore'));
+      const save = element('button', 'Save workspace ZIP locally', 'button primary'), restore = element('button', 'Choose ZIP & preview restore', 'button'), preferences = element('button', 'Automatic backup preferences & saved sets', 'button');
+      save.addEventListener('click', saveLocal);restore.addEventListener('click', openLocal);preferences.addEventListener('click', open);
+      tools.append(save, restore, preferences, element('p', 'Local ZIPs include history, support larger libraries and restore into a separate workspace. Earlier backups remain; no overwrite or pruning.', 'muted small'), compatibility);
     }
-    find('[data-auto-close]').addEventListener('click', () => dialog.close());
+    find('[data-auto-close]').addEventListener('click', () => { if (!busy) dialog.close(); else errorText('Wait for completion or use Cancel current operation. Approved restore cannot be interrupted.'); });
+    dialog.addEventListener('cancel', event => { if (busy) {event.preventDefault();errorText('Use Cancel current operation, then wait for its safe checkpoint. Approved restore cannot be interrupted.');} });
     dialog.addEventListener('close', () => { clearInterval(timer); clearPreview(); });
+    find('#local-backup-save').addEventListener('click', saveLocal);
+    find('#local-backup-open').addEventListener('click', openLocal);
+    find('#local-backup-save-typed').addEventListener('click', () => saveLocal(find('#local-backup-save-path').value));
+    find('#local-backup-open-typed').addEventListener('click', () => openLocal(find('#local-backup-open-path').value));
+    find('#local-backup-cancel').addEventListener('click', async () => {
+      if (!activeJob?.cancellable) return;
+      try {const response = await hooks.request('/local-backup/cancel', {job_id:activeJob.job_id});find('#local-backup-job-status').textContent = response.notice;find('#local-backup-cancel').disabled = true;}
+      catch (error) {errorText(error.message);}
+    });
+    find('#local-backup-resume').addEventListener('click', () => perform(async () => {
+      if (!activeJob) return;
+      const job = await hooks.request('/local-backup/jobs?job_id=' + encodeURIComponent(activeJob.job_id));
+      const result = await waitForJob(job);
+      if (job.operation.startsWith('preview')) renderPreview(result);
+      else if (job.operation === 'backup') find('#local-backup-job-status').textContent = 'Saved and validated local ZIP: ' + result.path + ' · ' + result.bytes + ' bytes. Revision history included.';
+      else await refreshSets();
+    }));
+    find('#auto-backup-choose-folder').addEventListener('click', () => perform(async () => {const selected=await hooks.request('/local-dialog',{kind:'folder'});if(!selected.cancelled)find('#auto-backup-destination').value=selected.path;}));
     find('#auto-backup-save').addEventListener('click', () => perform(async () => {
       const enabled = find('#auto-backup-enabled').checked;
       if (enabled && !await hooks.flushEdits()) throw new Error('Resolve pending edits before enabling backups. Preferences were not changed.');
@@ -149,25 +250,15 @@ window.KoshAutoBackup = (() => {
       if (!await hooks.flushEdits()) throw new Error('Resolve pending edits before backing up saved work.');
       renderPending();
       find('#auto-backup-status').textContent = 'Backing up saved work…';
-      const result = await hooks.request('/auto-backup/run', {});
+      await runJob({operation:'automatic'});
       await refreshStatus();
       await refreshSets();
-      if (!result.ok) throw new Error(result.error);
     }));
     find('#auto-backup-refresh-sets').addEventListener('click', () => perform(refreshSets));
     find('#auto-backup-set').addEventListener('change', renderWorkspaces);
     find('#auto-backup-workspace').addEventListener('change', clearPreview);
     find('#auto-backup-preview').addEventListener('click', () => perform(async () => {
-      clearPreview();
-      preview = await hooks.request('/auto-backup/preview', {set_id: find('#auto-backup-set').value, workspace_id: find('#auto-backup-workspace').value});
-      const details = find('#auto-backup-preview-details');
-      details.append(element('h4', preview.title));
-      details.append(element('p', preview.documents + ' source(s) · ' + preview.notes + ' note(s) · ' + preview.revisions + ' earlier revision(s)'));
-      details.append(element('p', preview.history_included ? 'Revision history included.' : 'Revision history excluded.'));
-      details.append(element('p', preview.notice, 'muted small'));
-      details.append(element('p', 'SHA-256: ' + preview.sha256, 'auto-backup-path'));
-      if (preview.unverified_citations) details.append(element('p', preview.unverified_citations + ' earlier citation(s) remain unverified. Review their retained originals after restoring.', 'transformation-warning'));
-      find('#auto-backup-approval').hidden = false;
+      renderPreview(await runJob({operation:'preview-set',set_id:find('#auto-backup-set').value,workspace_id:find('#auto-backup-workspace').value}));
     }));
     find('#auto-backup-approve').addEventListener('change', () => { find('#auto-backup-restore').disabled = busy || !preview || !find('#auto-backup-approve').checked; });
     find('#auto-backup-restore').addEventListener('click', () => perform(async () => {
@@ -175,10 +266,11 @@ window.KoshAutoBackup = (() => {
       if (!await hooks.flushEdits()) throw new Error('Resolve pending edits before restoring into a separate workspace.');
       const previewId = preview.preview_id;
       clearPreview();
-      const result = await hooks.request('/auto-backup/restore', {preview_id: previewId, approve: true});
+      find('#local-backup-job-status').textContent='Applying approved restore into a separate workspace. Cancellation is unavailable until this finishes.';
+      const result = await hooks.request('/local-backup/restore', {preview_id: previewId, approve: true});
       await hooks.onRestored(result);
       dialog.close();
     }));
   }
-  return {mount, open};
+  return {mount, open, saveLocal, openLocal};
 })();

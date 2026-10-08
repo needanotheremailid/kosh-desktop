@@ -12,12 +12,68 @@ internal static class Launcher
     static readonly JavaScriptSerializer Json = new JavaScriptSerializer();
     static string Root;
     [STAThread]
-    public static void Main()
+    public static void Main(string[] args)
     {
         Application.EnableVisualStyles();
+        if (args.Length > 0)
+        {
+            if (args.Length != 2 || args[0] != "--dialog") { Environment.ExitCode = 2; return; }
+            try { ChoosePath(args[1]); }
+            catch { Environment.ExitCode = 1; }
+            return;
+        }
         Root = Path.GetFullPath(Path.Combine(AppDomain.CurrentDomain.BaseDirectory, ".."));
         try { Open(); }
         catch (Exception ex) { MessageBox.Show(ex.Message + "\n\nYour workspace files remain in the app's data folder.", "Kosh — could not open", MessageBoxButtons.OK, MessageBoxIcon.Error); }
+    }
+
+    static void ChoosePath(string kind)
+    {
+        using (var owner = new Form())
+        {
+        owner.ShowInTaskbar = false;
+        owner.Opacity = 0;
+        owner.TopMost = true;
+        owner.Show();
+        string selected = "";
+        if (kind == "folder")
+        {
+            using (var dialog = new FolderBrowserDialog())
+            {
+                dialog.Description = "Choose an existing folder for Kosh backups";
+                dialog.ShowNewFolderButton = false;
+                if (dialog.ShowDialog(owner) == DialogResult.OK) selected = dialog.SelectedPath;
+            }
+        }
+        else if (kind == "backup-open")
+        {
+            using (var dialog = new OpenFileDialog())
+            {
+                dialog.Title = "Choose a Kosh workspace backup";
+                dialog.Filter = "Kosh workspace backup (*.zip)|*.zip";
+                dialog.CheckFileExists = true;
+                dialog.Multiselect = false;
+                if (dialog.ShowDialog(owner) == DialogResult.OK) selected = dialog.FileName;
+            }
+        }
+        else if (kind == "backup-save")
+        {
+            using (var dialog = new SaveFileDialog())
+            {
+                dialog.Title = "Save a new Kosh workspace backup";
+                dialog.Filter = "Kosh workspace backup (*.zip)|*.zip";
+                dialog.DefaultExt = "zip";
+                dialog.AddExtension = true;
+                dialog.CheckPathExists = true;
+                dialog.OverwritePrompt = false;
+                dialog.FileName = "Kosh-workspace-" + DateTime.Now.ToString("yyyyMMdd-HHmmss") + ".zip";
+                if (dialog.ShowDialog(owner) == DialogResult.OK) selected = dialog.FileName;
+            }
+        }
+        else { Environment.ExitCode = 2; return; }
+        Console.OutputEncoding = new System.Text.UTF8Encoding(false);
+        Console.Write(Json.Serialize(new { cancelled = selected.Length == 0, path = selected }));
+        }
     }
 
     static void Open()
@@ -36,10 +92,10 @@ internal static class Launcher
                 if (port == 0)
                 {
                     string python = Path.Combine(Root, "runtime.json");
-                    if (!File.Exists(python)) throw new Exception("Run build.ps1 once to configure the installed Python runtime.");
+                    if (!File.Exists(python)) throw new Exception("Kosh's runtime configuration is missing. Reinstall into a new folder and retain this installation and its data for recovery.");
                     var cfg = Json.Deserialize<System.Collections.Generic.Dictionary<string, object>>(File.ReadAllText(python));
                     string exe = Convert.ToString(cfg["python"]);
-                    if (!File.Exists(exe)) throw new Exception("Configured Python runtime is missing. Run build.ps1 again.");
+                    if (!File.Exists(exe)) throw new Exception("Kosh's bundled runtime is missing. Reinstall into a new folder and retain this installation and its data for recovery.");
                     var psi = new ProcessStartInfo(exe, "-E -s \"" + Path.Combine(Root, "server.py") + "\" --data-dir \"" + data + "\" --ready-file \"" + ready + "\"");
                     psi.WorkingDirectory = Root;
                     psi.UseShellExecute = false;
@@ -49,7 +105,7 @@ internal static class Launcher
                     for (int i = 0; i < 200 && port == 0; i++)
                     {
                         Thread.Sleep(100);
-                        if (child.HasExited) throw new Exception("The local service failed to start. Run python server.py to inspect the error.");
+                        if (child.HasExited) throw new Exception("Kosh's local service could not start. Close other Kosh windows and retry. If it still fails, retain this installation and its data before reinstalling into a new folder.");
                         port = ReadPort(ready);
                     }
                     if (port == 0) throw new Exception("The local service did not become ready within 20 seconds.");
@@ -89,7 +145,7 @@ internal static class Launcher
                 {
                     var config = Json.Deserialize<System.Collections.Generic.Dictionary<string, object>>(File.ReadAllText(runtime));
                     if (config.ContainsKey("build") && Convert.ToString(config["build"]) != Convert.ToString(health["build"]))
-                        throw new StaleBuildException("An earlier app build is still running. Use Quit app in that window, then reopen Research Desktop.");
+                        throw new StaleBuildException("An earlier app build is still running. Use Quit app in that window, then reopen Kosh.");
                 }
             }
             return port;

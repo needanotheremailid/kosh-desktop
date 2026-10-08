@@ -4,11 +4,23 @@
 
 Kosh is a research desk for Windows. Read sources beside your draft, keep notes linked to the evidence, and take your writing into Word, PDF or LaTeX.
 
-**[Download for Windows — 0.6.0 beta](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.6.0/Kosh-0.6.0-Setup.exe)** · [Release notes](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v0.6.0) · [User guide](USER_GUIDE.md)
+**[Download for Windows — 1.0.0-rc.1](https://github.com/needanotheremailid/kosh-desktop/releases/download/v1.0.0-rc.1/Kosh-1.0.0-rc.1-Setup.exe)** · [Release notes](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v1.0.0-rc.1) · [User guide](USER_GUIDE.md)
 
 Already using an older Kosh installation? Follow the [copy-only upgrade guide](USER_GUIDE.md#upgrade-a-bundled-installation) to gain the new controls while retaining your old installation and backup.
 
-64-bit Windows 11 with Microsoft Edge and .NET Framework · no administrator rights needed · **unsigned beta**: Windows may warn about an unknown publisher. [SHA-256 checksums](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.6.0/SHA256SUMS.txt).
+64-bit Windows 11 with Microsoft Edge and .NET Framework · no administrator rights needed · **unsigned release candidate**: Windows may warn about an unknown publisher. [SHA-256 checksums](https://github.com/needanotheremailid/kosh-desktop/releases/download/v1.0.0-rc.1/SHA256SUMS.txt).
+
+## Toward 1.0
+
+- **Local backup & restore:** choose a folder or ZIP through Windows, follow copying and validation progress, and cancel before publication. Large manual and automatic backups now share the streaming route. Restores create separate workspaces.
+- **Check this installation:** see which local components are available and what to do when one is missing. Preview a small privacy-safe diagnostic report before downloading it; nothing is uploaded.
+- **Recovery and responsiveness:** interrupted update verification can resume from retained proof, activated installations no longer depend on the update cache, and passage searches verify only the originals behind the results they return.
+
+This is a release candidate. Independent user trials remain [an explicit acceptance step](ACCEPTANCE.md), and signing remains pending. Installed 0.6.0 cannot discover RC version tags; use the [copy-only upgrade](USER_GUIDE.md#upgrade-a-bundled-installation) for this transition.
+
+![Kosh release-candidate local backup and restore controls](assets/screenshots/kosh-local-backup-100rc1.png)
+
+*The working RC interface with an invented reading workspace. Local manual backups work with automatic scheduling off; new installations contain no example records.*
 
 ![Kosh writing view with a manuscript and citation controls](assets/screenshots/kosh-writing.png)
 
@@ -120,12 +132,12 @@ Kosh has no application account, telemetry or cloud sync. Ordinary reading, savi
 
 AI is optional. Local AI needs separately installed Ollama, a suitable model and sufficient hardware. Codex/Claude help needs your own installed CLI and authenticated provider access; provider charges and limits are separate from Kosh. Approved content may reach that provider, and its CLI can add instructions or environment metadata. Kosh downloads no model weights.
 
-This is an **unsigned Windows beta**: Windows may warn about an unknown publisher. Check the release origin and checksum before running it. Local data and workspace ZIPs are unencrypted; keep private material out of public reports. Review OCR, bibliographic metadata and generated writing. Layout profiles do not certify journal compliance, and frontmatter blinding does not redact manuscript content. See the [full guide](USER_GUIDE.md) and [security boundaries](SECURITY.md).
+This is an **unsigned Windows release candidate**: Windows may warn about an unknown publisher. Check the release origin and checksum before running it. Local data and workspace ZIPs are unencrypted; keep private material out of public reports. Review OCR, bibliographic metadata and generated writing. Layout profiles do not certify journal compliance, and frontmatter blinding does not redact manuscript content. See the [full guide](USER_GUIDE.md) and [security boundaries](SECURITY.md).
 
-In PowerShell, compare the result below with the installer's entry in [SHA256SUMS.txt](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.6.0/SHA256SUMS.txt). A match checks transfer consistency with that release; it does not verify the publisher:
+In PowerShell, compare the result below with the installer's entry in [SHA256SUMS.txt](https://github.com/needanotheremailid/kosh-desktop/releases/download/v1.0.0-rc.1/SHA256SUMS.txt). A match checks transfer consistency with that release; it does not verify the publisher:
 
 ```powershell
-(Get-FileHash .\Kosh-0.6.0-Setup.exe -Algorithm SHA256).Hash
+(Get-FileHash .\Kosh-1.0.0-rc.1-Setup.exe -Algorithm SHA256).Hash
 ```
 
 ## Learn more and contribute

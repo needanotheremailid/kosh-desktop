@@ -1,6 +1,7 @@
 """Bounded file I/O for local ZIPs; validation/remapping remain in Store."""
 from collections.abc import Mapping, MutableMapping
 import hashlib
+import io
 import json
 import os
 from pathlib import Path
@@ -16,8 +17,18 @@ TOTAL_LIMIT = b.FILE_LIMIT * (b.BACKUP_COLLECTION_LIMITS['documents'] + 1)
 FILE_ARCHIVE_LIMIT = TOTAL_LIMIT + 1024 * 1024
 
 
-def stream_copy(source, output=None, *, limit=FILE_ARCHIVE_LIMIT):
+class ArchiveCancelled(Exception):
+    """Cooperative cancellation, separate from malformed input/storage errors."""
+
+
+def checkpoint(control, phase, done=0, total=None):
+    if control is not None:
+        control.checkpoint(phase, done=done, total=total)
+
+
+def stream_copy(source, output=None, *, limit=FILE_ARCHIVE_LIMIT, control=None, phase='reading', total=None):
     digest, size = hashlib.sha256(), 0
+    checkpoint(control, phase, total=total)
     while block := source.read(CHUNK_SIZE):
         size += len(block)
         if size > limit:
@@ -25,15 +36,17 @@ def stream_copy(source, output=None, *, limit=FILE_ARCHIVE_LIMIT):
         digest.update(block)
         if output is not None:
             output.write(block)
+        checkpoint(control, phase, done=size, total=total)
     return size, digest.hexdigest()
 
 
-def hash_file(path, *, limit=FILE_ARCHIVE_LIMIT):
+def hash_file(path, *, limit=FILE_ARCHIVE_LIMIT, control=None):
     with Path(path).open('rb') as source:
-        return stream_copy(source, limit=limit)
+        return stream_copy(source, limit=limit, control=control, phase='checking_archive', total=Path(path).stat().st_size)
 
 
-def write_snapshot(store, snapshot, target):
+def write_snapshot(store, snapshot, target, control=None):
+    checkpoint(control, 'preparing_backup')
     manifest = json.dumps(snapshot, ensure_ascii=False, indent=2).encode('utf-8')
     if len(manifest) > b.FILE_LIMIT:
         raise b.AppError('Workspace manifest exceeds its 32 MiB limit. No completed backup was published.', 413)
@@ -45,30 +58,38 @@ def write_snapshot(store, snapshot, target):
         with zipfile.ZipFile(output, 'w', compression=zipfile.ZIP_STORED, allowZip64=True) as archive:
             archive.writestr('manifest.json', manifest)
             for document in snapshot['documents']:
+                checkpoint(control, 'writing_source', total=document['size'])
                 path = store.root / document['path']
                 if path.is_symlink() or path.resolve().parent != store.originals or not path.is_file():
                     raise b.AppError('Managed original is missing or outside the data folder. No completed backup was published.', 409)
                 if path.stat().st_size != document['size'] or document['size'] > b.FILE_LIMIT:
                     raise b.AppError('Managed original size changed. No completed backup was published.', 409)
                 with path.open('rb') as source, archive.open(document['path'], 'w', force_zip64=True) as member:
-                    size, digest = stream_copy(source, member, limit=b.FILE_LIMIT)
+                    size, digest = stream_copy(source, member, limit=b.FILE_LIMIT, control=control,
+                                               phase='writing_source', total=document['size'])
                 if size != document['size'] or digest != document['sha256']:
                     raise b.AppError('Managed original hash changed. No completed backup was published.', 409)
         output.flush()
         os.fsync(output.fileno())
-    size, digest = hash_file(target)
+    size, digest = hash_file(target, control=control)
     return {'bytes': size, 'sha256': digest,
             'counts': {key: len(snapshot[key]) for key in b.BACKUP_COLLECTION_LIMITS}}
 
 
 class ZipOriginals(Mapping):
     """Keep member identities only; materialize at most one bounded original."""
-    def __init__(self, archive):
+    def __init__(self, archive, control=None):
         self.archive = archive
         self.members = {}
+        self.control = control
 
     def __getitem__(self, key):
-        return self.archive.read(self.members[key])
+        if self.control is None:
+            return self.archive.read(self.members[key])
+        with self.archive.open(self.members[key]) as source, io.BytesIO() as output:
+            stream_copy(source, output, limit=b.FILE_LIMIT, control=self.control,
+                        phase='reading_source', total=self.archive.getinfo(self.members[key]).file_size)
+            return output.getvalue()
 
     def __iter__(self):
         return iter(self.members)
@@ -78,7 +99,8 @@ class ZipOriginals(Mapping):
 
     def add_verified(self, key, member, size, digest):
         with self.archive.open(member) as source:
-            actual_size, actual_digest = stream_copy(source, limit=b.FILE_LIMIT)
+            actual_size, actual_digest = stream_copy(source, limit=b.FILE_LIMIT, control=self.control,
+                                                    phase='verifying_source', total=size)
         if size != actual_size or digest != actual_digest:
             raise b.AppError('Backup original failed its size or SHA256 check.')
         self.members[key] = member
@@ -99,18 +121,22 @@ class ZipOriginals(Mapping):
 
 class SpilledExtractions(MutableMapping):
     """Validated text lives on disk instead of accumulating across the library."""
-    def __init__(self, directory):
+    def __init__(self, directory, control=None):
         self.directory = Path(directory)
         self.files = {}
+        self.control = control
 
     def __getitem__(self, key):
+        checkpoint(self.control, 'validating_records')
         return json.loads(self.files[key].read_text(encoding='utf-8'))
 
     def __setitem__(self, key, value):
+        checkpoint(self.control, 'saving_validation_text')
         path = self.directory / (key + '.json')
         with path.open('x', encoding='utf-8') as output:
             json.dump(value, output, ensure_ascii=False)
         self.files[key] = path
+        checkpoint(self.control, 'validating_records')
 
     def __delitem__(self, key):
         raise TypeError('Validated extraction records are immutable.')
@@ -122,7 +148,10 @@ class SpilledExtractions(MutableMapping):
         return len(self.files)
 
 
-def restore_file(store, path, *, preview_only=False, expected_sha256=None, expected_size=None):
+def restore_file(store, path, *, preview_only=False, expected_sha256=None, expected_size=None, control=None):
+    if not preview_only:
+        control = None  # Approved apply is never interrupted midway through publication.
+    checkpoint(control, 'preparing_preview')
     path = Path(path)
     if path.is_symlink() or not path.is_file() or path.stat().st_size > FILE_ARCHIVE_LIMIT:
         raise b.AppError('Selected backup file is missing, linked or exceeds the record-derived archive limit.')
@@ -131,8 +160,11 @@ def restore_file(store, path, *, preview_only=False, expected_sha256=None, expec
     # the verdict and application. Cleanup removes only this owned scratch tree.
     with tempfile.TemporaryDirectory(prefix='kosh-archive-') as scratch:
         stage = Path(scratch) / 'selected.zip'
+        required = path.stat().st_size
+        if shutil.disk_usage(scratch).free < required:
+            raise b.AppError('Temporary validation storage has insufficient free space for the selected ZIP. No workspace was created; the selected file was retained.', 413)
         with path.open('rb') as source, stage.open('xb') as output:
-            size, digest = stream_copy(source, output)
+            size, digest = stream_copy(source, output, control=control, phase='staging_archive', total=path.stat().st_size)
         if expected_size is not None and size != expected_size or expected_sha256 is not None and digest != expected_sha256:
             raise b.AppError('Backup ZIP changed or failed its SHA-256 byte check. No restore was performed.')
         try:
@@ -144,7 +176,7 @@ def restore_file(store, path, *, preview_only=False, expected_sha256=None, expec
                     # snapshot outside the DB lock. Store serializes only native
                     # PDF/image parser lifetimes; publication keeps the full lock.
                     return store._restore_archive(archive, preview_only=True, file_backed=True,
-                                                  spill_directory=scratch)
+                                                  spill_directory=scratch, control=control)
                 with store.lock:
                     store._ensure_open()
                     return store._restore_archive(archive, preview_only=preview_only, file_backed=True,

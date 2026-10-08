@@ -20,10 +20,12 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Git authentication setup failed.' }
           gh repo clone "$env:GITHUB_REPOSITORY" . -- --no-checkout
           if ($LASTEXITCODE -ne 0) { throw 'Checkout failed.' }
-          git fetch origin "$env:GITHUB_REF" --depth=1
+          git fetch origin "$env:GITHUB_SHA" --depth=1
           if ($LASTEXITCODE -ne 0) { throw 'Revision fetch failed.' }
           git checkout --detach FETCH_HEAD
           if ($LASTEXITCODE -ne 0) { throw 'Revision checkout failed.' }
+          $checkedRevision = git rev-parse HEAD
+          if ($LASTEXITCODE -ne 0 -or $checkedRevision -ne $env:GITHUB_SHA) { throw 'Checked revision differs from the requested event commit.' }
       - name: Check Python and JavaScript syntax
         shell: pwsh
         run: |
@@ -39,7 +41,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Reading UI checks failed.' }
           node tests/test_writing_review_ui.js
           if ($LASTEXITCODE -ne 0) { throw 'Writing review checks failed.' }
-          foreach ($module in @('auto_backup','reviewer','project_review','updater','maintenance','revisions')) {
+          foreach ($module in @('auto_backup','reviewer','project_review','updater','maintenance','revisions','installation_health')) {
             node --check "ui/$module.js"
             if ($LASTEXITCODE -ne 0) { throw "Syntax check failed: $module" }
           }
@@ -49,6 +51,22 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Project review UI checks failed.' }
           node tests/test_revision_compare_ui.js
           if ($LASTEXITCODE -ne 0) { throw 'Revision comparison UI checks failed.' }
+          node tests/test_installation_health_ui.js
+          if ($LASTEXITCODE -ne 0) { throw 'Installation diagnostics UI checks failed.' }
+      - name: Compile the Windows launcher without running a native dialog
+        shell: pwsh
+        run: |
+          $launcherCompiler = Join-Path $env:WINDIR 'Microsoft.NET\Framework64\v4.0.30319\csc.exe'
+          $launcherOutput = Join-Path $env:RUNNER_TEMP 'Kosh-launcher-source-check.exe'
+          $launcherSource = Join-Path $PWD 'native\Launcher.cs'
+          if (-not (Test-Path -LiteralPath $launcherCompiler -PathType Leaf)) { throw 'The installed .NET Framework compiler is unavailable.' }
+          & $launcherCompiler /nologo /target:winexe /optimize+ /reference:System.Windows.Forms.dll /reference:System.Web.Extensions.dll "/out:$launcherOutput" "$launcherSource"
+          if ($LASTEXITCODE -ne 0) { throw 'Native launcher compilation failed.' }
+      - name: Check diagnostic privacy and local backup/dialog contracts
+        shell: pwsh
+        run: |
+          python -m unittest tests.test_installation_health tests.test_local_dialog tests.test_local_backup_ui tests.test_search_work_budget -v
+          if ($LASTEXITCODE -ne 0) { throw 'Diagnostic privacy or local backup/dialog checks failed.' }
       - name: Check bibliography parsing and folder recovery
         shell: pwsh
         run: |

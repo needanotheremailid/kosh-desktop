@@ -2,7 +2,7 @@
 
 Kosh is a local Windows research desk with original application code and an attributed offline citation processor, CSL styles and runtimes. Its library starts empty. It adapts research/writing workflows; another research product's accounts, subscriptions, application code and cloud infrastructure are not included. [CREDITS.md](CREDITS.md) and [THIRD_PARTY.md](THIRD_PARTY.md) identify the included dependencies.
 
-This describes Kosh 0.6.0. File-backed larger automatic backups/restore and saved manuscript revision comparison require 0.6.0. Automatic backup scheduling, in-app updates, reviewer responses, project review and six additional agent tools were introduced in 0.5.0. The fixed agent registry remains at 63 tools. Older installations retain their previous behavior until upgraded to a matching package. Source, synthetic tests, rendered output, the installed release and a different clean computer are separate proof layers; consult the matching release receipts for build identity and acceptance.
+This describes Kosh 1.0.0-rc.1. Unified streaming local backup/restore with progress and cancellation, Windows file selection, installation health, previewable diagnostics and durable update activation are RC additions. Saved revision comparison and larger automatic sets arrived in 0.6.0. The fixed agent registry remains at 63 tools. Historical rows retain introduction versions. Older installations keep their behavior until upgraded; 0.6.0 cannot discover RC tags. Source, invented test inputs, rendered output, installed release and independent Windows use are separate proof layers. See [acceptance](ACCEPTANCE.md) and matching release receipts for what was tested.
 
 ## Available workflow
 
@@ -23,8 +23,9 @@ This describes Kosh 0.6.0. File-backed larger automatic backups/restore and save
 | Attach | Reviewed catalogue metadata linked to an imported paper | Expected metadata version; both originals remain; identity needs review |
 | Export | MD/static DOCX/editable native Word/PDF/compiled LaTeX PDF/TEX/TeX ZIP/BIB/RIS/CSL JSON/CSV/HTML/reading ZIP | Saved scope; audit opt-in; native Word styles separate from CSL |
 | Format manuscript | Configurable research/review/case-report layout and optional blank outline | User supplies frontmatter; blinding omits supplied author frontmatter only; no named-journal compliance claim |
-| Recover | Note/job history; current/history manual ZIP; larger file-backed automatic sets; fresh restore; copy-only upgrade | Automatic archive limits differ from the 47 MiB manual transfer bound; ZIPs exclude browser/folder/job journals and embedding cache |
-| Use agents | Fixed CLI and 63 MCP tools in 0.6.0 and 0.5.0; 0.4.0 has 57 | No new tools in 0.6.0; existing note-history reads saved versions; explicit scopes/versions |
+| Recover | Note/job history; streaming local ZIPs and automatic sets; progress/cancel before publication; fresh restore; copy-only upgrade | Browser/CLI transfers retain 47 MiB bound; ZIPs exclude browser/folder/job journals and embedding cache |
+| Check installation | Explicit fixed-component availability check and optional previewable diagnostics JSON | No research scan, raw logs, paths, provider call or automatic upload; not a full installation-integrity test |
+| Use agents | Fixed CLI and 63 MCP tools in 1.0.0-rc.1; 0.4.0 has 57 | No arbitrary command escape hatch; existing note-history reads saved versions; explicit scopes/versions |
 | Edit files | Exact local diffs and optional chosen-file model proposals | Separate approval; retained originals; per-file publication may leave a partial batch |
 | Use desktop | Getting started, Help, hover explanations, three layouts, light/dark | Preferences do not change research records |
 
@@ -61,7 +62,7 @@ These four workflows require Kosh 0.5.0. Their controls are found in Settings or
 
 | Workflow | Current-source behavior | Practical boundary |
 |---|---|---|
-| Automatic local backups — Settings | Explicit opt-in, user-selected existing local folder, 15-minute–7-day interval, one launch catch-up, complete sets for all workspaces with history, readback/restore validation, last success/failure and exact restore preview; also available in Exports & backup | Runs only while Kosh is open; 0.6.0 automatic sets use the larger file-backed bound above, while manual ZIP transfer stays 47 MiB; no pruning or Windows scheduled task; browser-only recovery is excluded |
+| Automatic local backups — Settings | Explicit opt-in, user-selected existing local folder, 15-minute–7-day interval, one launch catch-up, complete sets for all workspaces with history, readback/restore validation, last success/failure and exact restore preview; also available in Exports & backup | Runs only while Kosh is open; local manual ZIPs and automatic sets use streaming files in this RC, while browser/CLI ZIP transfer stays 47 MiB; no pruning or Windows scheduled task; browser-only recovery is excluded |
 | Kosh updates — Settings | Separate public GitHub release check, named installer/checksum download and unsigned execution approval; fresh sibling installation, stopped data copy, startup/build/database checks before shortcut retarget | Installed-package execution only; old copy/data retained; interrupted work needs explicit resume/recovery; newer candidate records block automatic shortcut rollback |
 | Reviewer responses — More | Exact saved manuscript passage/version/occurrence, manual comment/planned/revised/response fields, expected reviewer version, retained field/link changes, archive/restore and saved local text-letter export | Records do not edit the manuscript; stale links and revised-wording presence are disclosed; pending fields remain separate browser recovery; no provider request or submission |
 | Project review — More | On-demand saved draft/active recorded-claim review across the selected workspace, timestamp, per-draft checks, unresolved references, missing metadata, stale/source-needed/current checked claim counts and draft navigation | Counts can overlap; unrecorded claims are unassessed; failed checks show reasons and Unknown incomplete totals; no scientific-support or readiness certification |
@@ -146,6 +147,9 @@ The original approved Beeblio inspection produced these rows. Included means wor
 | 61 | Project review — 0.5.0 | Selected-workspace saved draft/recorded-claim checks with timestamp and Unknown incomplete totals; no support/readiness certification |
 | 62 | Larger automatic sets — 0.6.0 | File-backed ZIP creation/validation/restore within unchanged file/manifest/record/history bounds; manual browser/CLI transfer still capped at 47 MiB |
 | 63 | Saved revision comparison — 0.6.0 | Read-only title/body plain text, selected saved versions, aligned differences/counts/navigation and labelled coarse/paginated display; no restore or new revision |
+| 64 | Unified local recovery — 1.0.0-rc.1 | Windows selection or typed local path, streaming manual ZIPs even with scheduling off, background progress and cancellation before publication; approved apply creates a separate workspace |
+| 65 | Installation diagnostics — 1.0.0-rc.1 | Fixed local component checks and remedies, exact allowlisted JSON preview and optional download; no document scans or automatic uploads |
+| 66 | Durable update activation — 1.0.0-rc.1 | Bound local activation proof and retained-record recovery, numeric RC version ordering and explicit release-channel policy |
 
 ## Other approved references
 

@@ -1,0 +1,11 @@
+.installation-health-dialog{width:calc(100% - var(--pad));max-width:calc(var(--list-w) * 4);padding:calc(var(--pad) / 2)}
+.installation-health-dialog [hidden]{display:none!important}
+.installation-health-heading,.installation-health-actions{display:flex;align-items:center;justify-content:space-between;gap:var(--radius-lg);flex-wrap:wrap;margin-bottom:var(--radius-lg)}
+.installation-health-heading h2{margin:0}.installation-health-identity{overflow-wrap:anywhere;background:var(--sunk);padding:var(--radius-lg)}
+.installation-health-component{display:grid;grid-template-columns:var(--list-w) minmax(0,1fr);gap:var(--radius-lg);border-top:1px solid var(--line);padding-block:var(--radius-lg)}
+.installation-health-component h3{margin:0}.installation-health-component p{margin:0 0 var(--radius)}.installation-health-component-status{font-weight:600}
+.installation-health-languages{margin:var(--radius) 0 0;padding-left:var(--pad)}
+.installation-health-privacy{padding:var(--radius-lg);border-left:var(--radius) solid var(--line-strong);background:var(--sunk)}
+.installation-health-actions{justify-content:flex-start;position:sticky;bottom:0;background:var(--surface);padding-block:var(--radius-lg);border-top:1px solid var(--line)}
+.installation-health-preview{border-top:1px solid var(--line);padding-top:var(--radius-lg)}.installation-health-json{width:100%;min-height:var(--list-w);font-family:var(--font-mono);white-space:pre;overflow:auto;background:var(--sunk)}
+@media(max-width:700px){.installation-health-component{grid-template-columns:1fr}.installation-health-component h3{margin-bottom:var(--radius)}.installation-health-actions{position:static}}

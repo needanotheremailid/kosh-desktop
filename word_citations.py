@@ -125,7 +125,21 @@ def render_live_docx(markdown, documents, *, word_style='ieee', image_resolver=N
                 if not piece:
                     continue
                 if piece in mapping:
-                    replacements = _field(*mapping[piece])
+                    code, result = mapping[piece]
+                    replacements = _field(code, result)
+                    if code.strip().startswith('BIBLIOGRAPHY '):
+                        # Word replaces the field result with a bibliography
+                        # table. Keep its nonprinting end outside that result,
+                        # with a small paragraph mark, so refresh cannot leave a
+                        # normal-sized empty closing paragraph on a new page.
+                        closing = ET.Element('{'+W+'}p')
+                        properties = ET.SubElement(closing, '{'+W+'}pPr')
+                        ET.SubElement(properties, '{'+W+'}spacing', {'{'+W+'}before':'0', '{'+W+'}after':'0'})
+                        mark = ET.SubElement(properties, '{'+W+'}rPr')
+                        for name in ('sz', 'szCs'):
+                            ET.SubElement(mark, '{'+W+'}'+name, {'{'+W+'}val':'2'})
+                        closing.append(replacements.pop())
+                        paragraph.addnext(closing)
                 else:
                     replacement = ET.Element('{'+W+'}r')
                     properties = run.find('{'+W+'}rPr')

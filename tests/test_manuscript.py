@@ -32,6 +32,10 @@ NS = {'w': 'http://schemas.openxmlformats.org/wordprocessingml/2006/main', 'r': 
 
 
 class ManuscriptTests(unittest.TestCase):
+    def test_tex_table_ends_before_following_paragraph(self):
+        value = render_latex('| Session | Count |\n| --- | --- |\n| Morning | 12 |\n\nAfter the table.')
+        self.assertIn('\\end{tabular}\\par', value)
+
     def test_shared_blocks_are_semantic(self):
         blocks = parse_markdown(SAMPLE)
         self.assertEqual([b['type'] for b in blocks], ['heading', 'paragraph', 'list', 'list', 'quote', 'code', 'table', 'paragraph'])

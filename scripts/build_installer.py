@@ -33,6 +33,7 @@ SOURCE_FILES.add('auto_backup.py')
 SOURCE_FILES.add('workspace_archive.py')
 SOURCE_FILES.add('reviewer.py')
 SOURCE_FILES.update({'updater.py', 'updater_worker.py'})
+SOURCE_FILES.update({'ACCEPTANCE.md', 'installation_health.py', 'local_dialog.py'})
 
 
 def normalized_name(name):

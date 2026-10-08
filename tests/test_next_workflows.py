@@ -83,11 +83,21 @@ class NextWorkflows(unittest.TestCase):
             self.assertEqual(rejected.exception.status, 409)
             self.assertTrue(self.server.update_verification)
             start.assert_not_called()
-        with patch('updater.activation_ready', return_value=True), patch.object(self.store.auto_backups, 'start') as start:
+        with patch('updater.recover_ready', return_value=True), patch('updater.activation_ready', return_value=True), patch('updater.confirm_activation', return_value=True) as confirm, patch.object(self.store.auto_backups, 'start') as start:
             result = self.client.request('/api/updates/activate', {})
             self.assertTrue(result['activated'])
             self.assertFalse(self.server.update_verification)
+            confirm.assert_called_once()
             start.assert_called_once()
+
+    def test_verification_stays_locked_when_local_activation_proof_cannot_save(self):
+        from updater import UpdateError
+        self.server.update_verification = True
+        with patch('updater.recover_ready', return_value=True), patch('updater.activation_ready', return_value=True), patch('updater.confirm_activation', side_effect=UpdateError('Synthetic proof drive unavailable')), patch.object(self.store.auto_backups, 'start') as start:
+            with self.assertRaises(agent.AgentError) as rejected:self.client.request('/api/updates/activate', {})
+            self.assertEqual(rejected.exception.status, 409)
+            self.assertTrue(self.server.update_verification)
+            start.assert_not_called()
 
     def create_comment(self):
         selected = self.selected_json('comment.json', self.comment_fields())

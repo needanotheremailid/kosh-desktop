@@ -392,7 +392,7 @@ def _latex_blocks(blocks, list_depth=0, ordered_depth=0):
             output.append(' & '.join(r'\textbf{' + _latex_inline(inline_tokens(cell)) + '}' for cell in block['header']) + r' \\ \hline')
             for row in block['rows']:
                 output.append(' & '.join(_latex_inline(inline_tokens(cell)) for cell in row) + r' \\')
-            output.append(r'\end{tabular}')
+            output.append(r'\end{tabular}\par')
     return output
 
 

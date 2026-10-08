@@ -16,7 +16,7 @@ import time
 
 import upgrade
 from updater import (CURRENT_VERSION, REPOSITORY, JOB_ID, SHA, MAX_INSTALLER,
-                     TERMINAL, UpdateError, cache_root, cache_guard, active_install, release_install, read_json, version_tuple, write_receipt)
+                     TERMINAL, UpdateError, cache_root, cache_guard, active_install, release_install, read_json, version_tuple, write_receipt, _publish_proof_new, _local_activation, worker_alive)
 
 
 def validate_job(directory, identity_only=False):
@@ -202,14 +202,12 @@ def launch_and_verify(new, build):
         raise UpdateError('Candidate service did not become ready within 30 seconds.')
     except BaseException:
         if child is not None and child.poll() is None:
-            child.terminate()
-            try: child.wait(timeout=5)
-            except subprocess.TimeoutExpired: child.kill(); child.wait(timeout=5)
+            stop_owned_service(child, new, build)
         raise
 
 
 def run_job(directory):
-    directory = Path(directory); stage = None; old = None; new = None; links_attempted = False; health = None; committed = False
+    directory = Path(directory); stage = None; old = None; new = None; links_attempted = False; health = None; committed = False; owned_marker = None
     def record(phase, **details):
         return write_receipt(directory, {'phase': phase, 'job_id': directory.name, 'signature': 'not_verified', **details})
     try:
@@ -221,12 +219,13 @@ def run_job(directory):
             existing = read_json(directory / 'receipt.json')
             if existing.get('phase') in TERMINAL: return existing
             marker = directory / 'worker.json'
-            if marker.exists() and upgrade._pid_alive(read_json(marker).get('pid')):
+            if marker.exists() and worker_alive(marker):
                 return existing
             lease = active_install(directory.parent)
             if not lease or lease['job_id'] != directory.name: raise UpdateError('This job no longer owns the exclusive installation lease.')
             if marker.exists(): marker.unlink()  # Proven dead worker's own marker.
-            upgrade._write_json_new(marker, {'pid': os.getpid()})
+            owned_marker = {'pid': os.getpid(), 'process_identity': upgrade._process_identity(os.getpid())}
+            upgrade._write_json_new(marker, owned_marker)
         recovery = existing.get('phase') != 'awaiting_close'
         request, old, new, installer = validate_job(directory, identity_only=recovery)
         if existing.get('phase') != 'awaiting_close':
@@ -272,12 +271,12 @@ def run_job(directory):
                       startup={'app': health['app'], 'build': health['build'], 'ready': True}, old_install_preserved=True,
                       message='New installation copied and startup verified. Old installation and data remain the rollback copy.')
         committed = True
-        upgrade._write_json_new(new / 'UPDATE_READY.json', {'format': 1, 'app': 'Kosh', 'repository': REPOSITORY,
+        _publish_proof_new(new / 'UPDATE_READY.json', {'format': 1, 'app': 'Kosh', 'repository': REPOSITORY,
                                 'job_id': directory.name, 'version': request['version'], 'build': build,
                                 'new_install': str(new), 'phase': 'installed_verified'})
         # Completion is durable before exposing an editable new window. Once this
         # point is reached, a later run cannot automatically roll back shortcuts.
-        try: activate_candidate(new, build)
+        try: activate_candidate(new, build, request['version'])
         except Exception:
             failed = record('activation_failed', version=request['version'], build=build, shortcuts=links,
                             message='Copied data and service startup passed, but activating the new service did not verify. Both copies remain. No automatic rollback follows this completion boundary. Open this updated copy and choose Finish opening this updated copy; review both data paths before switching to the old version.')
@@ -295,7 +294,7 @@ def run_job(directory):
         if committed:
             return record('activation_failed', message='Startup completion was recorded, but readiness/activation did not finish. Both copies remain. No automatic rollback; inspect retained receipts and both data paths before selecting a version.')
         if isinstance(health, dict) and health.get('_process') is not None:
-            stop_owned_service(health['_process'])
+            stop_owned_service(health['_process'], new, health.get('build'))
         if links_attempted and old is not None and new is not None and stage is not None:
             try:
                 require_unchanged_candidate_data(new)
@@ -305,6 +304,12 @@ def run_job(directory):
                 return record('rollback_failed', message='Update failed and shortcut restoration could not verify. Old installation/data and shortcut backups remain; inspect the retained receipts before retrying.')
         return record('failed', message='Update did not finish. Old installation/data and any candidate staging were retained. No automatic retry or overwrite.')
     finally:
+        if owned_marker is not None:
+            try:
+                with cache_guard(directory.parent):
+                    marker = directory / 'worker.json'
+                    if marker.exists() and read_json(marker) == owned_marker: marker.unlink()
+            except (OSError, ValueError): pass  # Preserve an uncertain marker.
         try: release_install(directory)
         except (OSError, ValueError): pass  # A retained lease is safer than an unverified release.
 
@@ -324,8 +329,20 @@ def verify_old_preserved(old, new, inventory=None):
         raise UpdateError('Old data changed after the verified copy. Completion is refused; both copies are retained for review.')
 
 
-def stop_owned_service(child):
+def stop_owned_service(child, new=None, build=None):
     if child.poll() is None:
+        if new is not None and build is not None:
+            from agent import Client, read_session, AgentError
+            try:
+                session = read_session(new / 'data')
+                if session['pid'] != child.pid or session['build'] != build:
+                    raise UpdateError('Cleanup session does not match the owned candidate process.')
+                client = Client(session, timeout=2); client.verify()
+                client.request('/api/shutdown', {})
+                child.wait(timeout=5)
+                return
+            except (AgentError, ValueError, OSError, subprocess.TimeoutExpired):
+                pass  # Only this owned process handle may be forcibly stopped.
         child.terminate()
         try: child.wait(timeout=5)
         except subprocess.TimeoutExpired: child.kill(); child.wait(timeout=5)
@@ -337,14 +354,40 @@ def open_candidate(new):
                      stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=subprocess.CREATE_NO_WINDOW)
 
 
-def activate_candidate(new, build):
-    from agent import Client, read_session
+def activate_candidate(new, build, version=None):
+    from agent import Client, read_session, AgentError
+    version = CURRENT_VERSION if version is None else version
     session = read_session(new / 'data')
     if session['build'] != build: raise UpdateError('Candidate activation build does not match.')
     client = Client(session, timeout=10); client.verify()
-    result = client.request('/api/updates/activate', {})
-    if result.get('activated') is not True or result.get('build') != build:
-        raise UpdateError('Candidate activation readback did not match.')
+    try:
+        result = client.request('/api/updates/activate', {})
+        if result.get('activated') is not True or result.get('build') != build:
+            raise UpdateError('Candidate activation readback did not match.')
+    except (AgentError, OSError, UpdateError):
+        # A timed-out write may have completed. Never replay activation. Poll
+        # bounded local proof + authenticated service state instead of reporting
+        # a failure while the verified candidate is already open for writing.
+        if activation_confirmed(new, build, version): return
+        raise UpdateError('Activation did not return and its durable/service readback could not confirm completion. Both copies remain retained.') from None
+
+
+def activation_confirmed(new, build, version, timeout=60):
+    from agent import Client, read_session, AgentError
+    deadline = time.monotonic() + timeout
+    while True:
+        try:
+            # The old worker's CURRENT_VERSION differs from the new package;
+            # bind this readback to its explicitly approved target version.
+            if _local_activation(new, build, expected_version=version):
+                session = read_session(new / 'data')
+                if session['build'] == build:
+                    client = Client(session, timeout=2); client.verify()
+                    status = client.request('/api/updates/status')
+                    if status.get('activation_required') is False and status.get('current_version') == version: return True
+        except (AgentError, OSError, ValueError, TypeError): pass
+        if time.monotonic() >= deadline: return False
+        time.sleep(0.5)
 
 
 def stop_verification_candidate(new, build):

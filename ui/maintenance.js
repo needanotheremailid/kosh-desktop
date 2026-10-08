@@ -8,7 +8,7 @@ Object.assign(explanations,{
  'auto-backup-preview':'Validate the chosen saved ZIP and review its contents before creating a separate restored workspace.',
 });
 document.querySelector('#help-dialog .help-grid').insertAdjacentHTML('beforeend','<section><h3>Compare saved revisions</h3><p>In Write, choose Compare revisions. Pending edits are saved first. Pick two saved versions to see aligned additions, deletions and unchanged text. Load earlier versions when needed; previous and next change controls move between changed passages. Long comparisons use labelled coarse alignment and pages so the app stays responsive. Comparison is read-only. Use the separate Revision history control when you deliberately want to restore an earlier body as a new save.</p></section>');
-KoshAutoBackup.mount({request,flushEdits,pendingSummary:()=>({
+KoshAutoBackup.mount({request,flushEdits,workspace:()=>state.workspace,pendingSummary:()=>({
  conflicts:conflictedEditors().length,
  evidence:state.matrixReview&&state.matrixDirty?1:0,
  reviewer:typeof KoshReviewer.pendingCount==='function'?KoshReviewer.pendingCount():0,
@@ -38,3 +38,11 @@ KoshUpdater.mount(updateHost,{request,beforeInstall:async()=>{
  notify('Saved work is ready. Close this Kosh window now so the update can copy its browser recovery and check the new version.',false,true);
 }});
 applyHints();
+const installationButton=document.createElement('button');
+installationButton.className='button';installationButton.type='button';
+installationButton.id='check-installation';installationButton.textContent='Check this installation';
+explanations['check-installation']='Check local component availability, then preview a privacy-safe diagnostic report before downloading it. Nothing is sent automatically.';
+installationButton.addEventListener('click',()=>KoshInstallationHealth.open({request}));
+document.querySelector('#settings-dialog').append(installationButton);
+applyHints();
+document.querySelector('#help-dialog .help-grid').insertAdjacentHTML('beforeend','<section><h3>Installation checks &amp; diagnostics</h3><p>Settings → Check this installation checks the local components for reading, Word, citations, compiled PDF and recognition. Optional local AI is not contacted. Missing optional components do not prevent manual writing. This checks availability, not every file or document.</p><p>Choose Preview diagnostics JSON to inspect the exact report, then Download this preview only if useful. The report excludes documents, names, paths, settings, logs and session tokens. Nothing is sent automatically.</p><p>Local backup &amp; restore uses Windows file selection and shows progress. You can cancel copying or validation before publication; an approved restore finishes as one operation. Workspace ZIPs contain saved records and originals. For full recovery, quit Kosh and preserve its complete data folder as described in the user guide.</p></section>');

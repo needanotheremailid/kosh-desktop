@@ -7,6 +7,8 @@ body:
       value: |
         For security vulnerabilities, use the repository Security tab and private vulnerability reporting rather than this public form.
         Do not include patient information, unpublished papers/data, credentials, session tokens, your data folder, browser profile, or unredacted screenshots. Use a small synthetic reproduction.
+        If saved work appears at risk, stop repeating the failing write and preserve your existing installation/data privately. Do not delete or reset it to make a reproduction.
+        Reports are assessed by evidence and impact. This form does not promise a response timeline or a fix.
   - type: checkboxes
     id: privacy
     attributes:
@@ -19,14 +21,14 @@ body:
     attributes:
       label: Kosh version or source revision
       description: Include whether you used the bundled installer or source edition.
-      placeholder: "0.3.0 Windows beta, bundled installer"
+      placeholder: "1.0.0-rc.1, bundled Windows installer; or exact source commit"
     validations:
       required: true
   - type: input
     id: environment
     attributes:
       label: Windows environment
-      description: Windows version/architecture and relevant Edge or Word version. System Python is only relevant to the source edition.
+      description: Windows version/architecture and relevant Edge or Word version. System Python is only relevant to the source edition. Do not include a username, hostname, machine identifier or private path.
     validations:
       required: true
   - type: textarea
@@ -50,7 +52,19 @@ body:
     validations:
       required: true
   - type: textarea
+    id: impact
+    attributes:
+      label: Effect on saved work and recovery
+      description: Explain whether the issue concerns saved records, an unsaved/conflicted draft, an exported file, startup, or a display only. If unknown, say unknown; do not attach the data folder.
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Optional previewed installation diagnostics
+      description: If available, use Settings → Check this installation → Preview diagnostics JSON and inspect it before attaching. This limited report is optional. Do not paste raw backup/update status, settings, logs or agent-session.json.
+  - type: textarea
     id: attachments
     attributes:
       label: Optional synthetic fixture or screenshot
-      description: Attach only what is necessary, after checking for identifying content and credentials. Never upload the whole installation or data directory.
+      description: Attach only a minimal invented fixture or redacted screenshot after checking for identifying content and credentials. Never upload the whole installation, data directory or browser profile.

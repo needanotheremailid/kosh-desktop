@@ -146,6 +146,35 @@ def _pid_alive(pid):
         raise UpgradeError('Cannot verify the recorded process state.') from None
 
 
+def _process_identity(pid):
+    """Read a process birth identity so a recycled Windows PID is not its owner."""
+    if not isinstance(pid, int) or isinstance(pid, bool) or pid < 1:
+        raise UpgradeError('Worker process identity is invalid.')
+    if os.name == 'nt':
+        from ctypes import wintypes
+        kernel = ctypes.WinDLL('kernel32', use_last_error=True)
+        kernel.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
+        kernel.OpenProcess.restype = wintypes.HANDLE
+        kernel.GetProcessTimes.argtypes = [wintypes.HANDLE, *([ctypes.POINTER(wintypes.FILETIME)] * 4)]
+        kernel.GetProcessTimes.restype = wintypes.BOOL
+        kernel.CloseHandle.argtypes = [wintypes.HANDLE]
+        handle = kernel.OpenProcess(0x1000, False, pid)
+        if not handle: raise UpgradeError('Cannot verify the worker process birth identity.')
+        try:
+            created, exited, kernel_time, user_time = (wintypes.FILETIME() for _ in range(4))
+            if not kernel.GetProcessTimes(handle, ctypes.byref(created), ctypes.byref(exited), ctypes.byref(kernel_time), ctypes.byref(user_time)):
+                raise UpgradeError('Cannot verify the worker process birth identity.')
+            return str((created.dwHighDateTime << 32) | created.dwLowDateTime)
+        finally: kernel.CloseHandle(handle)
+    try:
+        # Source-test portability: Linux start ticks, with the parenthesized
+        # process name removed. No command line or account information is read.
+        raw = (Path('/proc') / str(pid) / 'stat').read_text(encoding='utf-8')
+        return str(int(raw.rsplit(')', 1)[1].split()[19]))
+    except (OSError, ValueError, IndexError):
+        raise UpgradeError('Worker birth identity is unavailable on this platform.') from None
+
+
 PROCESS_SCRIPT = r'''
 $ErrorActionPreference = 'Stop'
 $taskRequest = [Console]::In.ReadToEnd() | ConvertFrom-Json

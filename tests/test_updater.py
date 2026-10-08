@@ -101,7 +101,7 @@ class UpdaterTests(unittest.TestCase):
 
     def test_versions_compared_numerically(self):
         self.assertGreater(updater.version_tuple('0.10.0'), updater.version_tuple('0.9.9'))
-        for version in ('0.1', '01.2.3', '0.4.0-beta', '0.4.0;calc'):
+        for version in ('0.1', '01.2.3', '0.4.0-beta.01', '0.4.0;calc'):
             with self.assertRaises(updater.UpdateError): updater.version_tuple(version)
 
     def test_verified_download_does_not_install_or_touch_old_data(self):
@@ -157,7 +157,7 @@ class UpdaterTests(unittest.TestCase):
 
     def test_old_and_nonnumeric_releases_do_not_block_newest_eligible(self):
         old=release('0.3.0');old['assets']=[]
-        beta=release('0.6.0');beta['tag_name']='v0.6.0-beta'
+        beta=release('0.6.0');beta['tag_name']='v0.6.0-beta..1'
         with patch.object(self.transport,'open',return_value=io.BytesIO(json.dumps([release(),old,beta]).encode())):
             self.assertEqual(self.manager.check(consent=True)['candidate']['version'],'0.5.0')
         newest=release('0.6.0');newest['assets']=[]

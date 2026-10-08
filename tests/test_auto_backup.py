@@ -145,7 +145,9 @@ class AutomaticBackupTests(unittest.TestCase):
             release.set()
             self.backups.stop()
         self.assertFalse(self.backups.status()['running'])
-        self.assertEqual(len(self.backups.list_sets()['sets']), 1)
+        outcome = self.backups.status()['last_job']['state']
+        self.assertIn(outcome, {'complete', 'cancelled'})
+        self.assertEqual(len(self.backups.list_sets()['sets']), 1 if outcome == 'complete' else 0)
 
     def test_no_clobber_of_completed_set(self):
         self.enable()
@@ -379,7 +381,7 @@ const status=()=>({enabled:true,scheduler_alive:true,running:false,destination:'
 context.window.KoshAutoBackup.mount({pendingSummary:()=>counts,flushEdits:async()=>true,onRestored:async()=>{},request:async(path,body)=>{
   if(path==='/auto-backup')return status();
   if(path==='/auto-backup/sets')return {sets:[],issues:[]};
-  if(path==='/auto-backup/run'){runCount++;completed=true;return {ok:true};}
+  if(path==='/local-backup/jobs'){runCount++;completed=true;return {job_id:'a'.repeat(32),operation:'automatic',state:'complete',phase:'complete',cancellable:false,result:{ok:true},bytes_done:0,bytes_total:null};}
   throw new Error('Unexpected request: '+path);
 }});
 (async()=>{

@@ -1,12 +1,50 @@
 # Kosh user guide
 
+Start with [installation](#first-launch-and-a-first-useful-session) and [your first workspace](#your-first-workspace). Return to [reading](#reading-place-organisation-and-saved-passages), [writing](#drafting-material-and-history), [citations](#citations-and-evidence), [exports](#exports-reading-bundles-and-workspace-transfer), [backup and recovery](#new-in-100-rc1), [upgrading](#upgrade-a-bundled-installation) or [troubleshooting](#troubleshooting-and-privacy) when needed.
+
 ## First launch and a first useful session
 
-**[Download the Kosh 0.6.0 Windows beta installer](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.6.0/Kosh-0.6.0-Setup.exe)** from [this repository's release](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v0.6.0). Use 64-bit Windows 11 with Microsoft Edge and .NET Framework. The installer is unsigned; Windows may warn about an unknown publisher. Check the release origin and published checksum before deciding whether to run it. Keep a backup and try a permitted non-sensitive paper first. No separate Python, Node, TeX, AI account or model is required for the ordinary bundled reading/writing/export workflow.
+**[Download the Kosh 1.0.0-rc.1 Windows installer](https://github.com/needanotheremailid/kosh-desktop/releases/download/v1.0.0-rc.1/Kosh-1.0.0-rc.1-Setup.exe)** from [this repository's release](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v1.0.0-rc.1). Use 64-bit Windows 11 with Microsoft Edge and .NET Framework. The installer is unsigned; Windows may warn about an unknown publisher. Check the release origin and published checksum before deciding whether to run it. Keep a backup and try a permitted non-sensitive paper first. No separate Python, Node, TeX, AI account or model is required for the ordinary bundled reading/writing/export workflow.
 
-The bundled edition installs with `Kosh-0.6.0-Setup.exe` into a new folder for your Windows user. Edge and .NET Framework are prerequisites; the prepared Python/document runtime and Node.js 24.14.1 local citation tool are included. Installation does not need an administrator or download packages. Existing shortcuts are preserved.
+The bundled edition installs with `Kosh-1.0.0-rc.1-Setup.exe` into a new folder for your Windows user. Edge and .NET Framework are prerequisites; the prepared Python/document runtime and Node.js 24.14.1 local citation tool are included. Installation does not need an administrator or download packages. Existing shortcuts are preserved.
 
-This guide targets Kosh 0.6.0. File-backed automatic backups/restore and saved revision comparison require version 0.6.0. Automatic backup scheduling, in-app updates, reviewer responses and project review were introduced in 0.5.0; earlier reading/writing controls retain their introduction versions below. Older installations keep their prior behavior until upgraded to a matching package. The optional [signing workflow](SIGNING.md) requires an already provisioned trusted publisher identity; the installer is not signed just because that workflow is available. Tests on one computer do not prove another clean Windows computer or every real manuscript.
+This guide targets Kosh 1.0.0-rc.1. Historical sections retain their introduction versions. Older installations keep their prior behavior until upgraded to a matching package. The optional [signing workflow](SIGNING.md) requires an already provisioned trusted publisher identity; the installer is not signed just because that workflow is available. Tests on one computer do not prove another clean Windows computer or every real manuscript. Independent trials remain pending in [the acceptance checklist](ACCEPTANCE.md).
+
+## New in 1.0.0-rc.1
+
+**One local backup flow.** Open Settings → Automatic local backups or Exports & backup → Local workspace backup & restore. Choose **Save workspace ZIP locally** to select a new filename; history is included and an existing ZIP is never overwritten. Choose **Choose ZIP & preview restore** for an existing local archive. You can also expand the path controls and enter an exact local path. Review the preview and explicitly approve restoration into a separate workspace. Cancelling file selection changes nothing. The optional browser-transfer controls retain the older 47 MiB limit; ordinary local ZIPs use streaming files.
+
+Progress shows the current copying/validation phase and bytes when measurable. **Cancel current operation** requests cancellation at the next safe checkpoint. A native PDF/image parser must finish its current operation first. Cancellation is unavailable once publication or an approved restore starts. Existing saved work and completed backups are retained. Incomplete files/folders may be retained for recovery; the panel reports their location when available. They are not completed backups and are never pruned automatically. Preview needs temporary disk space approximately equal to the selected ZIP; restoration also needs room for the extracted originals and database.
+
+If a progress request is interrupted, the panel retries a few times. **Resume tracking** reconnects to that same job; it does not start another backup or restore. Wait for its result before starting a replacement operation.
+
+**Automatic backup schedule.** Choose an existing folder with the folder button or enter its path, select the interval, then save. The schedule remains off until enabled. Manual workspace ZIPs work while the schedule is off. An unavailable drive reports failure without removing earlier backups or changing existing work. Reconnect it or select an available folder. Backup ZIPs are unencrypted; select storage accordingly.
+
+**Check this installation.** In Settings, choose that button to inspect component availability and remedies. Optional local AI is not contacted. The check reads fixed local components; it does not scan your research or verify every file in the installer. Choose **Preview diagnostics JSON**, read it, then **Download this preview** if useful. The exact preview becomes the local report. It omits research content, titles, filenames, user paths, counts, settings, logs and tokens; nothing is uploaded.
+
+**Update recovery.** A verified installation retains local activation proof so losing an old download cache does not lock it again. A failed final readiness write can be recovered only from matching retained verification records. A candidate without proof remains read-only. Keep the previous installation until the new one is working. Version 0.6.0 cannot discover RC tags, so use the copy-only upgrade below for this transition. RC and pre-1.0 builds can offer prereleases; final 1.0+ builds offer final releases only. Checks inspect the first ten published release records from the fixed repository.
+
+If an update worker stops unexpectedly, an unattended verification service releases its local port after about two idle minutes. An open Kosh window keeps its service alive, so use **Quit app** and close that candidate window before reopening the previous installation for recovery. Successful activation restores the normal idle setting. Never merge the old and new data folders by hand.
+
+### Workspace backup or full recovery copy?
+
+| Copy | Includes | Use it for |
+| --- | --- | --- |
+| Workspace ZIP | Managed originals, saved documents/notes/evidence/chats, reading/reviewer records and selected history | Moving one workspace or restoring it separately |
+| Automatic set | A validated workspace ZIP with history for every workspace | Routine saved-work recovery while Kosh is open |
+| Complete stopped `data` folder | Database and originals plus browser profile/unsaved recovery, separate assistance/folder journals, settings and caches | Full recovery or a copy-only installation upgrade |
+
+For a full recovery copy, first preserve or resolve pending edits, use **Quit app**, close its Kosh window, and copy the entire `data` folder inside the installation to a separate destination. Keep the original. Do not merge individual SQLite, browser-profile or original files from different snapshots. A full data copy contains private material and is not a portable sharing ZIP.
+
+### Removing Kosh while retaining your work
+
+Kosh uses a self-contained per-user folder and shortcuts; this installer does not register an automatic uninstaller. Quit Kosh and close its window first. Locate the exact installation through the shortcut's target, preserve and verify a separate full data-folder copy, then remove that installation and its matching shortcuts through Windows when you choose. Data lives inside that installation: deleting the whole folder also deletes its data. Older installations kept during an upgrade are separate recovery copies. Downloaded backups and reports in other folders are not removed. Reinstalling into a new folder does not automatically reconnect old data; use the copy-only upgrade or a workspace restore.
+
+### Measured operating range
+
+One local Windows run used 256 four-page PDFs, 50 drafts of about 60,000 characters and 250 saved revisions. A 556,711,930-byte ZIP backed up in 6.28 seconds, previewed in 10.46 seconds and restored in 23.84 seconds; original hashes, note versions, revision counts and SQLite integrity matched. These backup measurements preceded the RC progress controls. After the search correction, the same library's five searches had a 0.112-second median and 0.220-second maximum at the service layer. This is an invented nonclinical workload, not a benchmark of your papers or a maximum capacity claim. Disk, document complexity and background load matter. The approximately 31.3 GiB validation ceiling is **not** a tested operating size. The [repeatable benchmark and independent-use checklist](ACCEPTANCE.md) state the method and remaining checks.
+
+## Your first workspace
 
 The library starts empty. Open the Kosh shortcut after setup; automatic launch is off by default so an upgrade can copy data before first use. Getting started opens on first use and can be reopened from Help. Skip/reopen it without changing research. Help explains reading, source locations, saving and controls. Choose Broadsheet, Stacks or Commonplace in the status-bar Layout control. Settings changes light/dark appearance and optional hover explanations; these are browser preferences, not changes to your papers.
 
@@ -181,7 +219,7 @@ Version 0.3.1 corrects the incomplete default Latin Modern font bundle from 0.3.
 
 Workspace backup is different: current originals/notes/metadata/chats/evidence plus reading organisation, saved resume position, annotations and claim reviews, including retained attachment history. Saved note/evidence revisions are optional; neither choice prunes local history. Restore validates schema/paths/sizes/hashes and creates a fresh workspace, remapping source/note links in the reading records. Save and verify restored records. ZIPs are unencrypted and exclude source/runtime/model weights, Edge/unsaved browser recovery, external-folder journals, rebuildable embeddings and the separate assistance-job/result journal. Use a stopped complete data-copy upgrade when that local job history/recovery must travel too.
 
-Bounds include 32 MiB per imported file, 47 MiB per ordinary export or manual backup ZIP, 1,000 items per main backup collection and 5,000 included revisions, with separate extraction/manifest limits. The larger automatic-set route in 0.6.0 is described below; it does not increase the manual browser/CLI transfer envelope. Oversized history/archive is refused without deleting records.
+Bounds include 32 MiB per imported file, 47 MiB per ordinary export or browser/CLI backup transfer, 1,000 items per main backup collection and 5,000 included revisions, with separate extraction/manifest limits. Streaming local manual ZIPs and automatic sets use the larger file-backed bound; the browser/CLI transfer envelope is unchanged. Oversized history/archive is refused without deleting records.
 
 After restore, PDF/Word quotes that no longer match the current text extractor are retained in chat audit history as unverified and excluded from active citations. The restore warning reports their count. Original files and notes still recover; inspect the originals before relying on old answers. Identity, hash and source-bound checks still apply. A workspace ZIP is not an authenticity signature.
 
@@ -193,7 +231,7 @@ Use **Settings → Automatic local backups**, or **Exports & backup → Large lo
 
 The automatic route removes the former 47 MiB per-workspace ceiling. The archive has a derived upper bound of about 31.3 GiB per workspace; that is a validation ceiling, not a promise that every library of that size can be backed up. The existing schema and limits remain: 32 MiB per original and per workspace manifest, at most 1,000 items in each main backup collection and 5,000 included revisions. The automatic set's catalogue manifest remains limited to 4 MiB. Extraction, nested-record validation and available disk space can require a smaller set. Preview/restore needs temporary space for a checked archive copy and extraction, plus space for the restored originals. An exceeded limit reports a failure without deleting records or replacing an earlier completed backup. Earlier smaller automatic sets can still use this restore route.
 
-**Download portable workspace ZIP**, manual browser restore and the existing CLI `backup`/`restore` still use the 47 MiB transfer limit. A larger automatic-set ZIP must be restored through **Automatic local backups**. Local ZIPs remain unencrypted. Automatic sets contain saved records and history; unsaved browser recovery and pending reviewer fields stay separate. Scheduling, launch catch-up, retained earlier sets and the explicit restore approval follow the 0.5.0 controls below.
+**Download portable workspace ZIP**, manual browser restore and the existing CLI `backup`/`restore` still use the 47 MiB transfer limit. In 0.6.0, larger ZIPs used the automatic-set restore panel; this RC also opens an individual larger archive with **Choose ZIP & preview restore**. Local ZIPs remain unencrypted. Automatic sets contain saved records and history; unsaved browser recovery and pending reviewer fields stay separate. Scheduling, launch catch-up, retained earlier sets and the explicit restore approval follow the controls below.
 
 ### Compare saved manuscript revisions
 
@@ -237,7 +275,7 @@ This is an on-demand saved-state report for one selected workspace. Counts can o
 
 ### In-app updates
 
-Open **Settings → Kosh updates**. Status reads local information only. **Check for updates** explicitly contacts the public `needanotheremailid/kosh-desktop` GitHub releases API. It sends no library, notes or account information. A release must have a newer numeric version; beta/prerelease status is shown. A separate **Download installer and checksum** action retrieves the named release installer and its checksum, with bounded HTTPS host/size checks.
+Open **Settings → Kosh updates**. Status reads local information only. **Check for updates** explicitly contacts the public `needanotheremailid/kosh-desktop` GitHub releases API. It sends no library, notes or account information. A release must have a newer supported semantic version; RC numeric identifiers are ordered numerically and prerelease status is shown. The channel rules for this RC are described above. A separate **Download installer and checksum** action retrieves the named release installer and its checksum, with bounded HTTPS host/size checks.
 
 **Download matches the SHA-256 published in the same GitHub release. This does not verify the publisher; installers are unsigned.** A matching size/hash proves transfer consistency, not a trusted publisher identity. Changed or incomplete downloads are retained and refused execution.
 

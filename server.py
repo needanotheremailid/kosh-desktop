@@ -41,7 +41,8 @@ class LocalServer(ThreadingHTTPServer):
         self.last_activity = time.monotonic()
         self.active_jobs = 0
         self.job_lock = threading.Lock()
-        self.idle_seconds = idle_minutes * 60
+        self.normal_idle_seconds = idle_minutes * 60
+        self.idle_seconds = self.normal_idle_seconds
         from updater import Updater, UpdateError
         from upgrade import UpgradeError
         self.updater_error = ''
@@ -53,11 +54,19 @@ class LocalServer(ThreadingHTTPServer):
         self.update_handoff = False
         self.update_verification = False
 
+    def set_verification(self, required):
+        self.update_verification = bool(required)
+        # A detached verification child must release the saved local port soon
+        # after a worker crash. An open UI continues its ordinary heartbeat.
+        self.idle_seconds = min(self.normal_idle_seconds, 120) if required else self.normal_idle_seconds
+
     def watchdog(self):
         while True:
             time.sleep(10)
             with self.job_lock:
-                stop = not self.active_jobs and time.monotonic() - self.last_activity > self.idle_seconds
+                stop = (not self.active_jobs
+                        and not self.store.auto_backups.status()['running']
+                        and time.monotonic() - self.last_activity > self.idle_seconds)
             if stop:
                 self.shutdown()
                 return
@@ -119,7 +128,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_content({'error': 'Unsupported route.'}, 404)
                 return
             allowed = {'/': ('index.html', 'text/html; charset=utf-8'), '/app.js': ('app.js', 'text/javascript; charset=utf-8'), '/app.css': ('app.css', 'text/css; charset=utf-8')}
-            allowed.update({('/'+name): (name, 'text/javascript; charset=utf-8' if name.endswith('.js') else 'text/css; charset=utf-8') for name in ('reading.js', 'reading.css', 'writing_review.js', 'writing_review.css', 'project_review.js', 'project_review.css', 'auto_backup.js', 'auto_backup.css', 'reviewer.js', 'reviewer.css', 'maintenance.js', 'updater.js', 'updater.css', 'revisions.js', 'revisions.css')})
+            allowed.update({('/'+name): (name, 'text/javascript; charset=utf-8' if name.endswith('.js') else 'text/css; charset=utf-8') for name in ('reading.js', 'reading.css', 'writing_review.js', 'writing_review.css', 'project_review.js', 'project_review.css', 'auto_backup.js', 'auto_backup.css', 'reviewer.js', 'reviewer.css', 'maintenance.js', 'updater.js', 'updater.css', 'revisions.js', 'revisions.css', 'installation_health.js', 'installation_health.css')})
             if path not in allowed:
                 self.send_content({'error': 'Not found.'}, 404)
                 return
@@ -177,6 +186,29 @@ class Handler(BaseHTTPRequestHandler):
                 self.server.active_jobs += 1
             try:
                 query = {k: v[0] for k, v in parse_qs(parsed.query).items()}
+                if path == '/api/local-dialog' and self.command == 'POST':
+                    from local_dialog import choose
+                    self.send_content(choose(ROOT, body))
+                    return
+                if path == '/api/installation-health' and self.command == 'GET':
+                    from installation_health import check
+                    from updater import CURRENT_VERSION
+                    self.send_content(check(ROOT, app_version=CURRENT_VERSION, app_build=self.server.build))
+                    return
+                if path.startswith('/api/local-backup/'):
+                    backups = self.server.store.auto_backups
+                    if path == '/api/local-backup/jobs' and self.command == 'POST':
+                        result = backups.start_job(body)
+                    elif path == '/api/local-backup/jobs' and self.command == 'GET':
+                        result = backups.job_status(query.get('job_id'))
+                    elif path == '/api/local-backup/cancel' and self.command == 'POST':
+                        result = backups.cancel_job(body)
+                    elif path == '/api/local-backup/restore' and self.command == 'POST':
+                        result = backups.restore_local(body)
+                    else:
+                        raise AppError('Backup operation is unavailable.', 404)
+                    self.send_content(result)
+                    return
                 if path.startswith('/api/updates/'):
                     from updater import UpdateError
                     from upgrade import UpgradeError
@@ -190,10 +222,12 @@ class Handler(BaseHTTPRequestHandler):
                             if body:
                                 raise AppError('Activation expects an empty request.')
                             if self.server.update_verification:
-                                from updater import activation_ready
+                                from updater import activation_ready, recover_ready, confirm_activation
+                                recover_ready(ROOT, self.server.build)
                                 if not activation_ready(ROOT, self.server.build):
                                     raise AppError('This updated copy has no verified completion receipt. Reopen the previous Kosh and resume or recover the retained update.', 409)
-                            self.server.update_verification = False
+                                confirm_activation(ROOT, self.server.build)
+                            self.server.set_verification(False)
                             self.server.store.auto_backups.start()
                             result = {'activated': True, 'build': self.server.build}
                         elif self.command == 'POST' and path in {'/api/updates/check', '/api/updates/download'}:
@@ -208,7 +242,15 @@ class Handler(BaseHTTPRequestHandler):
                                 if self.server.active_jobs != 1 or self.server.store.active_asks or self.server.store.auto_backups.status()['running']:
                                     raise AppError('Wait for current app operations to finish before installing.', 409)
                                 operation = self.server.updater.resume if path.endswith('/resume') else self.server.updater.install
-                                result = operation(approve=body['approve'], accept_unsigned=body['accept_unsigned'])
+                                # Quiesce the scheduler after the busy check: a tick
+                                # can race that check without holding job_lock.
+                                self.server.store.auto_backups.stop()
+                                try:
+                                    result = operation(approve=body['approve'], accept_unsigned=body['accept_unsigned'])
+                                except Exception:
+                                    if not self.server.update_verification:
+                                        self.server.store.auto_backups.start()
+                                    raise
                                 self.server.update_handoff = True
                         else:
                             raise AppError('Update operation is unavailable.', 404)
@@ -292,8 +334,14 @@ def main():
         tmp.write_text(json.dumps(ready), encoding='utf-8')
         os.replace(tmp, args.ready_file)
     print(f'Research Desktop ready on port {server.server_port}', flush=True)
-    from updater import verification_required
-    server.update_verification = verification_required(ROOT, server.build, args.update_verification)
+    from updater import verification_required, confirm_activation, UpdateError
+    from upgrade import UpgradeError
+    server.set_verification(verification_required(ROOT, server.build, args.update_verification))
+    if not server.update_verification and (ROOT / 'UPDATE_PENDING.json').exists():
+        try:
+            confirm_activation(ROOT, server.build)
+        except (UpdateError, UpgradeError, OSError, ValueError):
+            server.set_verification(True)
     threading.Thread(target=server.watchdog, daemon=True).start()
     if not server.update_verification:
         store.auto_backups.start()

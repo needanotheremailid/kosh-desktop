@@ -4,6 +4,8 @@ The installer builder creates an **unsigned development artifact**. Building it 
 
 No installer has become signed merely because this workflow exists. Signatures and receipts apply only to the exact output bytes checked by a successful run. Existing released or installed copies retain their previous signature state.
 
+For **1.0.0-rc.1**, signing remains pending. The release-candidate label does not imply a verified publisher, final 1.0 acceptance or a published package. Build and release checks must describe their exact unsigned or separately verified signed bytes; never infer signature state from a version number or a matching release checksum.
+
 ## Local identity preflight
 
 The script accepts an exact certificate thumbprint from `CurrentUser\My` or, when explicitly selected, `LocalMachine\My`. It checks current validity, private-key presence, an explicit Code Signing EKU, and an RSA key of at least 2048 bits. Hardware-backed private keys can require their normal provider interaction during signing. Private-key presence alone does not prove the provider will permit signing.
@@ -47,6 +49,8 @@ Successful output is specifically `valid_against_cached_windows_trust`; **revoca
 Publishing the signed copy, replacing uploaded assets, installing it, changing shortcuts, or creating a signing account are separate authorized actions. This workflow performs none of them.
 
 ## Provider options checked on 6 October 2026
+
+These are dated reference notes, not refreshed provider eligibility, pricing or approval for this RC. Provider rules can change; verify the linked current terms before choosing or applying. No new provider account, submission or identity validation follows from editing this guide.
 
 The local workflow above is prepared; it is not a cloud-provider integration or a completed identity-validation process.
 

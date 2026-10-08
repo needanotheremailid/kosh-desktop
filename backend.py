@@ -1106,7 +1106,6 @@ class Store:
             return []
         results = []
         rows = self.db.execute("SELECT p.document_id,d.name,d.metadata,p.page,p.text FROM pages p JOIN documents d ON d.id=p.document_id WHERE d.workspace_id=? AND d.archived=0 AND d.status='ready' ORDER BY d.created_at,p.page", (workspace["id"],)).fetchall()
-        checked = set()
         for row in rows:
             if selected is not None and row["document_id"] not in selected:
                 continue
@@ -1118,9 +1117,6 @@ class Store:
             matches = [(term, match) for term, match in matches if match]
             if not matches:
                 continue
-            if row["document_id"] not in checked:
-                self._bytes(self._document(row["document_id"]))
-                checked.add(row["document_id"])
             # Find on the original string so Unicode casefold expansion cannot
             # move the source excerpt boundaries.
             first = min(match.start() for _, match in matches)
@@ -1128,7 +1124,15 @@ class Store:
             end = min(len(text), start + 1100)
             score = len(matches) * 10 + sum(min(5, folded.count(term)) for term, _ in matches)
             results.append({"document_id": row["document_id"], "name": row["name"], "page": row["page"], "text": text[start:end], "score": score})
-        return sorted(results, key=lambda row: (-row["score"], row["name"], row["page"]))[:50]
+        selected_results = sorted(results, key=lambda row: (-row["score"], row["name"], row["page"]))[:50]
+        # Only returned excerpts need an original-byte integrity check. Ranking
+        # first avoids rereading the entire matching library for fifty results.
+        checked = set()
+        for result in selected_results:
+            if result['document_id'] not in checked:
+                self._bytes(self._document(result['document_id']))
+                checked.add(result['document_id'])
+        return selected_results
 
     def _save_note(self, body):
         workspace = self._workspace(body.get("workspace_id"))
@@ -1446,7 +1450,7 @@ class Store:
             raise AppError("Workspace exceeds this version's 47 MB backup/restore limit including ZIP overhead. No data was removed.", 413)
         return backup, "application/zip", "Research-workspace-backup.zip"
 
-    def write_backup(self, workspace_id, target_path, include_history=True):
+    def write_backup(self, workspace_id, target_path, include_history=True, control=None):
         """Stream a local ZIP; the small browser envelope remains unchanged."""
         from workspace_archive import write_snapshot
         with self.lock:
@@ -1459,16 +1463,16 @@ class Store:
             raise AppError('A revision exceeds the supported backup payload limit. History was retained.', 413)
         if any(not 1 <= row['version'] <= 1_000_000 for key in ('notes', 'matrix') for row in snapshot[key]):
             raise AppError('An edit version exceeds the supported restore range. No backup was published.', 413)
-        return write_snapshot(self, snapshot, target_path)
+        return write_snapshot(self, snapshot, target_path, control=control)
 
-    def restore_backup_file(self, path, *, preview_only=False, expected_sha256=None, expected_size=None):
+    def restore_backup_file(self, path, *, preview_only=False, expected_sha256=None, expected_size=None, control=None):
         from workspace_archive import restore_file
         with self.condition:
             self._ensure_open()
             self.active_asks += 1
         try:
             return restore_file(self, path, preview_only=preview_only, expected_sha256=expected_sha256,
-                                expected_size=expected_size)
+                                expected_size=expected_size, control=control)
         finally:
             with self.condition:
                 self.active_asks -= 1
@@ -1491,8 +1495,9 @@ class Store:
         except (ValueError, KeyError, TypeError, zipfile.BadZipFile, RuntimeError, NotImplementedError):
             raise AppError('Backup archive or manifest is malformed. No workspace was created.') from None
 
-    def _restore_archive(self, archive, preview_only=False, file_backed=False, spill_directory=None):
-        from workspace_archive import TOTAL_LIMIT, ZipOriginals, SpilledExtractions
+    def _restore_archive(self, archive, preview_only=False, file_backed=False, spill_directory=None, control=None):
+        from workspace_archive import TOTAL_LIMIT, ZipOriginals, SpilledExtractions, checkpoint, ArchiveCancelled
+        checkpoint(control, 'validating_archive')
         try:
             infos = validate_zip_members(archive, TOTAL_LIMIT if file_backed else RESTORE_TOTAL_LIMIT)
             names = {i.filename for i in infos}
@@ -1518,12 +1523,13 @@ class Store:
                 if not isinstance(collection, list) or len(collection) > limit or any(not isinstance(row, dict) for row in collection):
                     raise AppError("Backup record collection is invalid or too large.")
                 collections[key] = collection
-            originals = ZipOriginals(archive) if file_backed else {}
+            originals = ZipOriginals(archive, control=control) if file_backed else {}
             documents = []
             doc_ids = set()
             doc_hashes = set()
             expected_members = {"manifest.json"}
             for document in collections["documents"]:
+                checkpoint(control, 'verifying_source')
                 id_ = identifier(document.get("id"))
                 if id_ in doc_ids or document.get("workspace_id") != old_workspace_id:
                     raise AppError("Backup source identity is duplicated or belongs to another workspace.")
@@ -1563,11 +1569,12 @@ class Store:
                 raise AppError("Backup contains unexpected files.")
             # Each immutable source is extracted once. Chat citations and the
             # final publication reuse the same pages and extraction status.
-            extracted = SpilledExtractions(spill_directory) if file_backed else {}
+            extracted = SpilledExtractions(spill_directory, control=control) if file_backed else {}
             citation_page_limits = {}
 
             def extract_original(document):
                 raw = originals[document['id']]
+                checkpoint(control, 'extracting_source')
                 if document['kind'] in {'pdf', 'png', 'jpg', 'jpeg', 'webp'}:
                     with self.lock:
                         return extract(raw, document['kind'])
@@ -1578,6 +1585,7 @@ class Store:
                     return len(source)
 
             for document in documents:
+                checkpoint(control, 'extracting_source')
                 try:
                     pages, notice = extract_original(document)
                     extracted[document["id"]] = (pages, notice, "ready" if any(t.strip() for _, t in pages) else "no_text", "")
@@ -1594,12 +1602,15 @@ class Store:
                     if pdf_lib is not None:
                         try:
                             citation_page_limits[document['id']] = pdf_page_count(originals[document['id']])
+                        except ArchiveCancelled:
+                            raise
                         except Exception:
                             pass
             record_ids = {"note": set(), "matrix": set(), "chat": set()}
             all_ids = doc_ids.copy()
             for key, entity in (("notes", "note"), ("matrix", "matrix"), ("chats", "chat")):
                 for row in collections[key]:
+                    checkpoint(control, 'validating_records')
                     id_ = identifier(row.get("id"))
                     if id_ in all_ids or row.get("workspace_id") != old_workspace_id:
                         raise AppError("Backup record identity is invalid.")
@@ -1662,6 +1673,7 @@ class Store:
             from reading import Reading, validate_backup
 
             def geometry_reader(raw, document_id, page):
+                checkpoint(control, 'checking_annotation')
                 with self.lock:
                     return Reading._geometry_bytes(raw, document_id, page)
 
@@ -1673,6 +1685,7 @@ class Store:
                 raise AppError('Backup reviewer state must be an object.')
             reviewer_state = validate_reviewer(manifest.get('reviewer'), old_workspace_id, collections['notes'])
             for revision in collections["revisions"]:
+                checkpoint(control, 'validating_history')
                 entity = revision.get("entity_type")
                 if entity not in {"note", "matrix"} or revision.get("entity_id") not in record_ids[entity] or type(revision.get("version")) is not int or revision["version"] < 1:
                     raise AppError("Backup revision identity is invalid.")
@@ -1694,6 +1707,7 @@ class Store:
             raise AppError('Backup bytes or validation storage could not be read. Check permissions and free space; no new workspace was created.') from None
         except (ValueError, KeyError, TypeError, zipfile.BadZipFile, RuntimeError, NotImplementedError):
             raise AppError("Backup archive or manifest is malformed. No workspace was created.") from None
+        checkpoint(control, 'preview_ready')
         if preview_only:
             return {'title': title, 'documents':len(documents), 'notes':len(collections['notes']),
                     'matrix':len(collections['matrix']), 'chats':len(collections['chats']),
