@@ -30,6 +30,7 @@ SOURCE_FILES.add('BUILDING.md')
 SOURCE_FILES.add('reading.py')
 SOURCE_FILES.add('project_review.py')
 SOURCE_FILES.add('auto_backup.py')
+SOURCE_FILES.add('workspace_archive.py')
 SOURCE_FILES.add('reviewer.py')
 SOURCE_FILES.update({'updater.py', 'updater_worker.py'})
 

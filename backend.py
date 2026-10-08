@@ -1446,6 +1446,34 @@ class Store:
             raise AppError("Workspace exceeds this version's 47 MB backup/restore limit including ZIP overhead. No data was removed.", 413)
         return backup, "application/zip", "Research-workspace-backup.zip"
 
+    def write_backup(self, workspace_id, target_path, include_history=True):
+        """Stream a local ZIP; the small browser envelope remains unchanged."""
+        from workspace_archive import write_snapshot
+        with self.lock:
+            self._ensure_open()
+            snapshot = self._snapshot(workspace_id, include_history=include_history)
+        for collection, limit in BACKUP_COLLECTION_LIMITS.items():
+            if len(snapshot[collection]) > limit:
+                raise AppError(f'Backup supports at most {limit:,} {collection}; no records were omitted.', 413)
+        if any(len(row['payload']) > REVISION_PAYLOAD_LIMIT for row in snapshot['revisions']):
+            raise AppError('A revision exceeds the supported backup payload limit. History was retained.', 413)
+        if any(not 1 <= row['version'] <= 1_000_000 for key in ('notes', 'matrix') for row in snapshot[key]):
+            raise AppError('An edit version exceeds the supported restore range. No backup was published.', 413)
+        return write_snapshot(self, snapshot, target_path)
+
+    def restore_backup_file(self, path, *, preview_only=False, expected_sha256=None, expected_size=None):
+        from workspace_archive import restore_file
+        with self.condition:
+            self._ensure_open()
+            self.active_asks += 1
+        try:
+            return restore_file(self, path, preview_only=preview_only, expected_sha256=expected_sha256,
+                                expected_size=expected_size)
+        finally:
+            with self.condition:
+                self.active_asks -= 1
+                self.condition.notify_all()
+
     def _restore(self, body, preview_only=False):
         try:
             data = decode_base64(body.get("data"), BACKUP_LIMIT)
@@ -1454,8 +1482,19 @@ class Store:
                 raise AppError("Backup exceeds this version's 47 MB binary restore limit. No workspace was created.", 413) from None
             raise
         try:
-            archive = zipfile.ZipFile(io.BytesIO(data))
-            infos = validate_zip_members(archive)
+            with zipfile.ZipFile(io.BytesIO(data)) as archive:
+                return self._restore_archive(archive, preview_only=preview_only)
+        except AppError:
+            raise
+        except OSError:
+            raise AppError('Backup storage failed. Check destination permissions and free space. Any newly written recovery originals or pending files were retained; no new workspace was created.') from None
+        except (ValueError, KeyError, TypeError, zipfile.BadZipFile, RuntimeError, NotImplementedError):
+            raise AppError('Backup archive or manifest is malformed. No workspace was created.') from None
+
+    def _restore_archive(self, archive, preview_only=False, file_backed=False, spill_directory=None):
+        from workspace_archive import TOTAL_LIMIT, ZipOriginals, SpilledExtractions
+        try:
+            infos = validate_zip_members(archive, TOTAL_LIMIT if file_backed else RESTORE_TOTAL_LIMIT)
             names = {i.filename for i in infos}
             if "manifest.json" not in names:
                 raise AppError("Backup manifest is missing.")
@@ -1479,7 +1518,8 @@ class Store:
                 if not isinstance(collection, list) or len(collection) > limit or any(not isinstance(row, dict) for row in collection):
                     raise AppError("Backup record collection is invalid or too large.")
                 collections[key] = collection
-            originals, documents = {}, []
+            originals = ZipOriginals(archive) if file_backed else {}
+            documents = []
             doc_ids = set()
             doc_hashes = set()
             expected_members = {"manifest.json"}
@@ -1496,8 +1536,16 @@ class Store:
                 if document.get("path") != expected_path or expected_path not in names:
                     raise AppError("Backup original path is invalid or missing.")
                 expected_members.add(expected_path)
-                raw = archive.read(expected_path)
-                if type(document.get("size")) is not int or len(raw) != document["size"] or hashlib.sha256(raw).hexdigest() != document.get("sha256"):
+                if type(document.get('size')) is not int or not 0 <= document['size'] <= FILE_LIMIT:
+                    raise AppError('Backup original size is invalid.')
+                if file_backed:
+                    originals.add_verified(id_, expected_path, document['size'], document.get('sha256'))
+                else:
+                    raw = archive.read(expected_path)
+                    if len(raw) != document["size"] or hashlib.sha256(raw).hexdigest() != document.get("sha256"):
+                        raise AppError("Backup original failed its size or SHA256 check.")
+                    originals[id_] = raw
+                if not isinstance(document.get('sha256'), str) or not re.fullmatch('[a-f0-9]{64}', document['sha256']):
                     raise AppError("Backup original failed its size or SHA256 check.")
                 if document["sha256"] in doc_hashes:
                     raise AppError("Backup contains duplicate managed originals.")
@@ -1510,16 +1558,28 @@ class Store:
                     raise AppError("Backup metadata version is invalid.")
                 document["metadata_version"] = metadata_version
                 text_value(document.get("error", ""), "Source error", 4000)
-                originals[id_] = raw
                 documents.append(document)
             if names != expected_members:
                 raise AppError("Backup contains unexpected files.")
             # Each immutable source is extracted once. Chat citations and the
             # final publication reuse the same pages and extraction status.
-            extracted, citation_page_limits = {}, {}
+            extracted = SpilledExtractions(spill_directory) if file_backed else {}
+            citation_page_limits = {}
+
+            def extract_original(document):
+                raw = originals[document['id']]
+                if document['kind'] in {'pdf', 'png', 'jpg', 'jpeg', 'webp'}:
+                    with self.lock:
+                        return extract(raw, document['kind'])
+                return extract(raw, document['kind'])
+
+            def pdf_page_count(raw):
+                with self.lock, pdf_lib.open(stream=raw, filetype='pdf') as source:
+                    return len(source)
+
             for document in documents:
                 try:
-                    pages, notice = extract(originals[document["id"]], document["kind"])
+                    pages, notice = extract_original(document)
                     extracted[document["id"]] = (pages, notice, "ready" if any(t.strip() for _, t in pages) else "no_text", "")
                 except AppError as error:
                     extracted[document["id"]] = ([], "", "error", str(error))
@@ -1533,8 +1593,7 @@ class Store:
                     citation_page_limits[document['id']] = saved_limit if type(saved_limit) is int and 0 <= saved_limit <= PAGE_LIMIT else 0
                     if pdf_lib is not None:
                         try:
-                            with pdf_lib.open(stream=originals[document['id']], filetype='pdf') as source:
-                                citation_page_limits[document['id']] = len(source)
+                            citation_page_limits[document['id']] = pdf_page_count(originals[document['id']])
                         except Exception:
                             pass
             record_ids = {"note": set(), "matrix": set(), "chat": set()}
@@ -1600,10 +1659,15 @@ class Store:
                                 row['warning'] = warning + ('\n' if warning else '') + notice
                     if entity != "chat" and (type(row.get("version")) is not int or not 1 <= row["version"] <= 1_000_000):
                         raise AppError("Backup edit version is invalid.")
-            from reading import validate_backup
+            from reading import Reading, validate_backup
+
+            def geometry_reader(raw, document_id, page):
+                with self.lock:
+                    return Reading._geometry_bytes(raw, document_id, page)
+
             if 'reading' in manifest and manifest['reading'] is None:
                 raise AppError('Backup reading state must be an object.')
-            reading_state = validate_backup(manifest.get('reading'), old_workspace_id, documents, collections['notes'], originals, citation_page_limits)
+            reading_state = validate_backup(manifest.get('reading'), old_workspace_id, documents, collections['notes'], originals, citation_page_limits, geometry_reader=geometry_reader)
             from reviewer import validate_backup as validate_reviewer
             if 'reviewer' in manifest and manifest['reviewer'] is None:
                 raise AppError('Backup reviewer state must be an object.')
@@ -1626,11 +1690,10 @@ class Store:
                         text_value(payload.get(field), field, 20_000)
         except AppError:
             raise
-        except (ValueError, KeyError, TypeError, zipfile.BadZipFile, OSError, RuntimeError, NotImplementedError):
+        except OSError:
+            raise AppError('Backup bytes or validation storage could not be read. Check permissions and free space; no new workspace was created.') from None
+        except (ValueError, KeyError, TypeError, zipfile.BadZipFile, RuntimeError, NotImplementedError):
             raise AppError("Backup archive or manifest is malformed. No workspace was created.") from None
-        finally:
-            if "archive" in locals():
-                archive.close()
         if preview_only:
             return {'title': title, 'documents':len(documents), 'notes':len(collections['notes']),
                     'matrix':len(collections['matrix']), 'chats':len(collections['chats']),
@@ -1655,7 +1718,11 @@ class Store:
         # File publication precedes the DB transaction. A failed transaction can
         # leave unreferenced copies, retained for recovery rather than deleted.
         for document in documents:
-            atomic_bytes(self.originals / (mapping[document["id"]] + "." + document["kind"]), originals[document["id"]])
+            target = self.originals / (mapping[document['id']] + '.' + document['kind'])
+            if file_backed:
+                originals.publish(document['id'], target, document['size'], document['sha256'])
+            else:
+                atomic_bytes(target, originals[document['id']])
         with self.db:
             self.db.execute("INSERT INTO workspaces VALUES(?,?,?)", (workspace_id, restored_title, now()))
             for document in documents:

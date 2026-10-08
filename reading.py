@@ -145,7 +145,7 @@ def _record_fields(record, kind):
             _integer(attachment['reading_version'], 'Attachment history version', 1)
 
 
-def validate_backup(state, workspace_id, documents, notes, originals=None, page_limits=None):
+def validate_backup(state, workspace_id, documents, notes, originals=None, page_limits=None, geometry_reader=None):
     """Validate all nested identities before restore publishes any original or row."""
     if state is None:
         return _default_state(workspace_id)
@@ -200,7 +200,7 @@ def validate_backup(state, workspace_id, documents, notes, originals=None, page_
             if key == 'annotations' and docs[document_id]['kind'] == 'pdf':
                 if b.pdf_lib is None or originals is None:
                     raise b.AppError('This backup contains PDF annotations that require local PyMuPDF for geometry verification. No workspace was created.')
-                geometry = Reading._geometry_bytes(originals[document_id], document_id, record['page'])
+                geometry = (geometry_reader or Reading._geometry_bytes)(originals[document_id], document_id, record['page'])
                 indices = record['word_indices']
                 if not indices or any(index >= len(geometry['words']) for index in indices):
                     raise b.AppError('Backup annotation word selection is invalid.')

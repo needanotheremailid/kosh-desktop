@@ -267,6 +267,8 @@ class Completion:
                 note = self.store.db.execute("SELECT * FROM notes WHERE id=?", (b.identifier(payload.get("id")),)).fetchone()
                 if note is None:
                     raise b.AppError("Note not found.", 404)
+                if set(payload) != {'id'}:
+                    return self._paged_note_history(dict(note), payload)
                 records = [json.loads(row[0]) for row in self.store.db.execute("SELECT payload FROM revisions WHERE entity_type='note' AND entity_id=? ORDER BY version", (note["id"],))] + [dict(note)]
                 return {"revisions": [{"id": row["id"], "title": row["title"], "body": row["body"], "version": row["version"], "created_at": row["updated_at"]} for row in records]}
             workspace_id = self.store._workspace(payload.get("workspace_id"))["id"]
@@ -277,6 +279,53 @@ class Completion:
                 return {"jobs": jobs, "results": [self.store.assistance.result(job["result_id"], workspace_id) for job in jobs if job["status"] == "complete"]}
             except ValueError as error:
                 raise b.AppError(str(error), getattr(error, "status", 400)) from None
+
+    def _paged_note_history(self, note, payload):
+        """List bounded metadata or read one exact body from a pinned snapshot."""
+        import backend as b
+        if set(payload) - {'id','workspace_id','expected_version','metadata_only','before','version'}:
+            raise b.AppError('Unsupported revision comparison option.')
+        if b.identifier(payload.get('workspace_id')) != note['workspace_id']:
+            raise b.AppError('Note not found in this workspace.', 404)
+
+        def version(key):
+            value = str(payload.get(key, ''))
+            if not re.fullmatch(r'[1-9][0-9]{0,6}', value) or int(value) > 1_000_000:
+                raise b.AppError('Revision versions must be positive integers within the supported range.')
+            return int(value)
+
+        if version('expected_version') != note['version']:
+            raise b.AppError('The saved draft changed. Reopen comparison to use its current revisions.', 409)
+        metadata = payload.get('metadata_only') == '1'
+        if ('metadata_only' in payload and not metadata) or metadata == ('version' in payload) or ('before' in payload and not metadata):
+            raise b.AppError('Choose a metadata page or one exact saved version.')
+        rows = []
+        if metadata:
+            before = version('before') if 'before' in payload else note['version'] + 1
+            if note['version'] < before:
+                rows.append({key:note[key] for key in ('id','title','version','updated_at')})
+            cursor = self.store.db.execute("SELECT payload FROM revisions WHERE entity_type='note' AND entity_id=? AND version<? ORDER BY version DESC LIMIT 101", (note['id'], min(before,note['version'])))
+            for record in cursor:
+                row = json.loads(record[0])
+                rows.append({key:row[key] for key in ('id','title','version','updated_at')})
+                if len(rows) > 100:
+                    break
+            next_before = rows[99]['version'] if len(rows) > 100 else None
+            rows = rows[:100]
+        else:
+            selected = version('version')
+            if selected == note['version']:
+                row = note
+            else:
+                record = self.store.db.execute("SELECT payload FROM revisions WHERE entity_type='note' AND entity_id=? AND version=?", (note['id'],selected)).fetchone()
+                if record is None:
+                    raise b.AppError('Saved revision not found.',404)
+                row = json.loads(record[0])
+            rows = [row]
+            next_before = None
+        revisions = [{**{key:row[key] for key in ('id','title','version')},'created_at':row['updated_at'],**({} if metadata else {'body':row['body']})} for row in rows]
+        return {'note_id':note['id'],'workspace_id':note['workspace_id'],'current_version':note['version'],
+                'revisions':revisions,'next_before':next_before}
 
     def _bibliography_import(self, workspace_id, parsed, format):
         import backend as b

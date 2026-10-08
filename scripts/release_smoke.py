@@ -4,6 +4,7 @@ import base64
 import hashlib
 import io
 import json
+import random
 from pathlib import Path
 import sys
 import tempfile
@@ -35,8 +36,42 @@ def check_next_workflows(store, temporary, installed):
     assert result['comments'][0]['note_id'] != note['id'] and not result['comments'][0]['stale']
     updates = Updater(installed,cache_dir=Path(temporary)/'updates')
     status = updates.status()
-    assert status['current_version'] == '0.5.0' and status['phase'] == 'idle' and status['signature'] == 'not_verified'
+    assert status['current_version'] == '0.6.0' and status['phase'] == 'idle' and status['signature'] == 'not_verified'
     return {'reviewer_letter':True,'dashboard':True,'automatic_backup_restore':True,'update_status_no_network':True}
+
+
+def check_large_backup_and_revisions(store, temporary):
+    workspace = store.dispatch('POST', '/api/workspaces', {'title':'Archive release check'})['id']
+    hashes = []
+    for index in range(2):
+        with pymupdf.open() as document:
+            document.new_page().insert_text((40, 50), 'Invented archive source ' + str(index))
+            document.embfile_add('example.bin', random.Random(index).randbytes(25 * 1024 * 1024))
+            original = document.tobytes()
+        result = store.dispatch('POST', '/api/import', {'workspace_id':workspace, 'files':[
+            {'name':'archive-' + str(index) + '.pdf', 'data':base64.b64encode(original).decode('ascii')}]})['results'][0]
+        assert result['status'] == 'ready'
+        hashes.append(hashlib.sha256(original).hexdigest())
+    note = store.dispatch('POST', '/api/notes', {'workspace_id':workspace, 'title':'Saved draft', 'body':'Before\n'})
+    changed = store.dispatch('POST', '/api/notes', {'workspace_id':workspace, 'id':note['id'],
+        'version':1, 'title':'Revised draft', 'body':'After\n'})
+    query = '/api/notes/history?id=' + note['id'] + '&workspace_id=' + workspace + '&expected_version=2'
+    metadata = store.dispatch('GET', query + '&metadata_only=1')
+    assert [row['version'] for row in metadata['revisions']] == [2,1]
+    assert all('body' not in row for row in metadata['revisions'])
+    assert store.dispatch('GET', query + '&version=1')['revisions'][0]['body'] == 'Before\n'
+    assert store.dispatch('GET', query + '&version=2')['revisions'][0]['body'] == changed['body']
+    archive = Path(temporary) / 'large-workspace.zip'
+    receipt = store.write_backup(workspace, archive)
+    assert receipt['bytes'] > 47 * 1024 * 1024
+    preview = store.restore_backup_file(archive, preview_only=True, expected_sha256=receipt['sha256'], expected_size=receipt['bytes'])
+    assert preview['documents'] == 2 and preview['revisions'] == 1
+    restored = store.restore_backup_file(archive, expected_sha256=receipt['sha256'], expected_size=receipt['bytes'])
+    state = store.dispatch('GET', '/api/state?workspace_id=' + restored['workspace_id'])
+    assert sorted(row['sha256'] for row in state['documents']) == sorted(hashes)
+    assert state['notes'][0]['body'] == changed['body'] and state['notes'][0]['version'] == 2
+    return {'archive_bytes':receipt['bytes'], 'original_hashes_preserved':True,
+            'saved_revision_metadata_and_bodies':True, 'fresh_workspace_restore':True}
 
 
 def check_reading_workflow(store):
@@ -153,6 +188,7 @@ with tempfile.TemporaryDirectory(prefix='kosh-release-smoke-') as temporary:
         assert store.dispatch('GET', '/api/workspaces', {})['workspaces'] == []
         reading_checks = check_reading_workflow(store)
         next_checks = check_next_workflows(store, temporary, root)
+        large_checks = check_large_backup_and_revisions(store, temporary)
     finally:
         store.close()
     library = csl_styles.StyleLibrary(Path(temporary) / 'styles')
@@ -193,5 +229,6 @@ print(json.dumps({'ok':True,'build':manifest['build'],'verified_payload_files':l
                   'bundled_origins':True,'empty_library':True,'csl_locales':63,
                   'reading_workflow':reading_checks,
                   'next_workflows':next_checks,
+                  'large_backup_and_revisions':large_checks,
                   'offline_compiled_pdf_pages':pages,'default_chicago_pdf_pages':chicago_pages,'native_word_fields':True,
                   'scope':'Fresh installed runtime checks; synthetic inputs; no desktop UI or native Word automation.'}))

@@ -39,7 +39,7 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Reading UI checks failed.' }
           node tests/test_writing_review_ui.js
           if ($LASTEXITCODE -ne 0) { throw 'Writing review checks failed.' }
-          foreach ($module in @('auto_backup','reviewer','project_review','updater','maintenance')) {
+          foreach ($module in @('auto_backup','reviewer','project_review','updater','maintenance','revisions')) {
             node --check "ui/$module.js"
             if ($LASTEXITCODE -ne 0) { throw "Syntax check failed: $module" }
           }
@@ -47,6 +47,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Reviewer UI checks failed.' }
           node tests/test_project_review_ui.js
           if ($LASTEXITCODE -ne 0) { throw 'Project review UI checks failed.' }
+          node tests/test_revision_compare_ui.js
+          if ($LASTEXITCODE -ne 0) { throw 'Revision comparison UI checks failed.' }
       - name: Check bibliography parsing and folder recovery
         shell: pwsh
         run: |

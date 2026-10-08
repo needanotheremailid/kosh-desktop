@@ -63,7 +63,7 @@ class AutomaticBackupTests(unittest.TestCase):
         self.enable()
         self.assertTrue(self.backups.tick()['ok'])
         self.clock += 3600
-        with patch.object(self.store, 'file_response', side_effect=AppError('Invented source is missing.')):
+        with patch.object(self.store, 'write_backup', side_effect=AppError('Invented source is missing.')):
             failed = self.backups.tick()
         self.assertFalse(failed['ok'])
         self.assertEqual(self.backups.status()['last_success'], 1000.0)
@@ -82,14 +82,14 @@ class AutomaticBackupTests(unittest.TestCase):
     def test_all_workspaces_no_partial_set_on_second_export_failure(self):
         self.store.dispatch('POST', '/api/workspaces', {'title': 'Second invented workspace'})
         self.enable()
-        original = self.store.file_response
+        original = self.store.write_backup
         calls = []
         def export(*args, **kwargs):
             calls.append(1)
             if len(calls) == 2:
                 raise AppError('Second export refused.')
             return original(*args, **kwargs)
-        with patch.object(self.store, 'file_response', side_effect=export):
+        with patch.object(self.store, 'write_backup', side_effect=export):
             self.assertFalse(self.backups.tick()['ok'])
         self.assertIsNone(self.backups.status()['last_success'])
         self.assertEqual(self.backups.list_sets()['sets'], [])
@@ -133,12 +133,12 @@ class AutomaticBackupTests(unittest.TestCase):
     def test_concurrent_guard_and_stop_waits_for_worker(self):
         self.enable()
         entered, release = threading.Event(), threading.Event()
-        original = self.store.file_response
+        original = self.store.write_backup
         def export(*args, **kwargs):
             entered.set()
             release.wait(5)
             return original(*args, **kwargs)
-        with patch.object(self.store, 'file_response', side_effect=export):
+        with patch.object(self.store, 'write_backup', side_effect=export):
             self.backups.start()
             self.assertTrue(entered.wait(5))
             self.assertEqual(self.backups.run_now()['status'], 'busy')
@@ -174,14 +174,14 @@ class AutomaticBackupTests(unittest.TestCase):
         self.enable()
         self.backups.run_now()
         self.clock -= 300
-        original = self.store.file_response
+        original = self.store.write_backup
         calls = []
         def export(*args, **kwargs):
             calls.append(1)
             if len(calls) % 2 == 0:
                 raise AppError('Second export remains unavailable.')
             return original(*args, **kwargs)
-        with patch.object(self.store, 'file_response', side_effect=export):
+        with patch.object(self.store, 'write_backup', side_effect=export):
             self.assertFalse(self.backups.tick()['ok'])
             for _ in range(20):
                 self.clock += 60
@@ -270,7 +270,7 @@ class AutomaticBackupTests(unittest.TestCase):
         self.backups.run_now()
         self.clock += 3600
         import shutil
-        with patch('auto_backup.shutil.disk_usage', return_value=shutil._ntuple_diskusage(100, 100, 0)):
+        with patch('workspace_archive.shutil.disk_usage', return_value=shutil._ntuple_diskusage(100, 100, 0)):
             result = self.backups.tick()
         self.assertFalse(result['ok'])
         self.assertIn('free space', result['error'])
@@ -279,7 +279,11 @@ class AutomaticBackupTests(unittest.TestCase):
 
     def test_malformed_export_and_manifest_rejected_before_success(self):
         self.enable()
-        with patch.object(self.store, 'file_response', return_value=(b'invalid zip', 'application/zip', 'backup.zip')):
+        def invalid_export(workspace_id, target, **kwargs):
+            data = b'invalid zip'
+            target.write_bytes(data)
+            return {'bytes': len(data), 'sha256': hashlib.sha256(data).hexdigest()}
+        with patch.object(self.store, 'write_backup', side_effect=invalid_export):
             self.assertFalse(self.backups.run_now()['ok'])
         self.assertIsNone(self.backups.status()['last_success'])
         self.assertTrue(self.backups.run_now()['ok'])
@@ -313,7 +317,7 @@ class AutomaticBackupTests(unittest.TestCase):
     def test_stop_waits_for_manual_backup_and_refuses_new_runs(self):
         self.enable()
         entered, release, stopped = threading.Event(), threading.Event(), threading.Event()
-        original = self.store.file_response
+        original = self.store.write_backup
         def export(*args, **kwargs):
             entered.set()
             release.wait(5)
@@ -321,7 +325,7 @@ class AutomaticBackupTests(unittest.TestCase):
         def stop():
             self.backups.stop()
             stopped.set()
-        with patch.object(self.store, 'file_response', side_effect=export):
+        with patch.object(self.store, 'write_backup', side_effect=export):
             worker = threading.Thread(target=self.backups.run_now)
             worker.start()
             self.assertTrue(entered.wait(5))

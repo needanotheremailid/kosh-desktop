@@ -350,6 +350,7 @@ class WorkerTests(UpdaterTests):
             again=updater_worker.run_job(directory)
         self.assertEqual(result['phase'],'activation_failed');self.assertEqual(again['phase'],'activation_failed');restore.assert_not_called()
 
+    @patch.object(updater, 'CURRENT_VERSION', '0.5.0')
     def test_activation_requires_marker_and_durable_matching_startup_receipt(self):
         request,directory=self.prepared();new=self.create_candidate(request)
         marker={'format':1,'app':'Kosh','repository':updater.REPOSITORY,'job_id':directory.name,'version':'0.5.0','build':'b'*64,'new_install':str(new),'phase':'installed_verified'}
@@ -361,6 +362,7 @@ class WorkerTests(UpdaterTests):
         marker['new_install']=str(self.old);(new/'UPDATE_READY.json').write_text(json.dumps(marker))
         self.assertFalse(updater.activation_ready(new,'b'*64,cache_dir=self.root/'cache'))
 
+    @patch.object(updater, 'CURRENT_VERSION', '0.5.0')
     def test_normal_relaunch_with_pending_update_stays_read_only_until_proof(self):
         request,directory=self.prepared();new=self.create_candidate(request)
         (new/'UPDATE_PENDING.json').write_text(json.dumps({'job_id':directory.name,'new_install':str(new)}))

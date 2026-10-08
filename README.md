@@ -4,19 +4,30 @@
 
 Kosh is a research desk for Windows. Read sources beside your draft, keep notes linked to the evidence, and take your writing into Word, PDF or LaTeX.
 
-**[Download for Windows — 0.5.0 beta](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.5.0/Kosh-0.5.0-Setup.exe)** · [Release notes](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v0.5.0) · [User guide](USER_GUIDE.md)
+**[Download for Windows — 0.6.0 beta](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.6.0/Kosh-0.6.0-Setup.exe)** · [Release notes](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v0.6.0) · [User guide](USER_GUIDE.md)
 
 Already using an older Kosh installation? Follow the [copy-only upgrade guide](USER_GUIDE.md#upgrade-a-bundled-installation) to gain the new controls while retaining your old installation and backup.
 
-64-bit Windows 11 with Microsoft Edge and .NET Framework · no administrator rights needed · **unsigned beta**: Windows may warn about an unknown publisher. [SHA-256 checksums](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.5.0/SHA256SUMS.txt).
+64-bit Windows 11 with Microsoft Edge and .NET Framework · no administrator rights needed · **unsigned beta**: Windows may warn about an unknown publisher. [SHA-256 checksums](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.6.0/SHA256SUMS.txt).
 
 ![Kosh writing view with a manuscript and citation controls](assets/screenshots/kosh-writing.png)
 
-*The image above, the gallery below and the walkthrough show an example workspace from 0.3.0. The two images in New in 0.4.0 are retained examples from the 8 October 2026 release; they do not show the 0.5.0 additions. Your library starts empty.*
+*The image above, the gallery below and the walkthrough show an example workspace from 0.3.0. The 0.4.0 and 0.5.0 images retain their original version labels; they do not show the 0.6.0 additions. Your library starts empty.*
+
+## New in 0.6.0
+
+- **Back up a larger library — Settings → Automatic local backups.** Automatic sets write and validate workspace ZIPs directly on disk, removing their former 47 MiB per-workspace ceiling. Use the same automatic-set restore preview to recover into a separate workspace. Individual file, manifest, record and history limits still apply; manual browser/CLI ZIP download and upload remain limited to 47 MiB.
+- **Compare saved writing — Write → Compare revisions.** Read two saved manuscript versions side by side as aligned plain text, see changed-line counts and navigate differences. Opening it first saves ordinary pending edits; the comparison display is read-only. Larger comparisons use clearly labelled coarse alignment and pagination; restore remains a separate action.
+
+These two additions require Kosh 0.6.0. The [user guide](USER_GUIDE.md#new-in-060) explains the larger-file route and saved-version comparison. The agent registry remains at 63 tools.
+
+![Kosh 0.6.0 comparing saved manuscript revisions side by side](assets/screenshots/kosh-revisions-060.jpg)
+
+*A real 0.6.0 app screen with an example manuscript. Changed titles and passages are labelled, and earlier saved versions remain available.*
 
 ## New in 0.5.0
 
-- **Automatic local backups — Settings → Automatic local backups.** Opt in, choose an existing local folder and interval, then see last success/failure or validate a restore into a separate workspace. Backups include every workspace and saved history, run while Kosh is open, and catch up once on launch. Each workspace ZIP has a 47 MiB limit. ZIPs are unencrypted, earlier backups are retained, and unsaved browser recovery stays separate.
+- **Automatic local backups — Settings → Automatic local backups.** Opt in, choose an existing local folder and interval, then see last success/failure or validate a restore into a separate workspace. Backups include every workspace and saved history, run while Kosh is open, and catch up once on launch. Version 0.5.0's 47 MiB automatic-workspace limit is replaced by the file-backed route in 0.6.0. ZIPs are unencrypted, earlier backups are retained, and unsaved browser recovery stays separate.
 - **Reviewer responses — More → Reviewer responses.** Link a comment to an exact saved manuscript passage, record planned/revised wording and your response, retain changes, and export a text letter. These manual records do not change the manuscript or send a submission. The letter flags stale links and qualifies exact revised-wording matches.
 - **Project review — More → Project review.** Save and check drafts and recorded claim reviews across the selected workspace. See unresolved references, metadata gaps and stale/source-needed reviews. Failed checks remain Unknown; unrecorded claims are unassessed. This is a work list, not scientific-support or submission-readiness certification.
 - **In-app updates — Settings → Kosh updates.** Check the public release source, download a named installer/checksum, then separately approve installation of an unsigned package. The stopped copy workflow retains old installation/data and checks startup before shortcut changes. A matching published SHA-256 checks transfer consistency; it does not verify the publisher.
@@ -48,14 +59,14 @@ Focus writing keeps the draft and essential controls in view. Review an exact se
 
 [Watch or download the full-resolution video](https://github.com/needanotheremailid/kosh-desktop/raw/refs/heads/main/assets/presentation/Kosh%20Walkthrough.mp4) · Silent, 30 seconds. Captioned app captures follow a source-linked note through writing, export choices and the finished PDF.
 
-The 30-second walkthrough shows the core workflow in 0.3.0. Version 0.5.0 retains these layouts, the 0.3.1 PDF font correction and the 0.4.0 reading/writing controls, alongside the workflows described above.
+The 30-second walkthrough shows the core workflow in 0.3.0. Version 0.6.0 retains these layouts, the 0.3.1 PDF font correction and the later reading/writing controls, alongside the workflows described above.
 
 </details>
 
 ## What you can do
 
 - **Read and capture the evidence.** Import PDFs, Word documents or text, search extracted passages, and select PDF words for a saved highlight and comment. Saved passages link back to the file page or extracted section and can become cited notes. Annotations are separate local records; the original PDF stays unchanged. Create a local OCR copy when needed.
-- **Write with your sources nearby.** Draft in Markdown with source context, headings, tables, figures and equations. Search titles and draft text, use focus mode, or move complete Markdown sections. Autosave, saved history and conflict recovery help you return to the work.
+- **Write with your sources nearby.** Draft in Markdown with source context, headings, tables, figures and equations. Search titles and draft text, use focus mode, move complete Markdown sections or compare two saved versions. Autosave, saved history and conflict recovery help you return to the work.
 - **Keep citations and review claims.** Search your workspace with Insert citation, then insert a bibliography reference or an actual source locator. Record an exact selected sentence beside its quoted source passage as Needs source, Source attached or Checked by me. Changes can make the review stale; these labels record your judgement, not AI verification. Export with Vancouver/NLM, APA 7, IEEE or Chicago notes, local journal styles and 63 bundled citation locales.
 - **Export for the next step.** Create Word, PDF, compiled LaTeX PDF, HTML or a source-and-figures ZIP. Configure research article, review or case-report layouts with your own frontmatter, page settings and numbering.
 - **Organise the literature.** Use reading states, favorites, multiple tags and one collection label per source; combine them with source-detail/type filters and sorting. Resume the saved reading page with a next-action note. Duplicate title/DOI suggestions are read-only comparisons; they never merge or delete records automatically. Discover references through PubMed, Crossref, Europe PMC or OpenAlex and import RIS/BibTeX/CSL JSON.
@@ -111,10 +122,10 @@ AI is optional. Local AI needs separately installed Ollama, a suitable model and
 
 This is an **unsigned Windows beta**: Windows may warn about an unknown publisher. Check the release origin and checksum before running it. Local data and workspace ZIPs are unencrypted; keep private material out of public reports. Review OCR, bibliographic metadata and generated writing. Layout profiles do not certify journal compliance, and frontmatter blinding does not redact manuscript content. See the [full guide](USER_GUIDE.md) and [security boundaries](SECURITY.md).
 
-In PowerShell, compare the result below with the installer's entry in [SHA256SUMS.txt](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.5.0/SHA256SUMS.txt). A match checks transfer consistency with that release; it does not verify the publisher:
+In PowerShell, compare the result below with the installer's entry in [SHA256SUMS.txt](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.6.0/SHA256SUMS.txt). A match checks transfer consistency with that release; it does not verify the publisher:
 
 ```powershell
-(Get-FileHash .\Kosh-0.5.0-Setup.exe -Algorithm SHA256).Hash
+(Get-FileHash .\Kosh-0.6.0-Setup.exe -Algorithm SHA256).Hash
 ```
 
 ## Learn more and contribute

@@ -2,7 +2,7 @@
 
 Kosh is a local Windows research desk with original application code and an attributed offline citation processor, CSL styles and runtimes. Its library starts empty. It adapts research/writing workflows; another research product's accounts, subscriptions, application code and cloud infrastructure are not included. [CREDITS.md](CREDITS.md) and [THIRD_PARTY.md](THIRD_PARTY.md) identify the included dependencies.
 
-This describes Kosh 0.5.0. Automatic backups, in-app updates, reviewer responses, project review and six additional agent tools require 0.5.0. Older installations retain their previous behavior until upgraded to a matching package. Source, synthetic tests, rendered output, the installed release and a different clean computer are separate proof layers; consult the matching release receipts for build identity and acceptance.
+This describes Kosh 0.6.0. File-backed larger automatic backups/restore and saved manuscript revision comparison require 0.6.0. Automatic backup scheduling, in-app updates, reviewer responses, project review and six additional agent tools were introduced in 0.5.0. The fixed agent registry remains at 63 tools. Older installations retain their previous behavior until upgraded to a matching package. Source, synthetic tests, rendered output, the installed release and a different clean computer are separate proof layers; consult the matching release receipts for build identity and acceptance.
 
 ## Available workflow
 
@@ -13,7 +13,7 @@ This describes Kosh 0.5.0. Automatic backups, in-app updates, reviewer responses
 | Read | Actual PDF page images/extracted sections, selectable PDF words, saved highlights/comments, cited-note creation and remembered reading place | Annotations are separate records; original PDF bytes stay unchanged; non-PDF units are not native Word pagination |
 | Search | Lexical passages; optional local embedding index/search | Semantic similarity is a lead, not verified support |
 | OCR | Explicit local scan-to-derived-PDF workflow | Available language data required; recognition requires image review |
-| Write | Markdown, source beside draft, note/draft search, focus mode, section moves, outlines, formatted preview and recovery | Exact Markdown preserved; section moves use ordinary draft save/recovery; not a full Word desktop replacement |
+| Write | Markdown, source beside draft, note/draft search, focus mode, section moves, outlines, formatted preview, read-only saved revision comparison and recovery | Comparison uses saved plain text with bounded/coarse/paginated views; edits and restoration remain separate |
 | Review claims | Exact selected sentence beside a quoted source passage; Needs source / Source attached / Checked by me; stale detection and archive/restore | Text/location validation does not establish entailment; Checked by me is personal review, not AI verification |
 | Compare duplicates | Read-only pairs from matching saved title/DOI | Suggestions need review; no automatic merge, deletion or citation-ID replacement |
 | Insert | Managed figures, reviewed CSV/TSV tables and limited equations | Captions/data stay user-supplied; no automatic analysis |
@@ -23,10 +23,19 @@ This describes Kosh 0.5.0. Automatic backups, in-app updates, reviewer responses
 | Attach | Reviewed catalogue metadata linked to an imported paper | Expected metadata version; both originals remain; identity needs review |
 | Export | MD/static DOCX/editable native Word/PDF/compiled LaTeX PDF/TEX/TeX ZIP/BIB/RIS/CSL JSON/CSV/HTML/reading ZIP | Saved scope; audit opt-in; native Word styles separate from CSL |
 | Format manuscript | Configurable research/review/case-report layout and optional blank outline | User supplies frontmatter; blinding omits supplied author frontmatter only; no named-journal compliance claim |
-| Recover | Note/job history; current/history workspace ZIP; fresh restore; copy-only upgrade | Unencrypted; workspace ZIP excludes browser/folder/job journals and embedding cache |
-| Use agents | Fixed CLI and 63 MCP tools in 0.5.0; 0.4.0 has 57 | Six additions cover selected-workspace project/reviewer records and read-only backup/update status; explicit scopes/versions |
+| Recover | Note/job history; current/history manual ZIP; larger file-backed automatic sets; fresh restore; copy-only upgrade | Automatic archive limits differ from the 47 MiB manual transfer bound; ZIPs exclude browser/folder/job journals and embedding cache |
+| Use agents | Fixed CLI and 63 MCP tools in 0.6.0 and 0.5.0; 0.4.0 has 57 | No new tools in 0.6.0; existing note-history reads saved versions; explicit scopes/versions |
 | Edit files | Exact local diffs and optional chosen-file model proposals | Separate approval; retained originals; per-file publication may leave a partial batch |
 | Use desktop | Getting started, Help, hover explanations, three layouts, light/dark | Preferences do not change research records |
+
+## New in 0.6.0
+
+| Workflow | Behavior | Practical boundary |
+|---|---|---|
+| Larger automatic backups — Settings or Exports & backup | Write/read ZIPs directly on disk, retain all-workspace history sets, validate an exact file-backed preview and restore into a fresh workspace | Removes automatic sets' former 47 MiB ceiling; about 31.3 GiB derived archive ceiling per workspace, 32 MiB per original/workspace manifest, 1,000 records per main collection and 5,000 revisions; manual browser/CLI ZIP transfer stays 47 MiB |
+| Compare revisions — Write | Two saved versions of the same note, aligned plain-text title/body columns, removed/added line counts, title changes and difference navigation | Ordinary pending edits save before opening; the display makes no edit or restore; conflicted alternatives excluded; coarse large-block alignment disclosed, 200 rows per page |
+
+The archive schema is unchanged. Size, extraction, nested-record and available-space checks still apply, so the larger archive bound does not make backups unlimited. Comparison counts describe text changes, not their scientific adequacy. The agent interface retains the same 63 tools.
 
 ## New in 0.5.0
 
@@ -52,7 +61,7 @@ These four workflows require Kosh 0.5.0. Their controls are found in Settings or
 
 | Workflow | Current-source behavior | Practical boundary |
 |---|---|---|
-| Automatic local backups — Settings | Explicit opt-in, user-selected existing local folder, 15-minute–7-day interval, one launch catch-up, complete sets for all workspaces with history, readback/restore validation, last success/failure and exact restore preview; also available in Exports & backup | Runs only while Kosh is open; 47 MiB per workspace ZIP; no pruning or Windows scheduled task; browser-only recovery is excluded; failure retains prior backups |
+| Automatic local backups — Settings | Explicit opt-in, user-selected existing local folder, 15-minute–7-day interval, one launch catch-up, complete sets for all workspaces with history, readback/restore validation, last success/failure and exact restore preview; also available in Exports & backup | Runs only while Kosh is open; 0.6.0 automatic sets use the larger file-backed bound above, while manual ZIP transfer stays 47 MiB; no pruning or Windows scheduled task; browser-only recovery is excluded |
 | Kosh updates — Settings | Separate public GitHub release check, named installer/checksum download and unsigned execution approval; fresh sibling installation, stopped data copy, startup/build/database checks before shortcut retarget | Installed-package execution only; old copy/data retained; interrupted work needs explicit resume/recovery; newer candidate records block automatic shortcut rollback |
 | Reviewer responses — More | Exact saved manuscript passage/version/occurrence, manual comment/planned/revised/response fields, expected reviewer version, retained field/link changes, archive/restore and saved local text-letter export | Records do not edit the manuscript; stale links and revised-wording presence are disclosed; pending fields remain separate browser recovery; no provider request or submission |
 | Project review — More | On-demand saved draft/active recorded-claim review across the selected workspace, timestamp, per-draft checks, unresolved references, missing metadata, stale/source-needed/current checked claim counts and draft navigation | Counts can overlap; unrecorded claims are unassessed; failed checks show reasons and Unknown incomplete totals; no scientific-support or readiness certification |
@@ -118,7 +127,7 @@ The original approved Beeblio inspection produced these rows. Included means wor
 | 42 | Portable reading | HTML or HTML/figure ZIP; manuscript, workspace backup and software are distinct packages |
 | 43 | Copy-only upgrade | Verified fresh install; stopped complete data copy; staged SQLite backup/hashes/recovery |
 | 44 | Shortcut retarget | Explicit flag; exact old-launcher targets only, retained backups/readback |
-| 45 | MCP | 57 schemas in 0.4.0; 63 in 0.5.0 with six project/reviewer/status additions; no generic command escape hatch or unsolicited registration |
+| 45 | MCP | 57 schemas in 0.4.0; 63 in 0.5.0 and 0.6.0 with the six project/reviewer/status additions; no generic command escape hatch or unsolicited registration |
 | 46 | Free source/distribution | AGPL route including citeproc-js option, CSL CC-BY-SA-3.0 attribution, Node executable/licence/matching source, retained dependency notices and source receipts |
 | 47 | Editable Word citations | Document-local sources and native CITATION/BIBLIOGRAPHY fields; IEEE/APA sixth edition/ISO 690 numerical; refresh in Word |
 | 48 | Manuscript layout | User-chosen page/font/spacing/margins/numbering/frontmatter; profiles are not named-journal certification; explicit optional outline append |
@@ -131,10 +140,12 @@ The original approved Beeblio inspection produced these rows. Included means wor
 | 55 | Duplicate review | Read-only matching title/DOI candidates; no merge/delete/citation-ID rewrite |
 | 56 | Focus and sections | Visible Exit/Escape; complete adjacent Markdown section moves through ordinary save/recovery |
 | 57 | Personal claim review | Exact saved sentence/source passage, personal review states, stale guards, retained attachment history and archive/restore; no machine support certification |
-| 58 | Automatic backup — 0.5.0 | Opt-in local sets for every workspace with history, honest success/failure and exact restore preview; app-open scheduling/catch-up, no pruning, 47 MiB per workspace |
+| 58 | Automatic backup — 0.5.0 | Opt-in local sets for every workspace with history, honest success/failure and exact restore preview; app-open scheduling/catch-up, no pruning; larger file-backed sets in 0.6.0 |
 | 59 | In-app updates — 0.5.0 | Separate check/download/unsigned execution approvals, stopped complete copy, verified startup before shortcut change; retained old version/data and bounded rollback |
 | 60 | Reviewer responses — 0.5.0 | Exact passage occurrence/version, manual planned/revised/response records, retained changes and saved text-letter export; no manuscript mutation or submission |
 | 61 | Project review — 0.5.0 | Selected-workspace saved draft/recorded-claim checks with timestamp and Unknown incomplete totals; no support/readiness certification |
+| 62 | Larger automatic sets — 0.6.0 | File-backed ZIP creation/validation/restore within unchanged file/manifest/record/history bounds; manual browser/CLI transfer still capped at 47 MiB |
+| 63 | Saved revision comparison — 0.6.0 | Read-only title/body plain text, selected saved versions, aligned differences/counts/navigation and labelled coarse/paginated display; no restore or new revision |
 
 ## Other approved references
 

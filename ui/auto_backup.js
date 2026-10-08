@@ -106,7 +106,7 @@ window.KoshAutoBackup = (() => {
     dialog.id = 'auto-backup-dialog';
     dialog.setAttribute('aria-labelledby', 'auto-backup-title');
     dialog.innerHTML = '<div class="dialog-heading"><h2 id="auto-backup-title">Automatic local backups</h2><button class="icon-button" data-auto-close aria-label="Close backup preferences">×</button></div>' +
-      '<p>Choose a local folder outside Kosh’s application and data folders. A separate drive provides better protection against loss of this computer.</p>' +
+      '<p>Choose a local folder outside Kosh’s application and data folders. A separate drive provides better protection against loss of this computer.</p><p class="muted small">Large libraries are saved directly to disk in chunks. The 47 MiB browser-transfer limit does not apply here. Existing per-source, record and manifest limits still apply. Restore these sets in this panel with Kosh 0.6.0 or later.</p>' +
       '<label class="backup-history"><input id="auto-backup-enabled" type="checkbox"> Enable automatic local backups</label>' +
       '<label for="auto-backup-destination">Existing local backup folder · absolute path</label><input id="auto-backup-destination" autocomplete="off" placeholder="Paste the folder path you choose">' +
       '<label for="auto-backup-interval">Interval while Kosh is open · minutes</label><input id="auto-backup-interval" type="number" min="15" max="10080" step="1">' +
@@ -126,11 +126,12 @@ window.KoshAutoBackup = (() => {
       section.append(button);
       settings.append(section);
     }
-    const tools = document.querySelector('#tools-dialog .backup-actions');
+    const tools = document.querySelector('#backup-button')?.closest('.tool-section');
     if (tools) {
-      const button = element('button', 'Automatic backup preferences & restore', 'button');
+      const button = element('button', 'Large local backups & restore', 'button');
       button.addEventListener('click', open);
       tools.append(button);
+      tools.append(element('p', 'Browser ZIP transfer is limited to 47 MiB. For larger libraries, use Large local backups & restore.', 'muted small'));
     }
     find('[data-auto-close]').addEventListener('click', () => dialog.close());
     dialog.addEventListener('close', () => { clearInterval(timer); clearPreview(); });

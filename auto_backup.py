@@ -1,17 +1,15 @@
 """Opt-in local workspace ZIP sets, retained without pruning or OS tasks."""
 from __future__ import annotations
 
-import base64
-import hashlib
 import json
 import os
 from pathlib import Path
 import re
-import shutil
 import threading
 import time
 
 import backend as b
+from workspace_archive import FILE_ARCHIVE_LIMIT, hash_file
 
 
 SET_KEY = 'auto-backup:v1'
@@ -201,25 +199,15 @@ class AutoBackup:
                 pending.mkdir(exist_ok=False)
                 records = []
                 for workspace in workspaces:
-                    data, _, _ = self.store.file_response('/api/backup', {'workspace_id': workspace['id'], 'history': '1'})
                     filename = workspace['id'] + '.zip'
                     if not ZIP_NAME.fullmatch(filename):
                         raise b.AppError('Workspace identity cannot be represented safely in a backup set.')
                     target = pending / filename
-                    if shutil.disk_usage(destination).free < len(data) + MANIFEST_LIMIT:
-                        raise b.AppError('The backup drive has insufficient free space. Earlier completed backups are retained; no completed set was published.')
-                    _write_new(target, data)
-                    digest = hashlib.sha256(data).hexdigest()
-                    readback = target.read_bytes()
-                    if hashlib.sha256(readback).hexdigest() != digest:
-                        raise b.AppError('The written backup failed its byte check. No completed set was published.')
-                    # Restore preview is read-only but uses the global PyMuPDF
-                    # runtime, serialized with all existing Store PDF operations.
-                    with self.store.lock:
-                        self.store._ensure_open()
-                        checked = self.store._restore({'data': base64.b64encode(readback).decode('ascii')}, preview_only=True)
+                    receipt = self.store.write_backup(workspace['id'], target, include_history=True)
+                    checked = self.store.restore_backup_file(target, preview_only=True,
+                                                            expected_sha256=receipt['sha256'], expected_size=receipt['bytes'])
                     records.append({'workspace_id': workspace['id'], 'title': workspace['title'], 'file': filename,
-                                    'bytes': len(data), 'sha256': digest,
+                                    'bytes': receipt['bytes'], 'sha256': receipt['sha256'],
                                     'counts': {key: checked[key] for key in ('documents', 'notes', 'matrix', 'chats', 'revisions')}})
                 manifest = {'version': 1, 'app': 'kosh-auto-backup', 'set_id': set_id,
                             'created_at': self.clock(), 'history_included': True, 'build': self.build, 'workspaces': records}
@@ -328,7 +316,7 @@ class AutoBackup:
                     raise ValueError
                 if not isinstance(entry['file'], str) or not ZIP_NAME.fullmatch(entry['file']) or entry['file'] != entry['workspace_id'] + '.zip' or entry['file'] in seen:
                     raise ValueError
-                if not isinstance(entry['title'], str) or len(entry['title']) > 400 or type(entry['bytes']) is not int or not 1 <= entry['bytes'] <= b.BACKUP_LIMIT or not isinstance(entry['sha256'], str) or not re.fullmatch('[0-9a-f]{64}', entry['sha256']):
+                if not isinstance(entry['title'], str) or len(entry['title']) > 400 or type(entry['bytes']) is not int or not 1 <= entry['bytes'] <= FILE_ARCHIVE_LIMIT or not isinstance(entry['sha256'], str) or not re.fullmatch('[0-9a-f]{64}', entry['sha256']):
                     raise ValueError
                 if not isinstance(entry['counts'], dict) or set(entry['counts']) != {'documents', 'notes', 'matrix', 'chats', 'revisions'} or any(type(value) is not int or not 0 <= value <= 1_000_000 for value in entry['counts'].values()):
                     raise ValueError
@@ -362,18 +350,17 @@ class AutoBackup:
         path = folder / entry['file']
         if path.is_symlink() or not path.is_file() or path.stat().st_size != entry['bytes']:
             raise b.AppError('Backup ZIP is missing or changed. No restore was performed.')
-        data = path.read_bytes()
-        if len(data) != entry['bytes'] or hashlib.sha256(data).hexdigest() != entry['sha256']:
+        size, digest = hash_file(path)
+        if size != entry['bytes'] or digest != entry['sha256']:
             raise b.AppError('Backup ZIP failed its SHA-256 byte check. No restore was performed.')
-        return data, entry
+        return path, entry
 
     def preview_restore(self, body):
         if not isinstance(body, dict) or set(body) != {'set_id', 'workspace_id'}:
             raise b.AppError('Select one backup set and workspace for preview.')
-        data, entry = self._archive(body['set_id'], body['workspace_id'])
-        with self.store.lock:
-            self.store._ensure_open()
-            result = self.store._restore({'data': base64.b64encode(data).decode('ascii')}, preview_only=True)
+        path, entry = self._archive(body['set_id'], body['workspace_id'])
+        result = self.store.restore_backup_file(path, preview_only=True,
+                                               expected_sha256=entry['sha256'], expected_size=entry['bytes'])
         with self._state_lock:
             self._previews = {key: value for key, value in self._previews.items() if value['expires'] > self.clock()}
             if len(self._previews) >= 32:
@@ -391,7 +378,7 @@ class AutoBackup:
             preview = self._previews.pop(body['preview_id'], None)
             if not preview or preview['expires'] <= self.clock() or preview['destination'] != self._settings['destination']:
                 raise b.AppError('Restore preview expired or changed. Preview again before restoring.', 409)
-        data, entry = self._archive(preview['set_id'], preview['workspace_id'])
+        path, entry = self._archive(preview['set_id'], preview['workspace_id'])
         if entry['sha256'] != preview['sha256']:
             raise b.AppError('Backup changed after preview. Preview it again before restoring.', 409)
-        return self.store.dispatch('POST', '/api/restore', {'data': base64.b64encode(data).decode('ascii')})
+        return self.store.restore_backup_file(path, expected_sha256=entry['sha256'], expected_size=entry['bytes'])
