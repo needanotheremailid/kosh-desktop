@@ -127,3 +127,11 @@ Source export includes allowlisted code/docs/assets/tests and a hash manifest. I
 For the RC distribution, the updater expects the installer asset name `Kosh-1.0.0-rc.1-Setup.exe` and a matching entry in `SHA256SUMS.txt`. Local working artifacts may use other names. Checksum the exact final bytes after any separately approved signing operation; changing a filename or completing a build is not publication.
 
 Before publishing, verify every archive/payload digest, no private data, included licence/source material, startup with an empty library, exported synthetic documents, no-clobber refusal and a fresh-install/upgrade workflow. Report source, packaged runtime, installed behavior, rendered output and clean-machine checks separately. Never upload a raw working installation folder.
+
+## Keep build inputs separate from temporary work
+
+Use a maintained checkout for source and a separate private location for verified component inputs and release receipts. Temporary task folders are disposable only after their needed contents have been identified and preserved. A successful upload does not establish that every local file is redundant.
+
+Keep one verified current component donor, its matching licences and corresponding sources, the final release checksums, and the evidence needed to explain the release. Retain any explicitly required history-recovery backup privately. Check that a relocated donor still matches its manifest and that a moved Git checkout has the expected commit and clean working tree before deleting the old location.
+
+Old test installations, intermediate installers, extracted duplicate components, generated fixtures and cache files can then be removed from exact inventoried paths. Stop the owned test processes first; reject links or paths that resolve outside the intended temporary directory. Preserve real libraries, browser recovery and previous personal installations. Save a small cleanup receipt and update the maintained instructions when paths change. A documentation-only maintenance commit does not require replacing an already verified release installer or moving its tag.

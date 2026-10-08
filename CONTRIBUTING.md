@@ -53,3 +53,5 @@ Use export-source.ps1 for distribution, then inspect the archive/manifest. No da
 Verified development-package metadata lists PyMuPDF as dual AGPL 3.0/Artifex Commercial, python-docx as MIT and lxml as BSD-3-Clause. Treat dependency distribution/licensing as a separate release decision; no MIT-only bundle is claimed.
 
 The original Kosh monogram is included as SVG, PNG and a multi-size Windows icon. `scripts/build_icon.py` can regenerate the raster/icon files with Pillow, a development-only dependency. Pillow is not needed to install or run the app; setup uses the included icon.
+
+Before closing a contribution, stop owned test services and remove disposable generated fixtures and scratch outputs. Keep reusable tools in the maintained repository and retain necessary verification records privately. Follow the [build-input cleanup guidance](BUILDING.md#keep-build-inputs-separate-from-temporary-work); never treat a real library or recovery copy as a test fixture merely because it sits beside development files.
