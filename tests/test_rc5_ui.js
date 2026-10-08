@@ -5,9 +5,11 @@ const fs=require('node:fs');
 const path=require('node:path');
 const vm=require('node:vm');
 const ui=path.join(__dirname,'../ui');
-const app=fs.readFileSync(path.join(ui,'app.js'),'utf8');
-const reading=fs.readFileSync(path.join(ui,'reading.js'),'utf8');
-const html=fs.readFileSync(path.join(ui,'index.html'),'utf8');
+// A Windows checkout may have CRLF line endings; the slicing below expects LF.
+const read=file=>fs.readFileSync(file,'utf8').replace(/\r\n/g,'\n');
+const app=read(path.join(ui,'app.js'));
+const reading=read(path.join(ui,'reading.js'));
+const html=read(path.join(ui,'index.html'));
 // A top-level function: its first line, indented continuation lines, and a closing "}" line.
 function fn(source,name){const match=new RegExp('^(async )?function '+name+'\\(','m').exec(source);assert.ok(match,name+' is required');const lines=source.slice(match.index).split('\n'),out=[lines[0]];for(const line of lines.slice(1)){if(/^\s/.test(line)){out.push(line);continue;}if(line==='}')out.push(line);break;}return out.join('\n');}
 function load(context,source,...names){vm.createContext(context);vm.runInContext(names.map(name=>fn(source,name)).join('\n'),context);return context;}
@@ -67,13 +69,13 @@ function load(context,source,...names){vm.createContext(context);vm.runInContext
 // Stopped gate: every catch/finally that writes the page directly checks state.stopped first.
 {const allowed=new Set(['reviewer.js:21']);const failures=[];
  const blockEnd=(src,open)=>{let depth=0,quote=null;for(let i=open;i<src.length;i++){const ch=src[i];if(quote){if(ch==='\\'){i++;continue;}if(ch===quote)quote=null;continue;}if(ch==="'"||ch==='"'||ch==='`'){quote=ch;continue;}if(ch==='{')depth++;else if(ch==='}'){depth--;if(!depth)return i;}}return -1;};
- for(const file of fs.readdirSync(ui).filter(f=>f.endsWith('.js'))){const src=fs.readFileSync(path.join(ui,file),'utf8'),re=/\b(catch|finally)\s*(\([^)]*\))?\s*\{/g;let m;while((m=re.exec(src))){const open=m.index+m[0].length-1,body=src.slice(open+1,blockEnd(src,open)),where=file+':'+src.slice(0,m.index).split('\n').length;if(/innerHTML|textContent\s*=|insertAdjacentHTML/.test(body)&&!/^\s*if\([^)]*state\.stopped\)return/.test(body)&&!allowed.has(where))failures.push(where);}}
+ for(const file of fs.readdirSync(ui).filter(f=>f.endsWith('.js'))){const src=read(path.join(ui,file)),re=/\b(catch|finally)\s*(\([^)]*\))?\s*\{/g;let m;while((m=re.exec(src))){const open=m.index+m[0].length-1,body=src.slice(open+1,blockEnd(src,open)),where=file+':'+src.slice(0,m.index).split('\n').length;if(/innerHTML|textContent\s*=|insertAdjacentHTML/.test(body)&&!/^\s*if\([^)]*state\.stopped\)return/.test(body)&&!allowed.has(where))failures.push(where);}}
  assert.deepEqual(failures,[],'Unguarded DOM writes after Quit');
  for(const name of ['notify','render','renderMain','renderPanel'])assert.match(fn(app,name),/state\.stopped\)return/,name+' must be a no-op once stopped');}
 
 // Reachability: every action the rc.4 interface offered is still offered, or under its new name.
 {const rc4=['about','agent-help','apply-proposal','ask-search','assist-history','assist-open','assist-preview','assist-revise','assist-send','assist-writing','attach-catalogue','bibliography','bibliography-file','bibliography-import','bibliography-preview','cancel-ask','citation-insert','cite-library','clear-library-filters','clear-search','close-panel','copy-conflict','copy-proposal','create-workspace','draft-source','export-options','export-profile-outline','figure-import','focus-search','folder-add','folder-apply','folder-assist-open','folder-assist-preview','folder-assist-revise','folder-assist-send','folder-edits','folder-history','folder-preview','folder-revise','folder-use-draft','getting-started','help','import','insert-math','insert-reference','last-receipt','load-saved-version','lookup-publication','matrix-preserve-new','new-matrix','new-note','next-page','note-compare','note-from-page','note-history','ocr-open','ocr-run','open-ask','original-file','outline-casereport','outline-imrad','outline-protocol','outline-review','previous-page','propose-evidence','receipt-library','refresh-models','retrieval-index','retrieval-open','retrieval-search','retry-library-search','retry-preview','save-alternative','save-edits','settings','skip-guide','table-file','table-import','table-insert','table-preview','toggle-preview','writing-check'];
- const renamed={'draft-source':'toggle-split','focus-search':'palette'};const offered=fs.readdirSync(ui).filter(f=>/\.(js|html)$/.test(f)).map(f=>fs.readFileSync(path.join(ui,f),'utf8')).join('\n');
+ const renamed={'draft-source':'toggle-split','focus-search':'palette'};const offered=fs.readdirSync(ui).filter(f=>/\.(js|html)$/.test(f)).map(f=>read(path.join(ui,f))).join('\n');
  for(const name of rc4){const now=renamed[name]||name;assert.ok(offered.includes('data-action="'+now+'"'),'No control offers '+now);assert.ok(app.includes("name==='"+now+"'")||app.includes("'"+now+"'")||now.startsWith('outline-')&&app.includes("name.startsWith('outline-')"),'No handler for '+now);}
  assert.ok(app.includes("name==='draft-source'"),'The old split action name still works');}
 
