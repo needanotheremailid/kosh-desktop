@@ -10,6 +10,14 @@ The bundled edition installs with `Kosh-1.0.0-rc.3-Setup.exe` into a new folder 
 
 This guide targets Kosh 1.0.0-rc.3. Historical sections retain their introduction versions. Older installations keep their prior behavior until upgraded to a matching package. The optional [signing workflow](SIGNING.md) requires an already provisioned trusted publisher identity; the installer is not signed just because that workflow is available. Tests on one computer do not prove another clean Windows computer or every real manuscript. Independent trials remain pending in [the acceptance checklist](ACCEPTANCE.md).
 
+## In the source after 1.0.0-rc.3 (next release)
+
+These additions are in the source after 1.0.0-rc.3 and will ship in the next installer; the 1.0.0-rc.3 package does not include them.
+
+- **Complete details from a PMID.** Source details now has a **PMID** field. When a source has a PMID but no DOI, **Fill missing details from this PMID** and **Complete missing details** send that PMID, and nothing else, to PubMed, then show the same field-by-field review. A saved DOI is still used first.
+- **Paste a reference list.** In **More → Discover references → Lookup exact DOI or PMID**, open **Paste a reference list**, paste a reference section and choose **Find identifiers**. Kosh finds DOIs, PMIDs and PubMed links on this computer and shows them before anything is sent, skipping any already in the workspace. **Look up** sends each new DOI to Crossref and each PMID to PubMed, one second apart, and **Stop** ends the batch before the next request. Review the listed records, then add them one at a time or with **Add all**. A bare number counts as a PMID only on a line of its own, and up to 50 new identifiers are looked up per paste.
+- **Steadier lookups.** Completing several sources no longer runs into the one-second limit per index. Ticks you change stay put while other results arrive, a failed lookup offers **Try again**, and long field labels no longer split. References saved from PubMed keep their PMID and are not saved twice.
+
 ## New in 1.0.0-rc.3
 
 - **Complete missing details from a DOI.** Exports, the writing check and Source details offer **Complete missing details** (in Source details: **Fill missing details from this DOI**). Choose **Look up** to send each listed source's saved DOI, and nothing else, to Crossref. Kosh shows only fields the record would add or change: empty fields are ticked, existing values stay unless you tick them. **Save ticked fields** records which fields were copied, the DOI and the retrieval time in the source's provenance. Sources without a DOI link to Source details instead. Catalogue records can be wrong; check each field against the publication.

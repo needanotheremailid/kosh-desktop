@@ -128,6 +128,7 @@ def _pubmed_records(xml):
         # MedlineDate is retained literally; no unreported publication year is guessed.
         if not year: year=text(article,"Journal/JournalIssue/PubDate/MedlineDate")
         items.append(record("pubmed",pmid,text(article,"ArticleTitle"),authors=_author_text(authors),author_list=authors,year=year,doi=doi,journal=text(article,"Journal/Title"),journal_abbreviation=text(value,"MedlineCitation/MedlineJournalInfo/MedlineTA"),volume=text(article,"Journal/JournalIssue/Volume"),issue=text(article,"Journal/JournalIssue/Issue"),pages=text(article,"Pagination/MedlinePgn"),abstract=abstract,type="journal_article",url="https://pubmed.ncbi.nlm.nih.gov/"+pmid+"/"))
+        items[-1]['pmid']=pmid  # record() keeps a fixed key set; saved references and completion need the PMID.
     return items
 
 def europepmc(query):

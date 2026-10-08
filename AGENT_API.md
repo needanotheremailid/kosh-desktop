@@ -153,7 +153,7 @@ python.exe agent.py literature-lookup --workspace WORKSPACE_ID --provider pubmed
 python.exe agent.py literature-save --workspace WORKSPACE_ID --result RESULT_ID
 ```
 
-Identifiers above are syntax placeholders, not claimed publications. Preview/import supports `bib`, `ris`, `csljson` and at most 1,000 records in bounded text. Import saves unverified metadata records, not papers; DOI duplicates retain existing corrections. Asset import validates PNG/JPEG/WebP bytes/dimensions. Catalogue attachment checks workspace/metadata version and preserves both originals.
+Identifiers above are syntax placeholders, not claimed publications. Preview/import supports `bib`, `ris`, `csljson` and at most 1,000 records in bounded text. Import saves unverified metadata records, not papers; DOI duplicates retain existing corrections. In the source after 1.0.0-rc.3, PubMed results include `pmid`, and `literature-save` treats a workspace source with the same DOI or PMID as already saved. Each index refuses a second request within one second, so pace consecutive lookups. Asset import validates PNG/JPEG/WebP bytes/dimensions. Catalogue attachment checks workspace/metadata version and preserves both originals.
 
 `citation-styles` lists installed style IDs and locales without reading papers. Local `citation-style-import`/`citation-locale-import` read only the selected UTF-8 XML file, at most 1 MiB, with no download. Styles use returned `csl-<64 lowercase hex>` IDs. Bundled IDs are `vancouver`, `apa`, `ieee`, `chicago-note`; 63 CSL locales are bundled. Note styles support footnotes/endnotes. Dependent styles and language requirements must resolve locally before export.
 

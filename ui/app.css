@@ -68,3 +68,4 @@ dialog{background:var(--surface);color:var(--ink);border:1px solid var(--line);b
 @media(max-width:800px){.citation-picker-layout{grid-template-columns:minmax(0,1fr)}}
 .complete-fields{display:grid;gap:.35rem;margin:.5rem 0 .75rem}.complete-field{display:flex;align-items:baseline;gap:8px;font-weight:400;overflow-wrap:anywhere}.complete-field input{width:auto;min-height:0;margin:0;flex:none}.complete-field s{color:var(--ink-3)}
 .receipt-guidance{margin-top:1rem}
+.paste-list{max-height:10rem;overflow:auto;margin:.25rem 0 .75rem;padding-left:1.25rem}.paste-panel{margin:0 0 1rem}#paste-text{width:100%}

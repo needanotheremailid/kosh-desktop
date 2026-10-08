@@ -867,11 +867,12 @@ class Store:
         metadata = metadata_value(fields)
         from citations import normalized_doi
         doi = normalized_doi(metadata.get('doi', '')).casefold()
-        if doi:
+        pmid = str(metadata.get('pmid', '')).strip()
+        if doi or pmid:
             for row in self.db.execute('SELECT id FROM documents WHERE workspace_id=?', (workspace['id'],)):
                 existing = self._document(row['id'])
-                if normalized_doi(existing['metadata'].get('doi', '')).casefold() == doi:
-                    return {'document': self._public_doc(existing), 'notice': 'This DOI is already in the workspace. Existing metadata and corrections were retained.'}
+                if (doi and normalized_doi(existing['metadata'].get('doi', '')).casefold() == doi) or (pmid and str(existing['metadata'].get('pmid', '')).strip() == pmid):
+                    return {'document': self._public_doc(existing), 'notice': 'This reference (same DOI or PMID) is already in the workspace. Existing metadata and corrections were retained.'}
         data = bibtex(result)
         receipt = self._import({"workspace_id": workspace["id"], "files": [{"name": "reference-"+hashlib.sha256(data).hexdigest()[:12]+".bib", "data": base64.b64encode(data).decode("ascii")}]})
         imported = receipt["results"][0]
