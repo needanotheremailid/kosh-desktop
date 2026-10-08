@@ -2,7 +2,7 @@
 
 Use the fixed CLI or MCP stdio adapter to control the running local app. Start Kosh first. The bundled edition needs no system Python: use `.\runtime\python.exe -E -s agent.py ...` from its installation. The examples below use `python.exe` for a source edition; substitute the bundled interpreter as appropriate.
 
-This source interface targets **Kosh 1.0.0-rc.4** and retains the same 63 tools as 0.6.0 and 0.5.0. This document describes the candidate source, not proof of publication or final 1.0 acceptance. The six additions for project/reviewer records and backup/update status were introduced in 0.5.0; streamed automatic sets and saved revision comparison were introduced in 0.6.0. The RC adds desktop local-file backup jobs and previewable installation diagnostics without adding generic HTTP, shell or execution tools. An older installation keeps its previous behavior until upgraded to a matching package.
+This source interface targets **Kosh 1.0.0-rc.5** and retains the same 63 tools as 0.6.0 and 0.5.0. This document describes the candidate source, not proof of publication or final 1.0 acceptance. The six additions for project/reviewer records and backup/update status were introduced in 0.5.0; streamed automatic sets and saved revision comparison were introduced in 0.6.0. The RC adds desktop local-file backup jobs and previewable installation diagnostics without adding generic HTTP, shell or execution tools. An older installation keeps its previous behavior until upgraded to a matching package.
 
 Only current user authority for the named workspace, files and actions permits access. Local tools are not permission for private-data inspection, provider sends, formal screening, clinical abstraction or submission.
 
@@ -153,7 +153,7 @@ python.exe agent.py literature-lookup --workspace WORKSPACE_ID --provider pubmed
 python.exe agent.py literature-save --workspace WORKSPACE_ID --result RESULT_ID
 ```
 
-Identifiers above are syntax placeholders, not claimed publications. Preview/import supports `bib`, `ris`, `csljson` and at most 1,000 records in bounded text. Import saves unverified metadata records, not papers; DOI duplicates retain existing corrections. From 1.0.0-rc.4, PubMed results include `pmid`, and `literature-save` treats a workspace source with the same DOI or PMID as already saved. Each index refuses a second request within one second, so pace consecutive lookups. Asset import validates PNG/JPEG/WebP bytes/dimensions. Catalogue attachment checks workspace/metadata version and preserves both originals.
+Identifiers above are syntax placeholders, not claimed publications. Preview/import supports `bib`, `ris`, `csljson` and at most 1,000 records in bounded text. Import saves unverified metadata records, not papers; DOI duplicates retain existing corrections. From 1.0.0-rc.5, PubMed results include `pmid`, and `literature-save` treats a workspace source with the same DOI or PMID as already saved. Each index refuses a second request within one second, so pace consecutive lookups. Asset import validates PNG/JPEG/WebP bytes/dimensions. Catalogue attachment checks workspace/metadata version and preserves both originals.
 
 `citation-styles` lists installed style IDs and locales without reading papers. Local `citation-style-import`/`citation-locale-import` read only the selected UTF-8 XML file, at most 1 MiB, with no download. Styles use returned `csl-<64 lowercase hex>` IDs. Bundled IDs are `vancouver`, `apa`, `ieee`, `chicago-note`; 63 CSL locales are bundled. Note styles support footnotes/endnotes. Dependent styles and language requirements must resolve locally before export.
 
@@ -246,7 +246,7 @@ Backup defaults to current originals/notes/metadata/chats/evidence and reading o
 
 ## MCP stdio configuration
 
-`mcp_server.py` exposes **63 tools** in 1.0.0-rc.4, retaining 0.6.0 and 0.5.0's fixed registry. Version 0.4.0 has 57, including seven reading-state/duplicate/geometry reads and source/resume/annotation/claim saves. The six additions in 0.5.0 are project review, reviewer state/save/export and backup/update status; 0.6.0 and this RC add no tools. It uses standard-library JSON-RPC stdio and the same authenticated CLI operations, with supported protocol versions `2024-11-05`, `2025-03-26`, `2025-06-18`. It does not register itself or edit Codex/Claude settings. Configure a chosen client explicitly; a typical configuration shape is:
+`mcp_server.py` exposes **63 tools** in 1.0.0-rc.5, retaining 0.6.0 and 0.5.0's fixed registry. Version 0.4.0 has 57, including seven reading-state/duplicate/geometry reads and source/resume/annotation/claim saves. The six additions in 0.5.0 are project review, reviewer state/save/export and backup/update status; 0.6.0 and this RC add no tools. It uses standard-library JSON-RPC stdio and the same authenticated CLI operations, with supported protocol versions `2024-11-05`, `2025-03-26`, `2025-06-18`. It does not register itself or edit Codex/Claude settings. Configure a chosen client explicitly; a typical configuration shape is:
 
 ```json
 {"mcpServers":{"kosh":{"command":"C:\\chosen\\Kosh\\runtime\\python.exe","args":["-E","-s","C:\\chosen\\Kosh\\mcp_server.py"]}}}

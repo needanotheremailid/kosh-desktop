@@ -4,7 +4,7 @@
 
 Kosh is a free, open-source research desk for Windows. Keep your papers, reading notes, citations and manuscript together, with a clear route back from your writing to the sources behind it.
 
-**[Download for Windows](https://github.com/needanotheremailid/kosh-desktop/releases/download/v1.0.0-rc.4/Kosh-1.0.0-rc.4-Setup.exe)** · [Website](https://prateekguptasurgery.com/sidequests/kosh) · [User guide](USER_GUIDE.md)
+**[Download for Windows](https://github.com/needanotheremailid/kosh-desktop/releases/download/v1.0.0-rc.5/Kosh-1.0.0-rc.5-Setup.exe)** · [Website](https://prateekguptasurgery.com/sidequests/kosh) · [User guide](USER_GUIDE.md)
 
 Requires Windows 11 (64-bit), Microsoft Edge and .NET Framework. No administrator rights needed.
 
@@ -23,6 +23,10 @@ Requires Windows 11 (64-bit), Microsoft Edge and .NET Framework. No administrato
 ![Kosh focus writing view with source links attached to draft paragraphs](assets/screenshots/kosh-writing-100rc1.png)
 
 *Focus on the draft while keeping its source links available.*
+
+## New in 1.0.0-rc.5
+
+Write with a source open beside your draft, cite a page or a selected passage without leaving it, find any command or source with Ctrl+K, and follow a one-line next step. Sources now come in through one **+ Add** menu. See the [user guide](USER_GUIDE.md#new-in-100-rc5) for the full list.
 
 ## Tools for the whole research workflow
 
@@ -103,14 +107,14 @@ Your library starts empty. Screenshots and the walkthrough use nonclinical examp
 <details>
 <summary>Download details</summary>
 
-Current package: **1.0.0-rc.4 (release candidate)**. The installer is not code-signed, so Windows may show an unknown-publisher warning.
+Current package: **1.0.0-rc.5 (release candidate)**. The installer is not code-signed, so Windows may show an unknown-publisher warning.
 
-[Release and files](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v1.0.0-rc.4) · [SHA-256 checksums](https://github.com/needanotheremailid/kosh-desktop/releases/download/v1.0.0-rc.4/SHA256SUMS.txt)
+[Release and files](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v1.0.0-rc.5) · [SHA-256 checksums](https://github.com/needanotheremailid/kosh-desktop/releases/download/v1.0.0-rc.5/SHA256SUMS.txt)
 
 Run this in PowerShell from the folder containing the installer, then compare it with the published checksum:
 
 ```powershell
-(Get-FileHash .\Kosh-1.0.0-rc.4-Setup.exe -Algorithm SHA256).Hash
+(Get-FileHash .\Kosh-1.0.0-rc.5-Setup.exe -Algorithm SHA256).Hash
 ```
 
 A matching checksum confirms transfer consistency with the published file; it does not verify the publisher.
