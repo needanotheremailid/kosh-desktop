@@ -26,7 +26,7 @@ jobs:
         run: |
           $installer = Join-Path $env:RUNNER_TEMP 'release\Kosh-1.0.0-rc.5-Setup.exe'
           $sums = Get-Content -LiteralPath (Join-Path $env:RUNNER_TEMP 'release\SHA256SUMS.txt')
-          $entry = @($sums | Where-Object { $_ -match '^[a-f0-9]{64}  Kosh-1\.0\.0-rc\.4-Setup\.exe$' })
+          $entry = @($sums | Where-Object { $_ -match '^[a-f0-9]{64}  Kosh-1\.0\.0-rc\.5-Setup\.exe$' })
           if ($entry.Count -ne 1) { throw 'Missing or ambiguous installer checksum.' }
           if ((Get-FileHash -LiteralPath $installer -Algorithm SHA256).Hash.ToLowerInvariant() -ne $entry[0].Substring(0,64)) { throw 'Installer checksum mismatch.' }
           $target = Join-Path $env:RUNNER_TEMP 'Kosh-smoke'
