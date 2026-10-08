@@ -12,6 +12,10 @@ Already using an older Kosh installation? Follow the [copy-only upgrade guide](U
 
 ## Toward 1.0
 
+![Kosh 1.0.0-rc.1 reading view with a saved highlight beside the original PDF passage](assets/screenshots/kosh-reading-100rc1.png)
+
+*Captured from the working 1.0.0-rc.1 app with example reading material. New installations start empty; these notes are not included.*
+
 - **Local backup & restore:** choose a folder or ZIP through Windows, follow copying and validation progress, and cancel before publication. Large manual and automatic backups now share the streaming route. Restores create separate workspaces.
 - **Check this installation:** see which local components are available and what to do when one is missing. Preview a small privacy-safe diagnostic report before downloading it; nothing is uploaded.
 - **Recovery and responsiveness:** interrupted update verification can resume from retained proof, activated installations no longer depend on the update cache, and passage searches verify only the originals behind the results they return.
@@ -24,7 +28,7 @@ This is a release candidate. Independent user trials remain [an explicit accepta
 
 ![Kosh writing view with a manuscript and citation controls](assets/screenshots/kosh-writing.png)
 
-*The image above, the gallery below and the walkthrough show an example workspace from 0.3.0. The 0.4.0 and 0.5.0 images retain their original version labels; they do not show the 0.6.0 additions. Your library starts empty.*
+*The image immediately above is retained from 0.3.0. Older feature-history images keep their original version labels. The walkthrough and main reading, writing, export and layout gallery use 1.0.0-rc.1. Your library starts empty.*
 
 ## New in 0.6.0
 
@@ -65,13 +69,13 @@ Focus writing keeps the draft and essential controls in view. Review an exact se
 *0.4.0 demonstration captures from the 8 October 2026 release. Highlights and claim reviews are separate records; they do not edit the original paper or certify scientific support.*
 
 <details>
-<summary>Watch Kosh in 30 seconds</summary>
+<summary>Watch Kosh in 32 seconds</summary>
 
-![Kosh walkthrough: read, write, preview, export and switch layouts](https://raw.githubusercontent.com/needanotheremailid/kosh-desktop/main/assets/presentation/Kosh%20Walkthrough.gif)
+![Kosh 1.0.0-rc.1 walkthrough: read, write, export and explore three layouts](assets/presentation/Kosh%20Walkthrough.gif)
 
-[Watch or download the full-resolution video](https://github.com/needanotheremailid/kosh-desktop/raw/refs/heads/main/assets/presentation/Kosh%20Walkthrough.mp4) · Silent, 30 seconds. Captioned app captures follow a source-linked note through writing, export choices and the finished PDF.
+[Watch or download the full-resolution video](https://github.com/needanotheremailid/kosh-desktop/raw/refs/heads/main/assets/presentation/Kosh%20Walkthrough.mp4) · Silent, 32 seconds. See a saved passage, source-linked writing, export choices, an actual PDF with numbered references, and all three layouts.
 
-The 30-second walkthrough shows the core workflow in 0.3.0. Version 0.6.0 retains these layouts, the 0.3.1 PDF font correction and the later reading/writing controls, alongside the workflows described above.
+Updated on 8 October 2026 from the working **1.0.0-rc.1** app. This is a captioned sequence of real app captures and its exported PDF, using a separate example workspace; it is not a timed demonstration of clicks or processing speed. No personal library or clinical data appears. [Media provenance](assets/presentation/README.md).
 
 </details>
 
@@ -86,33 +90,35 @@ The 30-second walkthrough shows the core workflow in 0.3.0. Version 0.6.0 retain
 
 Choose **Broadsheet** for tabs across the top, **Stacks** for a compact icon rail, or **Commonplace** for a sidebar and centred reading/writing column. The core reading, writing, citations and exports work without AI.
 
-![Kosh reading view showing the original PDF page image](assets/screenshots/kosh-reading.png)
+![Kosh 1.0.0-rc.1 focused writing view with source-linked paragraphs](assets/screenshots/kosh-writing-100rc1.png)
+
+*Focus writing in 1.0.0-rc.1. Source links remain attached to the example draft.*
 
 <details>
 <summary>See manuscript export options</summary>
 
 Choose a manuscript layout, page settings and export format in **Exports & backup**.
 
-![Kosh Exports and backup dialog with manuscript layout and export controls](assets/screenshots/kosh-export-options.png)
+![Kosh 1.0.0-rc.1 Exports and backup dialog showing document formats and citation options](assets/screenshots/kosh-export-options-100rc1.png)
 
 </details>
 
 <details>
 <summary>Compare the three layouts</summary>
 
-The same example library in each layout:
+The same example library in each layout, freshly captured from **1.0.0-rc.1**:
 
 **Broadsheet** — tabs across the top and a wide workspace.
 
-![Kosh library in the Broadsheet layout](assets/screenshots/kosh-broadsheet.png)
+![Kosh 1.0.0-rc.1 library in the Broadsheet layout](assets/screenshots/kosh-library-100rc1.png)
 
 **Stacks** — a compact icon rail and denser workspace.
 
-![Kosh in the Stacks layout](assets/screenshots/kosh-stacks.png)
+![Kosh 1.0.0-rc.1 in the Stacks layout](assets/screenshots/kosh-stacks-100rc1.png)
 
 **Commonplace** — a sidebar and centred content column.
 
-![Kosh in the Commonplace layout](assets/screenshots/kosh-commonplace.png)
+![Kosh 1.0.0-rc.1 in the Commonplace layout](assets/screenshots/kosh-commonplace-100rc1.png)
 
 </details>
 
