@@ -4,6 +4,8 @@
 
 Kosh is a research desk for Windows. Read sources beside your draft, keep notes linked to the evidence, and take your writing into Word, PDF or LaTeX.
 
+[Explore Kosh on the website](https://prateekguptasurgery.com/sidequests/kosh) — a visual introduction, the research workflow and first-use guidance.
+
 **[Download for Windows — 1.0.0-rc.1](https://github.com/needanotheremailid/kosh-desktop/releases/download/v1.0.0-rc.1/Kosh-1.0.0-rc.1-Setup.exe)** · [Release notes](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v1.0.0-rc.1) · [User guide](USER_GUIDE.md)
 
 Already using an older Kosh installation? Follow the [copy-only upgrade guide](USER_GUIDE.md#upgrade-a-bundled-installation) to gain the new controls while retaining your old installation and backup.
