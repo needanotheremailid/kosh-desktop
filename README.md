@@ -2,158 +2,125 @@
 
 **From papers to a manuscript, in one local workspace.**
 
-Kosh is a research desk for Windows. Read sources beside your draft, keep notes linked to the evidence, and take your writing into Word, PDF or LaTeX.
+Kosh is a free, open-source research desk for Windows. Keep your papers, reading notes, citations and manuscript together, with a clear route back from your writing to the sources behind it.
 
-[Explore Kosh on the website](https://prateekguptasurgery.com/sidequests/kosh) — a visual introduction, the research workflow and first-use guidance.
+**[Download for Windows](https://github.com/needanotheremailid/kosh-desktop/releases/download/v1.0.0-rc.1/Kosh-1.0.0-rc.1-Setup.exe)** · [Website](https://prateekguptasurgery.com/sidequests/kosh) · [User guide](USER_GUIDE.md)
 
-**[Download for Windows — 1.0.0-rc.1](https://github.com/needanotheremailid/kosh-desktop/releases/download/v1.0.0-rc.1/Kosh-1.0.0-rc.1-Setup.exe)** · [Release notes](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v1.0.0-rc.1) · [User guide](USER_GUIDE.md)
+Requires Windows 11 (64-bit), Microsoft Edge and .NET Framework. No administrator rights needed.
 
-Already using an older Kosh installation? Follow the [copy-only upgrade guide](USER_GUIDE.md#upgrade-a-bundled-installation) to gain the new controls while retaining your old installation and backup.
+![Kosh reading view with a saved passage beside its original PDF page](assets/screenshots/kosh-reading-100rc1.png)
 
-64-bit Windows 11 with Microsoft Edge and .NET Framework · no administrator rights needed · **unsigned release candidate**: Windows may warn about an unknown publisher. [SHA-256 checksums](https://github.com/needanotheremailid/kosh-desktop/releases/download/v1.0.0-rc.1/SHA256SUMS.txt).
+*Read the original page, highlight a passage and keep your comment beside it.*
 
-## Toward 1.0
+## How it works
 
-![Kosh 1.0.0-rc.1 reading view with a saved highlight beside the original PDF passage](assets/screenshots/kosh-reading-100rc1.png)
+1. **Bring your sources together.** Create a workspace and import PDFs, Word documents, text or Markdown. Add bibliography records from BibTeX, RIS or CSL JSON. Kosh keeps managed copies of imported documents.
+2. **Read and capture what matters.** Search passages, select PDF words, save highlights and comments, and return to the page where you stopped. Turn a passage into a note that keeps its source link.
+3. **Write with the evidence nearby.** Develop notes into a draft, place sources beside your writing or switch to focus mode. Insert citations, figures, tables and equations. Compare saved revisions when you want to see what changed.
+4. **Choose your format.** Use Vancouver/NLM, APA 7, IEEE, Chicago notes or an imported CSL style. Configure a research article, review or case-report layout.
+5. **Take the manuscript with you.** Export to Word, PDF, Markdown, HTML or LaTeX, including locally compiled LaTeX PDFs. A separate Word export includes editable native citation fields. Export your references as BibTeX, RIS or CSL JSON.
 
-*Captured from the working 1.0.0-rc.1 app with example reading material. New installations start empty; these notes are not included.*
+![Kosh focus writing view with source links attached to draft paragraphs](assets/screenshots/kosh-writing-100rc1.png)
 
-- **Local backup & restore:** choose a folder or ZIP through Windows, follow copying and validation progress, and cancel before publication. Large manual and automatic backups now share the streaming route. Restores create separate workspaces.
-- **Check this installation:** see which local components are available and what to do when one is missing. Preview a small privacy-safe diagnostic report before downloading it; nothing is uploaded.
-- **Recovery and responsiveness:** interrupted update verification can resume from retained proof, activated installations no longer depend on the update cache, and passage searches verify only the originals behind the results they return.
+*Focus on the draft while keeping its source links available.*
 
-This is a release candidate. Independent user trials remain [an explicit acceptance step](ACCEPTANCE.md), and signing remains pending. Installed 0.6.0 cannot discover RC version tags; use the [copy-only upgrade](USER_GUIDE.md#upgrade-a-bundled-installation) for this transition.
+## Tools for the whole research workflow
 
-![Kosh release-candidate local backup and restore controls](assets/screenshots/kosh-local-backup-100rc1.png)
+| What you need to do | What Kosh provides |
+| --- | --- |
+| Organise a library | Workspaces, tags, reading states, favourites, collection labels, filters and sorting |
+| Find a paper | Search PubMed, Crossref, Europe PMC and OpenAlex; review catalogue metadata before importing it |
+| Work with scanned pages | Create a local OCR copy, then inspect the recognised text against the page |
+| Find a passage | Text search and optional local semantic search with an installed embedding model |
+| Check a claim | Attach an exact source passage to a selected sentence and record your own review; changed text can flag an earlier check as stale |
+| Handle reviewer comments | Keep comments, planned changes and responses linked to saved draft passages, then export a response letter |
+| Review a project | Check saved drafts for unresolved references, missing metadata and outstanding recorded claim reviews |
+| Recover your work | Autosave, saved revisions, local backup/restore and optional automatic backups while Kosh is open |
+| Share a workspace | Export a portable workspace ZIP; importing restores it as a separate workspace |
+| Work with an agent | Use the CLI or 63 MCP tools, including scoped reading, writing and export operations |
+| Edit a chosen folder | Review an agent's proposed changes to selected text files and approve the exact changes before they are applied |
+| Learn the controls | Getting started, Help, hover explanations you can turn off, and an installation check |
 
-*The working RC interface with an invented reading workspace. Local manual backups work with automatic scheduling off; new installations contain no example records.*
-
-![Kosh writing view with a manuscript and citation controls](assets/screenshots/kosh-writing.png)
-
-*The image immediately above is retained from 0.3.0. Older feature-history images keep their original version labels. The walkthrough and main reading, writing, export and layout gallery use 1.0.0-rc.1. Your library starts empty.*
-
-## New in 0.6.0
-
-- **Back up a larger library — Settings → Automatic local backups.** Automatic sets write and validate workspace ZIPs directly on disk, removing their former 47 MiB per-workspace ceiling. Use the same automatic-set restore preview to recover into a separate workspace. Individual file, manifest, record and history limits still apply; manual browser/CLI ZIP download and upload remain limited to 47 MiB.
-- **Compare saved writing — Write → Compare revisions.** Read two saved manuscript versions side by side as aligned plain text, see changed-line counts and navigate differences. Opening it first saves ordinary pending edits; the comparison display is read-only. Larger comparisons use clearly labelled coarse alignment and pagination; restore remains a separate action.
-
-These two additions require Kosh 0.6.0. The [user guide](USER_GUIDE.md#new-in-060) explains the larger-file route and saved-version comparison. The agent registry remains at 63 tools.
-
-![Kosh 0.6.0 comparing saved manuscript revisions side by side](assets/screenshots/kosh-revisions-060.jpg)
-
-*A real 0.6.0 app screen with an example manuscript. Changed titles and passages are labelled, and earlier saved versions remain available.*
-
-## New in 0.5.0
-
-- **Automatic local backups — Settings → Automatic local backups.** Opt in, choose an existing local folder and interval, then see last success/failure or validate a restore into a separate workspace. Backups include every workspace and saved history, run while Kosh is open, and catch up once on launch. Version 0.5.0's 47 MiB automatic-workspace limit is replaced by the file-backed route in 0.6.0. ZIPs are unencrypted, earlier backups are retained, and unsaved browser recovery stays separate.
-- **Reviewer responses — More → Reviewer responses.** Link a comment to an exact saved manuscript passage, record planned/revised wording and your response, retain changes, and export a text letter. These manual records do not change the manuscript or send a submission. The letter flags stale links and qualifies exact revised-wording matches.
-- **Project review — More → Project review.** Save and check drafts and recorded claim reviews across the selected workspace. See unresolved references, metadata gaps and stale/source-needed reviews. Failed checks remain Unknown; unrecorded claims are unassessed. This is a work list, not scientific-support or submission-readiness certification.
-- **In-app updates — Settings → Kosh updates.** Check the public release source, download a named installer/checksum, then separately approve installation of an unsigned package. The stopped copy workflow retains old installation/data and checks startup before shortcut changes. A matching published SHA-256 checks transfer consistency; it does not verify the publisher.
-
-These workflows and the six additional agent controls require Kosh 0.5.0. Older installations keep their previous behavior until upgraded; the [user guide](USER_GUIDE.md#new-in-050) describes the controls and recovery boundaries.
-
-![Kosh 0.5.0 Reviewer responses with a saved manuscript passage, response fields and retained changes](assets/screenshots/kosh-reviewer-050.jpg)
-
-![Kosh 0.5.0 Project review showing saved draft and recorded claim checks in dark Commonplace](assets/screenshots/kosh-project-review-050.jpg)
-
-*These 0.5.0 examples use invented, nonclinical demonstration data. Reviewer progress is a manual record; project review does not certify scientific support or submission readiness.*
-
-## New in 0.4.0
-
-Select words on a PDF page, save a highlight with your comment, return to its source location and create a cited note. Reading states, favorites, tags and a collection label help organise the library without changing the original PDF.
-
-![Kosh 0.4.0 reading view with a saved PDF highlight and quoted passage](assets/screenshots/kosh-highlights-040.png)
-
-Focus writing keeps the draft and essential controls in view. Review an exact sentence beside its source passage, mark it checked yourself, and see when that record becomes stale. Draft search, a citation picker and complete Markdown section moves support the same writing workflow.
-
-![Kosh 0.4.0 focus writing view with the draft preview and writing controls](assets/screenshots/kosh-focus-040.png)
-
-*0.4.0 demonstration captures from the 8 October 2026 release. Highlights and claim reviews are separate records; they do not edit the original paper or certify scientific support.*
+Citation metadata, OCR and generated writing still need your review. Claim-review labels record your judgement; they do not certify that a source supports a conclusion. [Detailed capabilities and boundaries](FEATURES.md).
 
 <details>
-<summary>Watch Kosh in 32 seconds</summary>
+<summary>See citation and export options</summary>
 
-![Kosh 1.0.0-rc.1 walkthrough: read, write, export and explore three layouts](assets/presentation/Kosh%20Walkthrough.gif)
+![Kosh export controls for citation styles and document formats](assets/screenshots/kosh-export-options-100rc1.png)
 
-[Watch or download the full-resolution video](https://github.com/needanotheremailid/kosh-desktop/raw/refs/heads/main/assets/presentation/Kosh%20Walkthrough.mp4) · Silent, 32 seconds. See a saved passage, source-linked writing, export choices, an actual PDF with numbered references, and all three layouts.
-
-Updated on 8 October 2026 from the working **1.0.0-rc.1** app. This is a captioned sequence of real app captures and its exported PDF, using a separate example workspace; it is not a timed demonstration of clicks or processing speed. No personal library or clinical data appears. [Media provenance](assets/presentation/README.md).
+Choose your citation style, manuscript settings and output format in **Exports & backup**. Native Word citation fields use Word's own bibliography styles; the standard exports use CSL.
 
 </details>
 
-## What you can do
+## Choose your workspace
 
-- **Read and capture the evidence.** Import PDFs, Word documents or text, search extracted passages, and select PDF words for a saved highlight and comment. Saved passages link back to the file page or extracted section and can become cited notes. Annotations are separate local records; the original PDF stays unchanged. Create a local OCR copy when needed.
-- **Write with your sources nearby.** Draft in Markdown with source context, headings, tables, figures and equations. Search titles and draft text, use focus mode, move complete Markdown sections or compare two saved versions. Autosave, saved history and conflict recovery help you return to the work.
-- **Keep citations and review claims.** Search your workspace with Insert citation, then insert a bibliography reference or an actual source locator. Record an exact selected sentence beside its quoted source passage as Needs source, Source attached or Checked by me. Changes can make the review stale; these labels record your judgement, not AI verification. Export with Vancouver/NLM, APA 7, IEEE or Chicago notes, local journal styles and 63 bundled citation locales.
-- **Export for the next step.** Create Word, PDF, compiled LaTeX PDF, HTML or a source-and-figures ZIP. Configure research article, review or case-report layouts with your own frontmatter, page settings and numbering.
-- **Organise the literature.** Use reading states, favorites, multiple tags and one collection label per source; combine them with source-detail/type filters and sorting. Resume the saved reading page with a next-action note. Duplicate title/DOI suggestions are read-only comparisons; they never merge or delete records automatically. Discover references through PubMed, Crossref, Europe PMC or OpenAlex and import RIS/BibTeX/CSL JSON.
-- **Use AI when it helps.** Ask for source excerpts without generation, use an installed local Ollama model, or request writing proposals through an installed Codex/Claude CLI. Review the preview and result, then save an alternative or explicitly apply an eligible selection.
+Kosh has three layouts, each available in light and dark themes.
 
-Choose **Broadsheet** for tabs across the top, **Stacks** for a compact icon rail, or **Commonplace** for a sidebar and centred reading/writing column. The core reading, writing, citations and exports work without AI.
-
-![Kosh 1.0.0-rc.1 focused writing view with source-linked paragraphs](assets/screenshots/kosh-writing-100rc1.png)
-
-*Focus writing in 1.0.0-rc.1. Source links remain attached to the example draft.*
+- **Broadsheet:** tabs across the top and a wide workspace.
+- **Stacks:** a compact navigation rail.
+- **Commonplace:** a sidebar and a centred reading and writing column.
 
 <details>
-<summary>See manuscript export options</summary>
+<summary>See all three layouts</summary>
 
-Choose a manuscript layout, page settings and export format in **Exports & backup**.
+**Broadsheet**
 
-![Kosh 1.0.0-rc.1 Exports and backup dialog showing document formats and citation options](assets/screenshots/kosh-export-options-100rc1.png)
+![Kosh library in Broadsheet](assets/screenshots/kosh-library-100rc1.png)
+
+**Stacks**
+
+![Kosh library in Stacks](assets/screenshots/kosh-stacks-100rc1.png)
+
+**Commonplace**
+
+![Kosh library in Commonplace](assets/screenshots/kosh-commonplace-100rc1.png)
 
 </details>
 
+## Watch the workflow
+
+![Kosh walkthrough showing reading, writing, export and the three layouts](assets/presentation/Kosh%20Walkthrough.gif)
+
+[Watch or download the 32-second video](https://github.com/needanotheremailid/kosh-desktop/raw/refs/heads/main/assets/presentation/Kosh%20Walkthrough.mp4). A silent, captioned tour of the working app and an actual PDF export.
+
+## Local first, with optional AI
+
+Your library is stored on your computer. Kosh has no application account, telemetry or cloud sync. Reading, writing, citations, exports and local backups work without AI.
+
+For AI assistance, use an installed local Ollama model or your own authenticated Codex or Claude CLI. Preview the content to be sent, review the returned proposal, and choose whether to save an alternative or apply an eligible edit. Provider access, charges and limits are separate from Kosh.
+
+Online literature searches send the query or identifier you submit. Optional style retrieval and update checks contact their named sources when you request them. Codex or Claude assistance sends approved content to that provider; its CLI may also include instructions or environment metadata. Local files and backup ZIPs are not encrypted. See the [user guide](USER_GUIDE.md) and [security information](SECURITY.md).
+
+## Start with one paper
+
+1. Download the installer and open Kosh. The document runtime, citation processor, OCR language data and offline TeX resources are included.
+2. Follow **Getting started** to create your first workspace and import a paper.
+3. Save a passage, write a short note, insert its citation and export a draft.
+4. Choose a local backup location when you are ready to keep working.
+
+Your library starts empty. Screenshots and the walkthrough use nonclinical example material. No AI account or separate Python, Node or TeX installation is needed for the core workflow.
+
 <details>
-<summary>Compare the three layouts</summary>
+<summary>Download details</summary>
 
-The same example library in each layout, freshly captured from **1.0.0-rc.1**:
+Current package: **1.0.0-rc.1 (release candidate)**. The installer is not code-signed, so Windows may show an unknown-publisher warning.
 
-**Broadsheet** — tabs across the top and a wide workspace.
+[Release and files](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v1.0.0-rc.1) · [SHA-256 checksums](https://github.com/needanotheremailid/kosh-desktop/releases/download/v1.0.0-rc.1/SHA256SUMS.txt)
 
-![Kosh 1.0.0-rc.1 library in the Broadsheet layout](assets/screenshots/kosh-library-100rc1.png)
-
-**Stacks** — a compact icon rail and denser workspace.
-
-![Kosh 1.0.0-rc.1 in the Stacks layout](assets/screenshots/kosh-stacks-100rc1.png)
-
-**Commonplace** — a sidebar and centred content column.
-
-![Kosh 1.0.0-rc.1 in the Commonplace layout](assets/screenshots/kosh-commonplace-100rc1.png)
-
-</details>
-
-## Get started
-
-1. **Install.** Download the Windows installer above, check the release page and checksum, then choose a new writable folder. You need 64-bit Windows 11, Microsoft Edge and .NET Framework; Python, Node, document tools, OCR data and offline TeX resources are bundled.
-2. **Bring one paper.** Open Kosh, create a workspace and import a trusted file you have permission to use. Check the import receipt.
-3. **Build a draft.** Open Read, capture a passage into a source-linked note, then use Write to develop it. Save and export to Word or PDF.
-
-No AI account or separate Python/Node/TeX installation is needed for the bundled core workflow. Already using Kosh? Follow the [copy-only upgrade guide](USER_GUIDE.md#upgrade-a-bundled-installation) and retain your old installation and backup.
-
-**Fixed in 0.3.1:** Chicago-note PDF export now includes the default Latin Modern font families needed for footnotes, including **No manuscript template**. The previous 0.3.0 font omission is corrected. See [PDF export details](USER_GUIDE.md#pdf-export-fonts-in-031).
-
-## Local first, optional AI
-
-Kosh has no application account, telemetry or cloud sync. Ordinary reading, saving, lexical search, citations, exports, local style import and backups run locally. Discover sends the query or identifier you submit; official CSL retrieval is a separate consented request for named files and dependencies. Update checks/downloads contact the public Kosh release source only when you choose those actions; library, notes and account information are not sent.
-
-AI is optional. Local AI needs separately installed Ollama, a suitable model and sufficient hardware. Codex/Claude help needs your own installed CLI and authenticated provider access; provider charges and limits are separate from Kosh. Approved content may reach that provider, and its CLI can add instructions or environment metadata. Kosh downloads no model weights.
-
-This is an **unsigned Windows release candidate**: Windows may warn about an unknown publisher. Check the release origin and checksum before running it. Local data and workspace ZIPs are unencrypted; keep private material out of public reports. Review OCR, bibliographic metadata and generated writing. Layout profiles do not certify journal compliance, and frontmatter blinding does not redact manuscript content. See the [full guide](USER_GUIDE.md) and [security boundaries](SECURITY.md).
-
-In PowerShell, compare the result below with the installer's entry in [SHA256SUMS.txt](https://github.com/needanotheremailid/kosh-desktop/releases/download/v1.0.0-rc.1/SHA256SUMS.txt). A match checks transfer consistency with that release; it does not verify the publisher:
+Run this in PowerShell from the folder containing the installer, then compare it with the published checksum:
 
 ```powershell
 (Get-FileHash .\Kosh-1.0.0-rc.1-Setup.exe -Algorithm SHA256).Hash
 ```
 
-## Learn more and contribute
+A matching checksum confirms transfer consistency with the published file; it does not verify the publisher.
 
-[User guide](USER_GUIDE.md) · [Capabilities and limits](FEATURES.md) · [Build from source](BUILDING.md) · [CLI and 63 MCP tools](AGENT_API.md) · [Contributing](CONTRIBUTING.md) · [Report a bug](https://github.com/needanotheremailid/kosh-desktop/issues/new?template=bug_report.yml) · [Private security reporting](SECURITY.md#reporting)
+</details>
 
-Kosh's research workflow was inspired by [Beeblio](https://github.com/alharkan7/beeblio-oss). The application code and assets are original; attributed citation, document and runtime components are listed in [CREDITS.md](CREDITS.md) and [THIRD_PARTY.md](THIRD_PARTY.md).
+## Open source and credits
 
-Built with assistance from **OpenAI Codex** for implementation, integration, testing, packaging and documentation, and **Anthropic Claude** for design and independent reviews. See [development credits](CREDITS.md#development-assistance).
+Kosh is free under **AGPL-3.0-only**. Your papers and notes are not relicensed. [Licence](LICENSE).
 
-Licensed **AGPL-3.0-only**. Your papers and notes are not relicensed. See [LICENSE](LICENSE).
+Built with assistance from **OpenAI Codex** and **Anthropic Claude**, including Claude Opus. The research-workspace inspiration came from **Beeblio by Al Harkan**; no Beeblio application code or assets were copied. Included document, citation and runtime components retain their own credits and licences. [Full credits](CREDITS.md) · [Third-party notices](THIRD_PARTY.md).
+
+[Build from source](BUILDING.md) · [Agent interface](AGENT_API.md) · [Contribute](CONTRIBUTING.md) · [Report a bug](https://github.com/needanotheremailid/kosh-desktop/issues/new?template=bug_report.yml) · [Media provenance](assets/presentation/README.md)
