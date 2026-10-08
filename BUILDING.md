@@ -2,7 +2,7 @@
 
 This describes the maintained scripts and the manual inputs they require. It is a repeatable source/build procedure when the recorded inputs are available, **not a claim of byte-identical reproducible installers**. Build timestamps, the installed Python runtime, .NET compiler and prepared resource/legal payloads affect the output. No other-computer acceptance is implied.
 
-This checkout targets **1.0.0-rc.2**. A release candidate is a package under verification, not a declaration of final 1.0 acceptance. Building or testing this source does not mean that its installer has been published. Check the actual GitHub release for available assets and its recorded checks. Signing remains pending; the builder produces an unsigned installer.
+This checkout targets **1.0.0-rc.3**. A release candidate is a package under verification, not a declaration of final 1.0 acceptance. Building or testing this source does not mean that its installer has been published. Check the actual GitHub release for available assets and its recorded checks. Signing remains pending; the builder produces an unsigned installer.
 
 For a first contribution, start with a small source change and an invented fixture. Packaging the complete desktop runtime is a separate job with additional inputs; you do not need to assemble an installer to fix a typo or reproduce a narrowly scoped source bug.
 
@@ -62,7 +62,7 @@ See `scripts/build_installer.py` for exact filenames/version checks. The legal a
 
 For rebuilding from released component bytes, use the offline donor recipe below; manual cache preparation is needed only when regenerating or changing the component set. The public [0.3.1 release](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v0.3.1) provides the installer, application source and dependency-source assets. The installer contains the already prepared runtime/resources/receipts; the dependency-source asset supplies corresponding source material. This is reuse of verified released components, not rebuilding Python, Node, Tectonic or fonts from their upstream source.
 
-That link and the 0.3.1 paths below are a retained reference recipe. For 1.0.0-rc.2, use the exact component receipts required by the selected RC source. An older installed donor is suitable only when its dependency/resource receipts match; its version number alone is not sufficient. Never copy its application `data` or browser profile into a build checkout.
+That link and the 0.3.1 paths below are a retained reference recipe. For 1.0.0-rc.3, use the exact component receipts required by the selected RC source. An older installed donor is suitable only when its dependency/resource receipts match; its version number alone is not sufficient. Never copy its application `data` or browser profile into a build checkout.
 
 The compiler is Tectonic 0.17.0. `vendor/tex/receipt.json` records the compiler binary/source archive hashes, official bundle URL/identity, selected resource filenames/hashes and payload inventory. The runtime only reads the bundled subset and never uses network package fallback.
 
@@ -124,7 +124,7 @@ powershell.exe -NoProfile -File .\build-installer.ps1 -SourceZip 'C:\existing\ou
 
 Source export includes allowlisted code/docs/assets/tests and a hash manifest. It excludes personal data, browser profiles, session tokens, local runtime paths, private review/continuity files and generated application binaries. The installer bundles application source, runtime, notices and corresponding dependency sources from the verified inputs. It is unsigned; an optional separately verified signed copy needs an existing trusted publisher identity via [SIGNING.md](SIGNING.md).
 
-For the RC distribution, the updater expects the installer asset name `Kosh-1.0.0-rc.2-Setup.exe` and a matching entry in `SHA256SUMS.txt`. Local working artifacts may use other names. Checksum the exact final bytes after any separately approved signing operation; changing a filename or completing a build is not publication.
+For the RC distribution, the updater expects the installer asset name `Kosh-1.0.0-rc.3-Setup.exe` and a matching entry in `SHA256SUMS.txt`. Local working artifacts may use other names. Checksum the exact final bytes after any separately approved signing operation; changing a filename or completing a build is not publication.
 
 Before publishing, verify every archive/payload digest, no private data, included licence/source material, startup with an empty library, exported synthetic documents, no-clobber refusal and a fresh-install/upgrade workflow. Report source, packaged runtime, installed behavior, rendered output and clean-machine checks separately. Never upload a raw working installation folder.
 

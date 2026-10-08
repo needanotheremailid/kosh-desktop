@@ -4,7 +4,7 @@
 
 Kosh is a free, open-source research desk for Windows. Keep your papers, reading notes, citations and manuscript together, with a clear route back from your writing to the sources behind it.
 
-**[Download for Windows](https://github.com/needanotheremailid/kosh-desktop/releases/download/v1.0.0-rc.2/Kosh-1.0.0-rc.2-Setup.exe)** · [Website](https://prateekguptasurgery.com/sidequests/kosh) · [User guide](USER_GUIDE.md)
+**[Download for Windows](https://github.com/needanotheremailid/kosh-desktop/releases/download/v1.0.0-rc.3/Kosh-1.0.0-rc.3-Setup.exe)** · [Website](https://prateekguptasurgery.com/sidequests/kosh) · [User guide](USER_GUIDE.md)
 
 Requires Windows 11 (64-bit), Microsoft Edge and .NET Framework. No administrator rights needed.
 
@@ -103,14 +103,14 @@ Your library starts empty. Screenshots and the walkthrough use nonclinical examp
 <details>
 <summary>Download details</summary>
 
-Current package: **1.0.0-rc.2 (release candidate)**. The installer is not code-signed, so Windows may show an unknown-publisher warning.
+Current package: **1.0.0-rc.3 (release candidate)**. The installer is not code-signed, so Windows may show an unknown-publisher warning.
 
-[Release and files](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v1.0.0-rc.2) · [SHA-256 checksums](https://github.com/needanotheremailid/kosh-desktop/releases/download/v1.0.0-rc.2/SHA256SUMS.txt)
+[Release and files](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v1.0.0-rc.3) · [SHA-256 checksums](https://github.com/needanotheremailid/kosh-desktop/releases/download/v1.0.0-rc.3/SHA256SUMS.txt)
 
 Run this in PowerShell from the folder containing the installer, then compare it with the published checksum:
 
 ```powershell
-(Get-FileHash .\Kosh-1.0.0-rc.2-Setup.exe -Algorithm SHA256).Hash
+(Get-FileHash .\Kosh-1.0.0-rc.3-Setup.exe -Algorithm SHA256).Hash
 ```
 
 A matching checksum confirms transfer consistency with the published file; it does not verify the publisher.

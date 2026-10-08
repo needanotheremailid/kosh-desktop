@@ -73,8 +73,9 @@ class McpTests(unittest.TestCase):
             self.assertEqual(self.client.calls, [])
             style = 'csl-' + 'a' * 64
             self.assertFalse(self.tool('kosh_export', {'workspace': 'w', 'format': 'md', 'citation_style': style, 'output': str(output)})['isError'])
-            self.assertEqual(self.client.calls[-1][0], '/api/export')
-            self.assertEqual(self.client.calls[-1][1]['citation_style'],style)
+            exports = [call for call in self.client.calls if call[0] == '/api/export']
+            self.assertEqual(len(exports), 1)
+            self.assertEqual(exports[0][1]['citation_style'],style)
 
     def test_scoped_tool_routes_and_redacts_entire_result(self):
         result = self.tool('kosh_workspace_state', {'workspace': 'w'})
