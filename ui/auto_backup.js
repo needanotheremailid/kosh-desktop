@@ -152,7 +152,7 @@ window.KoshAutoBackup = (() => {
       option.value = saved.set_id;
       select.append(option);
     }
-    find('#auto-backup-empty').textContent = !savedSets.length ? 'No completed automatic backup sets in the selected folder.' : '';
+    find('#auto-backup-empty').textContent = result.unavailable ? result.unavailable : !savedSets.length ? 'No completed automatic backup sets in the selected folder.' : '';
     find('#auto-backup-set-issues').textContent = result.issues.length ? result.issues.length + ' set(s) have unreadable manifests and are excluded. Their files are retained.' : '';
     renderWorkspaces();
     await refreshStatus();

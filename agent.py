@@ -599,7 +599,20 @@ def execute(args, client):
         else:
             query['history'] = '1' if args.include_history else '0'
         content, mime = client.request('/api/export',query,binary=True) if command=='export' else client.request('/api/backup?'+urlencode(query), binary=True)
-        return {**save_output(args.output, content, args.overwrite), 'content_type': mime}
+        result = {**save_output(args.output, content, args.overwrite), 'content_type': mime}
+        if command == 'export' and query.get('note_id'):
+            # Saved-version metadata diagnosis only; the export above is already written.
+            try:
+                state = client.request('/api/state?' + urlencode({'workspace_id': args.workspace}))
+                note = next((item for item in state['notes'] if item['id'] == query['note_id']), None)
+                check = client.request('/api/writing-check', {'workspace_id': args.workspace, 'note_id': query['note_id'], 'version': note['version']}) if note else {}
+                missing = check.get('missing_metadata') or []
+                if missing:
+                    result['incomplete_references'] = [{'document_id': item['document_id'], 'name': item['name'], 'fields': item['fields']} for item in missing]
+                    result['warning'] = str(len(missing)) + ' cited source(s) have missing bibliography fields; their reference entries are incomplete in this export.'
+            except AgentError:
+                result['warning'] = 'Reference completeness could not be checked for this export.'
+        return result
     if command == 'restore':
         data = base64.b64encode(selected_bytes(args.file, RESTORE_FILE_LIMIT)).decode('ascii')
         return client.request('/api/restore', {'data': data})

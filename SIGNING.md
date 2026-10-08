@@ -4,7 +4,7 @@ The installer builder creates an **unsigned development artifact**. Building it 
 
 No installer has become signed merely because this workflow exists. Signatures and receipts apply only to the exact output bytes checked by a successful run. Existing released or installed copies retain their previous signature state.
 
-For **1.0.0-rc.1**, signing remains pending. The release-candidate label does not imply a verified publisher, final 1.0 acceptance or a published package. Build and release checks must describe their exact unsigned or separately verified signed bytes; never infer signature state from a version number or a matching release checksum.
+For **1.0.0-rc.2**, signing remains pending. The release-candidate label does not imply a verified publisher, final 1.0 acceptance or a published package. Build and release checks must describe their exact unsigned or separately verified signed bytes; never infer signature state from a version number or a matching release checksum.
 
 ## Local identity preflight
 

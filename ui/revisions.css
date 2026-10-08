@@ -19,3 +19,4 @@
 .revision-navigation,.revision-pagination{padding-block:var(--radius)}.revision-warning{padding:var(--radius)}
 .revision-title-block{display:grid;grid-template-columns:max-content minmax(0,1fr);gap:var(--radius-lg);align-items:center}.revision-title-block h3{font-size:inherit;margin:0}.revision-title-columns .revision-cell{padding:var(--radius)}.revision-title-columns .revision-line-label{margin-bottom:0}
 .revision-column-headings{padding:0}.revision-scroll{max-height:none;min-height:calc(var(--list-w) - var(--pad));margin:0}
+.revision-citation{border-bottom:1px dotted var(--line-strong)}.revision-word-changed{color:inherit;background:transparent;font-weight:700;text-decoration-thickness:2px;text-underline-offset:2px}.revision-cell-removed .revision-word-changed{text-decoration:line-through}.revision-cell-added .revision-word-changed{text-decoration:underline}

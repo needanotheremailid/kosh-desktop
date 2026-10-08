@@ -28,7 +28,7 @@ class WordFieldLayoutTests(unittest.TestCase):
         self.assertEqual(closing.xpath('w:pPr/w:spacing/@w:after',namespaces=NS),['0'])
         self.assertEqual(closing.xpath('.//w:t',namespaces=NS),[])
         self.assertEqual(closing.xpath('w:r/w:fldChar/@w:fldCharType',namespaces=NS),['end'])
-        result=paragraph.xpath('w:r[w:t="Update bibliography in Word."]',namespaces=NS)[0]
+        result=paragraph.xpath('w:r[starts-with(w:t,"1. Doe J. Widgets.")]',namespaces=NS)[0]
         self.assertEqual(result.xpath('w:rPr/w:sz/@w:val',namespaces=NS),[],'Visible field result retains the normal source font.')
         citation=root.xpath('//w:p[w:r/w:instrText[contains(., "CITATION")]]',namespaces=NS)[0]
         self.assertEqual(citation.xpath('w:pPr/w:rPr/w:sz/@w:val',namespaces=NS),[])
@@ -40,8 +40,34 @@ class WordFieldLayoutTests(unittest.TestCase):
         root=self.inspect(data)
         paragraph=root.xpath('//w:p[w:r/w:instrText[contains(., "BIBLIOGRAPHY")]]',namespaces=NS)[0]
         self.assertEqual(paragraph.getnext().xpath('w:pPr/w:rPr/w:sz/@w:val',namespaces=NS),['2'])
-        self.assertIn('Update bibliography in Word.',''.join(paragraph.xpath('.//w:t/text()',namespaces=NS)))
+        self.assertIn('1. Doe J. Widgets.',''.join(paragraph.xpath('.//w:t/text()',namespaces=NS)))
         self.assertEqual(len(root.xpath('//w:instrText[contains(., "CITATION")]',namespaces=NS)),1)
+
+    def test_cached_field_results_show_static_rendering_before_refresh(self):
+        store=FakeStore('First '+MARKER+' then again '+MARKER+'.')
+        root=self.inspect(render_live_docx(store.snapshot['notes'][0]['body'],store.snapshot['documents']))
+        def results(kind):
+            out=[]
+            for begin in root.xpath('//w:r[w:instrText[contains(., "'+kind+'")]]',namespaces=NS):
+                shown=begin.getnext().getnext()  # instr -> separate -> cached result run
+                out.append(''.join(shown.xpath('w:t/text()',namespaces=NS)))
+            return out
+        self.assertEqual(results('CITATION'),['(1)','(1)'])
+        bibliography=results('BIBLIOGRAPHY')
+        self.assertEqual(len(bibliography),1)
+        self.assertTrue(bibliography[0].startswith('1. Doe J. Widgets. Widget Rev. 2024'),bibliography)
+        xml=ET.tostring(root).decode()
+        self.assertNotIn('Update citation in Word',xml)
+        self.assertNotIn('Update bibliography in Word',xml)
+        self.assertNotIn(r'widget\_id',xml,'CSL Markdown escapes must not leak into field text.')
+
+    def test_placeholder_kept_when_static_rendering_unavailable(self):
+        from unittest import mock
+        store=FakeStore('A saved citation '+MARKER+'.')
+        with mock.patch('word_citations.render_citations',side_effect=ValueError('synthetic failure')):
+            xml=ET.tostring(self.inspect(render_live_docx(store.snapshot['notes'][0]['body'],store.snapshot['documents']))).decode()
+        self.assertIn('[Update citation in Word]',xml)
+        self.assertIn('Update bibliography in Word.',xml)
 
 
 if __name__=='__main__':unittest.main()

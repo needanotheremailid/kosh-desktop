@@ -2,7 +2,7 @@
 
 Use the fixed CLI or MCP stdio adapter to control the running local app. Start Kosh first. The bundled edition needs no system Python: use `.\runtime\python.exe -E -s agent.py ...` from its installation. The examples below use `python.exe` for a source edition; substitute the bundled interpreter as appropriate.
 
-This source interface targets **Kosh 1.0.0-rc.1** and retains the same 63 tools as 0.6.0 and 0.5.0. This document describes the candidate source, not proof of publication or final 1.0 acceptance. The six additions for project/reviewer records and backup/update status were introduced in 0.5.0; streamed automatic sets and saved revision comparison were introduced in 0.6.0. The RC adds desktop local-file backup jobs and previewable installation diagnostics without adding generic HTTP, shell or execution tools. An older installation keeps its previous behavior until upgraded to a matching package.
+This source interface targets **Kosh 1.0.0-rc.2** and retains the same 63 tools as 0.6.0 and 0.5.0. This document describes the candidate source, not proof of publication or final 1.0 acceptance. The six additions for project/reviewer records and backup/update status were introduced in 0.5.0; streamed automatic sets and saved revision comparison were introduced in 0.6.0. The RC adds desktop local-file backup jobs and previewable installation diagnostics without adding generic HTTP, shell or execution tools. An older installation keeps its previous behavior until upgraded to a matching package.
 
 Only current user authority for the named workspace, files and actions permits access. Local tools are not permission for private-data inspection, provider sends, formal screening, clinical abstraction or submission.
 
@@ -38,7 +38,7 @@ python.exe agent.py save-evidence --workspace WORKSPACE_ID --document SOURCE_ID 
 python.exe agent.py writing-check --workspace WORKSPACE_ID --note NOTE_ID --version 1
 ```
 
-Imports read only explicit files, not neighbouring folders. General files have a 32 MiB bound. Metadata writes require an explicit expected metadata version; note/evidence updates need both ID/version, creation omits both. A stale version is refused without changing saved records. History/alternative creation preserves prior work; no automatic conflict merge or pruning occurs.
+Imports read only explicit files, not neighbouring folders. General files have a 32 MiB bound. From 1.0.0-rc.2 a PDF import whose source details are empty may receive a suggested `title` (embedded file details) and `doi` (first two pages) with a `provenance` line; the receipt lists them under `suggested_metadata`, metadata version stays 0 and the values are unverified. A draft `export --note` result adds `warning` and `incomplete_references` when the saved-version writing check finds cited sources with missing bibliography fields; the file is still written. Metadata writes require an explicit expected metadata version; note/evidence updates need both ID/version, creation omits both. A stale version is refused without changing saved records. History/alternative creation preserves prior work; no automatic conflict merge or pruning occurs.
 
 `document --original --output ...` downloads the managed original. PDF `--page` images identify actual file pages. Other extracted units are not native Word pagination. Markdown markers `[[source:ID:PAGE]]` retain actual supplied locations; `[[reference:ID]]` is a document-level bibliography citation with no file locator. Scientific support remains unverified.
 
@@ -246,7 +246,7 @@ Backup defaults to current originals/notes/metadata/chats/evidence and reading o
 
 ## MCP stdio configuration
 
-`mcp_server.py` exposes **63 tools** in 1.0.0-rc.1, retaining 0.6.0 and 0.5.0's fixed registry. Version 0.4.0 has 57, including seven reading-state/duplicate/geometry reads and source/resume/annotation/claim saves. The six additions in 0.5.0 are project review, reviewer state/save/export and backup/update status; 0.6.0 and this RC add no tools. It uses standard-library JSON-RPC stdio and the same authenticated CLI operations, with supported protocol versions `2024-11-05`, `2025-03-26`, `2025-06-18`. It does not register itself or edit Codex/Claude settings. Configure a chosen client explicitly; a typical configuration shape is:
+`mcp_server.py` exposes **63 tools** in 1.0.0-rc.2, retaining 0.6.0 and 0.5.0's fixed registry. Version 0.4.0 has 57, including seven reading-state/duplicate/geometry reads and source/resume/annotation/claim saves. The six additions in 0.5.0 are project review, reviewer state/save/export and backup/update status; 0.6.0 and this RC add no tools. It uses standard-library JSON-RPC stdio and the same authenticated CLI operations, with supported protocol versions `2024-11-05`, `2025-03-26`, `2025-06-18`. It does not register itself or edit Codex/Claude settings. Configure a chosen client explicitly; a typical configuration shape is:
 
 ```json
 {"mcpServers":{"kosh":{"command":"C:\\chosen\\Kosh\\runtime\\python.exe","args":["-E","-s","C:\\chosen\\Kosh\\mcp_server.py"]}}}

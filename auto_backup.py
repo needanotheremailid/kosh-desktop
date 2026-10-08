@@ -148,7 +148,7 @@ class AutoBackup:
                 raise b.AppError('Backups are shutting down. Reopen Kosh before changing preferences.', 503)
             with self._state_lock:
                 prior = dict(self._settings)
-                self._settings.update(enabled=body['enabled'], destination=destination, interval_minutes=body['interval_minutes'])
+                self._settings.update(enabled=body['enabled'], destination=destination, interval_minutes=body['interval_minutes'], last_error='')
                 try:
                     self._persist()
                 except Exception:
@@ -571,9 +571,13 @@ class AutoBackup:
             destination = self._settings['destination']
         if not destination:
             return {'sets': [], 'issues': []}
-        folder = self._destination(destination)
         sets, issues = [], []
-        candidates = sorted((item.name for item in folder.iterdir() if SET_NAME.fullmatch(item.name)))
+        try:
+            folder = self._destination(destination)
+            candidates = sorted((item.name for item in folder.iterdir() if SET_NAME.fullmatch(item.name)))
+        except (b.AppError, OSError) as error:
+            message = str(error) if isinstance(error, b.AppError) else 'The backup folder could not be read.'
+            return {'sets': [], 'issues': [], 'unavailable': message + ' Saved sets remain where they were written; reconnect the folder or choose another one.'}
         for set_id in candidates:
             try:
                 _, manifest = self._manifest(set_id)

@@ -1,6 +1,7 @@
 """Document-local Word citation fields; no COM, macros or global source edits.
 
-Word uses its installed XSL styles, not CSL. Unrefreshed field results say so;
+Word uses its installed XSL styles, not CSL. Unrefreshed field results carry the
+static CSL (Vancouver) rendering so the file reads correctly before any refresh;
 Word's Update Field regenerates them from the embedded current source list.
 """
 from __future__ import annotations
@@ -11,7 +12,7 @@ import uuid
 import zipfile
 from lxml import etree as ET
 
-from citations import ANY_MARKER, MARKER, REFERENCE_MARKER, citation_key, normalized_doi, _page_limit
+from citations import ANY_MARKER, MARKER, REFERENCE_MARKER, citation_key, normalized_doi, _page_limit, render_citations
 from manuscript import render_docx
 
 B = 'http://schemas.openxmlformats.org/officeDocument/2006/bibliography'
@@ -65,6 +66,12 @@ def _source(parent, document):
             _child(node, field, metadata[key])
 
 
+def _plain(value):
+    # csl_engine emits a small Markdown dialect (escapes, *emphasis*, <sup>/<sub>).
+    # ponytail: cached preview is plain text; Word restores typography on refresh.
+    return re.sub(r'\\(.)|</?su[pb]>|\*+', lambda match: match[1] or '', value)
+
+
 def _field(code, result):
     def run(child):
         node = ET.Element('{'+W+'}r')
@@ -74,9 +81,13 @@ def _field(code, result):
     instruction = ET.Element('{'+W+'}instrText', {'{http://www.w3.org/XML/1998/namespace}space': 'preserve'})
     instruction.text = code
     separate = ET.Element('{'+W+'}fldChar', {'{'+W+'}fldCharType': 'separate'})
-    text = ET.Element('{'+W+'}t'); text.text = result
     end = ET.Element('{'+W+'}fldChar', {'{'+W+'}fldCharType': 'end'})
-    return [run(item) for item in (begin, instruction, separate, text, end)]
+    shown = ET.Element('{'+W+'}r')
+    for index, line in enumerate([result] if isinstance(result, str) else result):
+        if index:
+            ET.SubElement(shown, '{'+W+'}br')
+        ET.SubElement(shown, '{'+W+'}t', {'{http://www.w3.org/XML/1998/namespace}space': 'preserve'}).text = line
+    return [run(begin), run(instruction), run(separate), shown, run(end)]
 
 
 def render_live_docx(markdown, documents, *, word_style='ieee', image_resolver=None):
@@ -84,7 +95,7 @@ def render_live_docx(markdown, documents, *, word_style='ieee', image_resolver=N
         raise WordCitationError('Choose a native Word style: IEEE, APA sixth edition or ISO 690 numerical. CSL/Vancouver styles are not native Word styles.')
     by_id = {item['id']: item for item in documents}
     cited, publication = {}, {}
-    plans = []
+    plans, markers = [], []
     prefix = 'KOSHLIVE'+uuid.uuid4().hex.upper()
     def replace(match):
         marker = MARKER.fullmatch(match[0]) or REFERENCE_MARKER.fullmatch(match[0])
@@ -100,11 +111,20 @@ def render_live_docx(markdown, documents, *, word_style='ieee', image_resolver=N
         cited.setdefault(canonical, by_id[canonical])
         sentinel = prefix+str(len(plans))+'END'
         plans.append((sentinel, ' CITATION '+citation_key(canonical)+' \\l 1033 ', '[Update citation in Word]'))
+        markers.append(match[0])
         return sentinel
     marked = ANY_MARKER.sub(replace, markdown)
+    # Cached field results: one CSL rendering per marker (each its own field,
+    # never merged), so the file reads correctly before Word refreshes fields.
+    try:
+        preview = render_citations(markers, documents) if markers else None
+    except Exception:  # ponytail: preview is cosmetic; any failure keeps the placeholders
+        preview = None
+    if preview:
+        plans = [(sentinel, code, _plain(text) or placeholder) for (sentinel, code, placeholder), text in zip(plans, preview['texts'])]
     if cited:
         sentinel = prefix+str(len(plans))+'END'
-        plans.append((sentinel, ' BIBLIOGRAPHY \\l 1033 ', 'Update bibliography in Word.'))
+        plans.append((sentinel, ' BIBLIOGRAPHY \\l 1033 ', [_plain(line) for line in (preview or {}).get('references', [])] or 'Update bibliography in Word.'))
         marked += '\n\n## References\n\n'+sentinel+'\n'
     original = render_docx(marked, image_resolver=image_resolver)
     with zipfile.ZipFile(io.BytesIO(original)) as archive:

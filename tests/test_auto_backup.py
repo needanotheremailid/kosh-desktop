@@ -348,6 +348,21 @@ class AutomaticBackupTests(unittest.TestCase):
         self.assertFalse(result['enabled'])
         self.assertIsNone(self.backups.tick())
 
+    def test_unavailable_destination_lists_no_sets_and_resave_clears_stale_error(self):
+        self.enable()
+        self.assertTrue(self.backups.tick()['ok'])
+        self.folder.rename(self.root / 'unplugged')
+        self.clock += 3600
+        self.assertFalse(self.backups.tick()['ok'])
+        self.assertTrue(self.backups.status()['last_error'])
+        listed = self.backups.list_sets()
+        self.assertEqual((listed['sets'], listed['issues']), ([], []))
+        self.assertIn('reconnect the folder', listed['unavailable'])
+        (self.root / 'unplugged').rename(self.folder)
+        self.enable()
+        self.assertEqual(self.backups.status()['last_error'], '')
+        self.assertEqual(len(self.backups.list_sets()['sets']), 1)
+
     def test_pending_work_notice_survives_refresh_and_successful_backup(self):
         root = Path(__file__).resolve().parents[1]
         bundled = root / 'tools' / 'node' / 'node.exe'

@@ -4,11 +4,20 @@ Start with [installation](#first-launch-and-a-first-useful-session) and [your fi
 
 ## First launch and a first useful session
 
-**[Download the Kosh 1.0.0-rc.1 Windows installer](https://github.com/needanotheremailid/kosh-desktop/releases/download/v1.0.0-rc.1/Kosh-1.0.0-rc.1-Setup.exe)** from [this repository's release](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v1.0.0-rc.1). Use 64-bit Windows 11 with Microsoft Edge and .NET Framework. The installer is unsigned; Windows may warn about an unknown publisher. Check the release origin and published checksum before deciding whether to run it. Keep a backup and try a permitted non-sensitive paper first. No separate Python, Node, TeX, AI account or model is required for the ordinary bundled reading/writing/export workflow.
+**[Download the Kosh 1.0.0-rc.2 Windows installer](https://github.com/needanotheremailid/kosh-desktop/releases/download/v1.0.0-rc.2/Kosh-1.0.0-rc.2-Setup.exe)** from [this repository's release](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v1.0.0-rc.2). Use 64-bit Windows 11 with Microsoft Edge and .NET Framework. The installer is unsigned; Windows may warn about an unknown publisher. Check the release origin and published checksum before deciding whether to run it. Keep a backup and try a permitted non-sensitive paper first. No separate Python, Node, TeX, AI account or model is required for the ordinary bundled reading/writing/export workflow.
 
-The bundled edition installs with `Kosh-1.0.0-rc.1-Setup.exe` into a new folder for your Windows user. Edge and .NET Framework are prerequisites; the prepared Python/document runtime and Node.js 24.14.1 local citation tool are included. Installation does not need an administrator or download packages. Existing shortcuts are preserved.
+The bundled edition installs with `Kosh-1.0.0-rc.2-Setup.exe` into a new folder for your Windows user. Edge and .NET Framework are prerequisites; the prepared Python/document runtime and Node.js 24.14.1 local citation tool are included. Installation does not need an administrator or download packages. Existing shortcuts are preserved.
 
-This guide targets Kosh 1.0.0-rc.1. Historical sections retain their introduction versions. Older installations keep their prior behavior until upgraded to a matching package. The optional [signing workflow](SIGNING.md) requires an already provisioned trusted publisher identity; the installer is not signed just because that workflow is available. Tests on one computer do not prove another clean Windows computer or every real manuscript. Independent trials remain pending in [the acceptance checklist](ACCEPTANCE.md).
+This guide targets Kosh 1.0.0-rc.2. Historical sections retain their introduction versions. Older installations keep their prior behavior until upgraded to a matching package. The optional [signing workflow](SIGNING.md) requires an already provisioned trusted publisher identity; the installer is not signed just because that workflow is available. Tests on one computer do not prove another clean Windows computer or every real manuscript. Independent trials remain pending in [the acceptance checklist](ACCEPTANCE.md).
+
+## New in 1.0.0-rc.2
+
+- **Reading place kept.** Opening a source from the Library returns to its remembered page instead of page 1; earlier candidates overwrote the saved page a moment after a plain open. Search results, highlights, claim links and citation chips still open their own page.
+- **Suggested PDF details.** Importing a PDF fills an empty title from the file's embedded details and a DOI found on its first two pages. Source details shows a provenance line for these suggestions; verify them against the publication, or use the DOI in **More → Discover references → Lookup exact DOI or PMID** to fetch catalogue metadata. No author or year is guessed and nothing is sent anywhere.
+- **Incomplete-reference warning.** After a draft export, Kosh runs the saved-version writing check and names cited sources whose bibliography fields are missing, because their reference entries are incomplete in that file. The CLI `export --note` command returns the same warning.
+- **Editable Word fields read correctly before refresh.** Citations and the bibliography carry the rendered default-style text, so reviewers without a field refresh still see numbers and references; Word regenerates them into its own style on update.
+- **Clearer revision comparison.** Citation markers display as source titles (the exact marker stays in the tooltip) and swapped words within a changed line pair are highlighted.
+- **Backup folder status.** Re-saving backup preferences clears the previous failure message, and an unplugged folder lists no sets with an explanation instead of failing the dialog; saved sets remain where they were written.
 
 ## New in 1.0.0-rc.1
 
@@ -86,7 +95,7 @@ The bundled Windows installer includes English, Hindi and Punjabi OCR data and i
 
 ## Reading place, organisation and saved passages
 
-In Read, expand **Reading place and organization**. Choose **Unread**, **Reading** or **Read**, mark a favorite, enter comma-separated tags and one collection label, and record a next action. Choose **Save reading place and details** to save those fields. Opening a source page remembers its reading position automatically; the Library's **Continue reading** returns to the saved source location. A next action is your own note, not a scheduled task.
+In Read, expand **Reading place and organization**. Choose **Unread**, **Reading** or **Read**, mark a favorite, enter comma-separated tags and one collection label, and record a next action. Choose **Save reading place and details** to save those fields. Opening a source page remembers its reading position automatically. Opening that source again from the Library, or through the Library's **Continue reading**, returns to the saved page; search results, highlights and citation links open their own page instead. A next action is your own note, not a scheduled task.
 
 Library filters for reading state, favorites, an exact tag and collection narrow the displayed source list alongside the existing metadata/type controls. Tags are multiple labels; Collection is one label per source, not a nested folder tree. Switching workspace clears the display filters. Passage search still searches all active sources and pauses the list filters.
 

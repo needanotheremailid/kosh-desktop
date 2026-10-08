@@ -71,6 +71,27 @@ class BackendAcceptance(unittest.TestCase):
         self.assertEqual(self.add("image-only.pdf", blank.tobytes())["status"], "no_text")
         blank.close()
 
+    def test_pdf_import_suggests_title_and_doi_as_unverified_metadata(self):
+        import pymupdf
+        pdf = pymupdf.open()
+        pdf.new_page().insert_text((40, 40), "Invented lantern throughput. https://doi.org/10.1234/abcd.5678. Later text")
+        pdf.set_metadata({"title": "Invented Lantern Throughput in Synthetic Workshops"})
+        receipt = self.add("lantern.pdf", pdf.tobytes())
+        self.assertEqual(receipt["suggested_metadata"], ["doi", "title"])
+        metadata = receipt["document"]["metadata"]
+        self.assertEqual((metadata["title"], metadata["doi"]), ("Invented Lantern Throughput in Synthetic Workshops", "10.1234/abcd.5678"))
+        self.assertIn("verify", metadata["provenance"])
+        self.assertEqual(receipt["document"]["metadata_version"], 0)
+        junk = pymupdf.open()
+        junk.new_page().insert_text((40, 40), "No identifiers here")
+        junk.set_metadata({"title": "Microsoft Word - final_manuscript.docx"})
+        plain = self.add("plain.pdf", junk.tobytes())
+        self.assertNotIn("suggested_metadata", plain)
+        self.assertEqual(plain["document"]["metadata"], {})
+        saved = self.store.dispatch("POST", "/api/metadata", {"id": receipt["document"]["id"], "expected_metadata_version": 0, "metadata": {**metadata, "year": "2024"}})
+        self.assertTrue(saved)
+        self.assertEqual(self.store._document(receipt["document"]["id"])["metadata_version"], 1)
+
     def test_docx_body_table_header_and_coverage_notice(self):
         from docx import Document
         docx = Document()

@@ -42,4 +42,14 @@ async function readingAsyncChecks(){
  assert.ok([...storage.values()].some(value=>value.includes('Unsaved comment')),'Recovery stores pending capture');
  console.log('Reading UI: selection, citations, filters, serialized mutations, conflict reload, workspace isolation and recovery passed');
 }
-readingAsyncChecks().catch(error=>{console.error(error);process.exitCode=1;});
+async function openDocumentChecks(){
+ const app=fs.readFileSync(path.join(__dirname,'../ui/app.js'),'utf8');const start=app.indexOf('async function openDocument('),end=app.indexOf('\nfunction activeEditor(',start);assert.ok(start>=0&&end>start,'openDocument is required');
+ let loads=0;const ctx={innerWidth:1000,flushEdits:async()=>true,setPanelOpen(){},$:()=>({innerHTML:''}),request:async()=>({document:{id:'d',kind:'pdf',pages:6}}),KoshReading:{load:async()=>{loads++;}},readingSource:()=>({last_page:4}),render(){},renderMain(){},notify(){},selectedPassage:null,Number,Math,state:{readSequence:0,workspace:'one',askScope:'workspace'}};
+ vm.createContext(ctx);vm.runInContext(app.slice(start,end),ctx);
+ await ctx.openDocument('d');assert.equal(ctx.state.page,4,'A plain open returns to the remembered page');assert.equal(loads,1,'Remembered page is read from loaded reading state');
+ await ctx.openDocument('d',2);assert.equal(ctx.state.page,2,'An explicit page wins');
+ await ctx.openDocument('d',1);assert.equal(ctx.state.page,1,'Explicit page 1 is not replaced');assert.equal(loads,1);
+ await ctx.openDocument('d',9);assert.equal(ctx.state.page,6,'Pages stay within the document');
+ console.log('Reading UI: plain open keeps the remembered page');
+}
+readingAsyncChecks().then(openDocumentChecks).catch(error=>{console.error(error);process.exitCode=1;});

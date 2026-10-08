@@ -274,6 +274,36 @@ def validate_zip_members(archive, total_limit=RESTORE_TOTAL_LIMIT):
     return infos
 
 
+DOI_PATTERN = re.compile(r'\b(10\.\d{4,9}/[^\s"<>\]\)]+)', re.IGNORECASE)
+JUNK_PDF_TITLE = re.compile(r'(?:^|\b)(?:untitled|microsoft word|powerpoint|template|draft|manuscript|final)(?:\b|$)|\.(?:docx?|pdf|tex|indd|qxd|pptx?)\b', re.IGNORECASE)
+PDF_SUGGESTION_PROVENANCE = 'Suggested from the PDF file details and its first pages; verify against the publication before citing.'
+
+
+def suggest_pdf_metadata(data, pages, name):
+    """Embedded PDF title plus a DOI from the first two pages. Entered by nobody: the user still verifies.
+
+    ponytail: no author/year guesses; file info authors and creation dates are too often wrong to cite.
+    """
+    suggested = {}
+    try:
+        with pdf_lib.open(stream=data, filetype="pdf") as pdf:
+            info = pdf.metadata or {}
+    except Exception:
+        info = {}
+    title = re.sub(r"\s+", " ", str(info.get("title") or "")).strip()
+    stem = re.sub(r"\.pdf$", "", name, flags=re.IGNORECASE).strip().casefold()
+    if 12 <= len(title) <= 400 and " " in title and re.search(r"[a-z]", title) and not JUNK_PDF_TITLE.search(title) and title.casefold() != stem:
+        suggested["title"] = title
+    match = DOI_PATTERN.search("\n".join(text for _, text in pages[:2]))
+    if match:
+        doi = match.group(1).rstrip(".,;:")
+        if 7 <= len(doi) <= 200:
+            suggested["doi"] = doi
+    if suggested:
+        suggested["provenance"] = PDF_SUGGESTION_PROVENANCE
+    return suggested
+
+
 def extract(data, kind):
     notice = ""
     if kind in {'png', 'jpg', 'jpeg', 'webp'}:
@@ -1079,7 +1109,13 @@ class Store:
                         self.db.execute("DELETE FROM pages WHERE document_id=?", (id_,))
                     self.db.executemany("INSERT INTO pages VALUES(?,?,?)", [(id_, page, text) for page, text in pages])
                     self.db.execute("UPDATE documents SET status=?,extraction_notice=? WHERE id=?", (status, notice, id_))
+                suggested = suggest_pdf_metadata(data, pages, name) if kind == "pdf" and not repaired else {}
+                if suggested:
+                    with self.db:
+                        self.db.execute("UPDATE documents SET metadata=? WHERE id=? AND metadata='{}'", (json.dumps(metadata_value(suggested), ensure_ascii=False), id_))
                 receipt = {"name": name, "status": status, "document": self._public_doc(self._document(id_))}
+                if suggested:
+                    receipt["suggested_metadata"] = sorted(key for key in suggested if key != "provenance")
                 if repaired:
                     receipt["repaired"] = True
                 if status == "no_text":

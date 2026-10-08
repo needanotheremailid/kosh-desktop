@@ -2,7 +2,7 @@
 
 Kosh is a local Windows research desk with original application code and an attributed offline citation processor, CSL styles and runtimes. Its library starts empty. It adapts research/writing workflows; another research product's accounts, subscriptions, application code and cloud infrastructure are not included. [CREDITS.md](CREDITS.md) and [THIRD_PARTY.md](THIRD_PARTY.md) identify the included dependencies.
 
-This describes Kosh 1.0.0-rc.1. Unified streaming local backup/restore with progress and cancellation, Windows file selection, installation health, previewable diagnostics and durable update activation are RC additions. Saved revision comparison and larger automatic sets arrived in 0.6.0. The fixed agent registry remains at 63 tools. Historical rows retain introduction versions. Older installations keep their behavior until upgraded; 0.6.0 cannot discover RC tags. Source, invented test inputs, rendered output, installed release and independent Windows use are separate proof layers. See [acceptance](ACCEPTANCE.md) and matching release receipts for what was tested.
+This describes Kosh 1.0.0-rc.2, which corrects a reading-place loss when a source was reopened from the Library, keeps saved automatic-backup sets listable when their folder is unplugged, and adds suggested PDF details on import, incomplete-reference warnings on draft export, pre-filled editable Word fields and labelled revision comparison (rows 67-70). Unified streaming local backup/restore with progress and cancellation, Windows file selection, installation health, previewable diagnostics and durable update activation are RC additions. Saved revision comparison and larger automatic sets arrived in 0.6.0. The fixed agent registry remains at 63 tools. Historical rows retain introduction versions. Older installations keep their behavior until upgraded; 0.6.0 cannot discover RC tags. Source, invented test inputs, rendered output, installed release and independent Windows use are separate proof layers. See [acceptance](ACCEPTANCE.md) and matching release receipts for what was tested.
 
 ## Available workflow
 
@@ -25,7 +25,7 @@ This describes Kosh 1.0.0-rc.1. Unified streaming local backup/restore with prog
 | Format manuscript | Configurable research/review/case-report layout and optional blank outline | User supplies frontmatter; blinding omits supplied author frontmatter only; no named-journal compliance claim |
 | Recover | Note/job history; streaming local ZIPs and automatic sets; progress/cancel before publication; fresh restore; copy-only upgrade | Browser/CLI transfers retain 47 MiB bound; ZIPs exclude browser/folder/job journals and embedding cache |
 | Check installation | Explicit fixed-component availability check and optional previewable diagnostics JSON | No research scan, raw logs, paths, provider call or automatic upload; not a full installation-integrity test |
-| Use agents | Fixed CLI and 63 MCP tools in 1.0.0-rc.1; 0.4.0 has 57 | No arbitrary command escape hatch; existing note-history reads saved versions; explicit scopes/versions |
+| Use agents | Fixed CLI and 63 MCP tools in 1.0.0-rc.2; 0.4.0 has 57 | No arbitrary command escape hatch; existing note-history reads saved versions; explicit scopes/versions |
 | Edit files | Exact local diffs and optional chosen-file model proposals | Separate approval; retained originals; per-file publication may leave a partial batch |
 | Use desktop | Getting started, Help, hover explanations, three layouts, light/dark | Preferences do not change research records |
 
@@ -150,6 +150,10 @@ The original approved Beeblio inspection produced these rows. Included means wor
 | 64 | Unified local recovery — 1.0.0-rc.1 | Windows selection or typed local path, streaming manual ZIPs even with scheduling off, background progress and cancellation before publication; approved apply creates a separate workspace |
 | 65 | Installation diagnostics — 1.0.0-rc.1 | Fixed local component checks and remedies, exact allowlisted JSON preview and optional download; no document scans or automatic uploads |
 | 66 | Durable update activation — 1.0.0-rc.1 | Bound local activation proof and retained-record recovery, numeric RC version ordering and explicit release-channel policy |
+| 67 | Suggested PDF details — 1.0.0-rc.2 | Import reads an embedded PDF title and a DOI found on the first two pages into otherwise empty source details, marked with a provenance line and shown in the import receipt; nothing is looked up online | Unverified suggestions at metadata version 0; no author or year guesses; verify before citing or use the DOI with the exact catalogue lookup |
+| 68 | Incomplete-reference warning — 1.0.0-rc.2 | Draft exports from Write and the CLI run the saved-version writing check afterwards and report cited sources whose bibliography fields are missing | The export is still written; whole-workspace exports rely on Project review |
+| 69 | Pre-filled editable Word fields — 1.0.0-rc.2 | Editable Word citations and the bibliography carry the rendered default-style text before any field refresh | Plain cached text until Word refreshes into its own style; adjacent fields stay separate |
+| 70 | Labelled revision comparison — 1.0.0-rc.2 | Citation markers display as source titles with the exact marker retained, and changed line pairs highlight the words that moved | Display only; comparison counts and saved text are unchanged |
 
 ## Other approved references
 

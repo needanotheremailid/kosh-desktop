@@ -52,7 +52,7 @@ class RCRecoveryTests(unittest.TestCase):
     def setUp(self):
         self.temporary=tempfile.TemporaryDirectory();self.root=Path(self.temporary.name)
         self.old=self.root/'Kosh-old';installed(self.old,'a'*64);synthetic_data(self.old)
-        self.cache=self.root/'cache';self.version='1.0.0-rc.1'
+        self.cache=self.root/'cache';self.version=updater.CURRENT_VERSION
 
     def tearDown(self):self.temporary.cleanup()
 
@@ -227,7 +227,7 @@ class RCRecoveryTests(unittest.TestCase):
 
     def test_activation_readback_uses_new_target_version_not_old_worker_constant(self):
         from agent import AgentError
-        self.version='1.0.0-rc.2';directory,new=self.prepared()
+        self.version='1.0.0-rc.99';directory,new=self.prepared()  # ponytail: any target newer than the source constant
         client=MagicMock();session={'pid':314,'build':'b'*64,'port':3000,'token':'never-output'}
         def request(route,body=None):
             if route=='/api/updates/activate':
