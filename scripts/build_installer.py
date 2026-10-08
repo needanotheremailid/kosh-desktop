@@ -28,6 +28,10 @@ LEGAL_TEMPLATES = {'pymupdf': 'pymupdf-{}.tar.gz', 'python-docx': 'python_docx-{
                    'python': 'Python-{}.tar.xz', 'mupdf': 'mupdf-{}-source.tar.gz'}
 SOURCE_FILES.add('BUILDING.md')
 SOURCE_FILES.add('reading.py')
+SOURCE_FILES.add('project_review.py')
+SOURCE_FILES.add('auto_backup.py')
+SOURCE_FILES.add('reviewer.py')
+SOURCE_FILES.update({'updater.py', 'updater_worker.py'})
 
 
 def normalized_name(name):
@@ -47,7 +51,7 @@ def source_allowed(name):
     path = safe_relative(name)
     return name in SOURCE_FILES or (path.parts[:2] == ('vendor', 'csl') and path.suffix.lower() in {'.js', '.json', '.csl', '.xml', '.md', ''}) or (
         len(path.parts) >= 2 and path.parts[0] in {'native', 'ui', 'tests', 'assets', 'scripts'}
-        and path.suffix.lower() in {'.cs', '.html', '.css', '.js', '.py', '.ico', '.png', '.svg'}
+        and path.suffix.lower() in {'.cs', '.html', '.css', '.js', '.py', '.ico', '.png', '.jpg', '.svg'}
         and '__pycache__' not in path.parts)
 
 

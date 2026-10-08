@@ -567,8 +567,12 @@ class Store:
         self.db.execute("PRAGMA user_version=1")
         self.db.commit()
         self._reconcile()
+        from auto_backup import AutoBackup
+        self.auto_backups = AutoBackup(self)
 
     def close(self):
+        if hasattr(self, 'auto_backups'):
+            self.auto_backups.stop()
         with self.condition:
             if self.closed:
                 return
@@ -658,6 +662,16 @@ class Store:
             body = {}
         if not isinstance(body, dict):
             raise AppError("Request body must be a JSON object.")
+        backup_routes = {
+            ('GET', '/api/auto-backup'): lambda: self.auto_backups.status(),
+            ('POST', '/api/auto-backup'): lambda: self.auto_backups.configure(body),
+            ('POST', '/api/auto-backup/run'): lambda: self.auto_backups.run_now(),
+            ('GET', '/api/auto-backup/sets'): lambda: self.auto_backups.list_sets(),
+            ('POST', '/api/auto-backup/preview'): lambda: self.auto_backups.preview_restore(body),
+            ('POST', '/api/auto-backup/restore'): lambda: self.auto_backups.restore(body),
+        }
+        if (method, route) in backup_routes:
+            return backup_routes[method, route]()
         if method == "GET" and route == "/api/models":
             return self.models()
         if method == "GET" and route == "/api/assist/providers":
@@ -714,9 +728,15 @@ class Store:
             return {"model": model}
         with self.lock:
             self._ensure_open()
+            if method == 'GET' and route == '/api/project-review':
+                from project_review import project_review
+                return project_review(self, query.get('workspace_id'))
             from reading import Reading
             if Reading.supports(method, route):
                 return Reading(self).dispatch(method, route, body if method == 'POST' else query)
+            from reviewer import Reviewer
+            if Reviewer.supports(method, route):
+                return Reviewer(self).dispatch(method, route, body if method == 'POST' else query)
             from completion import Completion
             if Completion.supports(method, route):
                 try:
@@ -1382,12 +1402,15 @@ class Store:
             revisions = [dict(row) for row in self.db.execute("SELECT * FROM revisions WHERE entity_id IN (SELECT id FROM notes WHERE workspace_id=? UNION SELECT id FROM matrix WHERE workspace_id=?)", (workspace_id, workspace_id))] if include_history else []
             from reading import Reading
             reading_state = Reading(self).load(workspace['id'])
+            from reviewer import Reviewer
+            reviewer_state = Reviewer(self).load(workspace['id'])
             self.db.commit()
         except Exception:
             self.db.rollback()
             raise
         snapshot = {"version": 1, "app": "pg-research-desktop", "created_at": now(), "workspace": workspace, "documents": documents, "notes": notes, "matrix": matrix, "chats": chats, "revisions": revisions, "history_included": include_history}
         snapshot['reading'] = reading_state
+        snapshot['reviewer'] = reviewer_state
         if not include_history:
             snapshot["snapshot_note"] = "Current-state snapshot: earlier edit revisions are excluded from this archive and retained in the original local workspace. Originals, current notes, evidence rows and chats are included."
         return snapshot
@@ -1423,7 +1446,7 @@ class Store:
             raise AppError("Workspace exceeds this version's 47 MB backup/restore limit including ZIP overhead. No data was removed.", 413)
         return backup, "application/zip", "Research-workspace-backup.zip"
 
-    def _restore(self, body):
+    def _restore(self, body, preview_only=False):
         try:
             data = decode_base64(body.get("data"), BACKUP_LIMIT)
         except AppError as error:
@@ -1437,7 +1460,7 @@ class Store:
             if "manifest.json" not in names:
                 raise AppError("Backup manifest is missing.")
             manifest = json.loads(archive.read("manifest.json"))
-            if not isinstance(manifest, dict) or set(manifest) - {"version", "app", "created_at", "workspace", "documents", "notes", "matrix", "chats", "revisions", "history_included", "snapshot_note", "reading"} or manifest.get("version") != 1 or manifest.get("app") != "pg-research-desktop":
+            if not isinstance(manifest, dict) or set(manifest) - {"version", "app", "created_at", "workspace", "documents", "notes", "matrix", "chats", "revisions", "history_included", "snapshot_note", "reading", "reviewer"} or manifest.get("version") != 1 or manifest.get("app") != "pg-research-desktop":
                 raise AppError("This is not a supported Research Desktop backup.")
             if type(manifest.get("history_included", True)) is not bool:
                 raise AppError("Backup history state is invalid.")
@@ -1581,6 +1604,10 @@ class Store:
             if 'reading' in manifest and manifest['reading'] is None:
                 raise AppError('Backup reading state must be an object.')
             reading_state = validate_backup(manifest.get('reading'), old_workspace_id, documents, collections['notes'], originals, citation_page_limits)
+            from reviewer import validate_backup as validate_reviewer
+            if 'reviewer' in manifest and manifest['reviewer'] is None:
+                raise AppError('Backup reviewer state must be an object.')
+            reviewer_state = validate_reviewer(manifest.get('reviewer'), old_workspace_id, collections['notes'])
             for revision in collections["revisions"]:
                 entity = revision.get("entity_type")
                 if entity not in {"note", "matrix"} or revision.get("entity_id") not in record_ids[entity] or type(revision.get("version")) is not int or revision["version"] < 1:
@@ -1604,6 +1631,14 @@ class Store:
         finally:
             if "archive" in locals():
                 archive.close()
+        if preview_only:
+            return {'title': title, 'documents':len(documents), 'notes':len(collections['notes']),
+                    'matrix':len(collections['matrix']), 'chats':len(collections['chats']),
+                    'revisions':len(collections['revisions']), 'history_included':manifest.get('history_included', True),
+                    'reading_present':'reading' in manifest, 'reviewer_comments_present':'reviewer' in manifest,
+                    'annotations':len(reading_state['annotations']), 'reviewer_comments':len(reviewer_state['comments']),
+                    'unverified_citations':sum(chat.get('audit', {}).get('restored_unverified_count', 0) for chat in collections['chats']),
+                    'notice':'Validated preview only. Restoring creates a separate workspace; existing workspaces stay unchanged.'}
         mapping = {id_: new_id() for id_ in doc_ids | record_ids["note"] | record_ids["matrix"] | record_ids["chat"]}
         workspace_id = new_id()
         restored_title = (title[:185] + " (restored)")
@@ -1652,6 +1687,8 @@ class Store:
                 self.db.execute("INSERT INTO revisions VALUES(?,?,?,?)", (revision["entity_type"], mapping[revision["entity_id"]], revision["version"], json.dumps(payload, ensure_ascii=False)))
             from reading import Reading, remap_backup
             Reading(self).save(remap_backup(reading_state, workspace_id, mapping, remap_refs))
+            from reviewer import Reviewer, remap_backup as remap_reviewer
+            Reviewer(self).save(remap_reviewer(reviewer_state, workspace_id, mapping, remap_refs, collections['notes']))
         return {"workspace_id": workspace_id, "title": restored_title, "documents": len(documents), "notes": len(collections["notes"]),
                 'unverified_citations': sum(chat.get('audit', {}).get('restored_unverified_count', 0) for chat in collections['chats'])}
 

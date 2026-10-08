@@ -182,12 +182,22 @@ def build_parser():
         if name == 'state':
             item.add_argument('--workspace', help='Return only this workspace; omit for explicitly requested global state')
     commands.add_parser('folder-history',help='Read retained folder-edit receipts; no target writes')
-    for name in ('reading-state', 'reading-duplicates', 'reading-geometry'):
+    for name in ('reading-state', 'reading-duplicates', 'reading-geometry', 'project-review', 'reviewer-state'):
         item = commands.add_parser(name, help='Read explicitly scoped local reading records; no provider call')
         item.add_argument('--workspace', required=True)
         if name == 'reading-geometry':
             item.add_argument('--document', required=True)
             item.add_argument('--page', type=int, required=True)
+    commands.add_parser('backup-status', help='Read automatic backup status; no files or preferences changed')
+    commands.add_parser('update-status', help='Read local update status; no network request')
+    item = commands.add_parser('reviewer-save', help='Save explicitly reviewed response fields without changing manuscript text')
+    item.add_argument('--workspace', required=True)
+    item.add_argument('--version', required=True, type=int)
+    item.add_argument('--file', required=True, type=Path)
+    item = commands.add_parser('reviewer-export', help='Export saved response records to a selected local text file')
+    item.add_argument('--workspace', required=True)
+    item.add_argument('--version', required=True, type=int)
+    output_options(item)
     for name in ('reading-source-save', 'reading-resume-save', 'reading-annotation-save', 'reading-claim-save'):
         item = commands.add_parser(name, help='Save reviewed local reading fields with the expected reading-state version; no permanent deletion')
         item.add_argument('--workspace', required=True)
@@ -372,11 +382,24 @@ def execute(args, client):
         return health
     if command == 'workspaces':
         return client.request('/api/workspaces')
-    if command in ('reading-state', 'reading-duplicates', 'reading-geometry'):
+    if command in ('backup-status', 'update-status'):
+        return client.request('/api/auto-backup' if command == 'backup-status' else '/api/updates/status')
+    if command in ('reading-state', 'reading-duplicates', 'reading-geometry', 'project-review', 'reviewer-state'):
         query = {'workspace_id': args.workspace}
-        route = {'reading-state':'/api/reading', 'reading-duplicates':'/api/reading/duplicates', 'reading-geometry':'/api/reading/geometry'}[command]
+        route = {'reading-state':'/api/reading', 'reading-duplicates':'/api/reading/duplicates', 'reading-geometry':'/api/reading/geometry', 'project-review':'/api/project-review', 'reviewer-state':'/api/reviewer'}[command]
         if command == 'reading-geometry': query.update(document_id=args.document, page=args.page)
         return client.request(route+'?'+urlencode(query))
+    if command == 'reviewer-export':
+        result = client.request('/api/reviewer/export', {'workspace_id':args.workspace,'expected_version':args.version})
+        return {**save_output(args.output, result['content'].encode('utf-8'), args.overwrite), 'notice':result['notice']}
+    if command == 'reviewer-save':
+        try:
+            change = json.loads(selected_bytes(args.file, 128*1024).decode('utf-8-sig'))
+        except (ValueError, UnicodeError):
+            raise AgentError('Reviewer changes must be a UTF-8 JSON object.') from None
+        if not isinstance(change, dict) or {'workspace_id', 'expected_version'} & change.keys():
+            raise AgentError('Explicit workspace/version flags supply scope; do not include them in the file.')
+        return client.request('/api/reviewer/comment', {**change,'workspace_id':args.workspace,'expected_version':args.version})
     if command in ('reading-source-save', 'reading-resume-save', 'reading-annotation-save', 'reading-claim-save'):
         try:
             change = json.loads(selected_bytes(args.file, 64*1024).decode('utf-8-sig'))

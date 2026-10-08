@@ -1,0 +1,15 @@
+.reviewer-dialog{width:min(1120px,96vw);max-width:96vw;max-height:92dvh;padding:0;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:var(--radius-lg)}
+.reviewer-dialog .rv-header{display:flex;align-items:flex-start;justify-content:space-between;gap:20px;padding:20px 24px;border-bottom:1px solid var(--line)}
+.reviewer-dialog .rv-header h2{margin-bottom:6px}.reviewer-dialog .rv-header p{margin-bottom:0}
+.rv-workspace{display:grid;grid-template-columns:260px minmax(0,1fr);gap:24px;padding:24px;align-items:start}
+.rv-workspace>aside{min-width:0;position:sticky;top:0;max-height:65dvh;overflow:auto}.rv-workspace>section{min-width:0}
+.rv-workspace form input,.rv-workspace form select,.rv-workspace form textarea{width:100%;margin-bottom:16px}
+.rv-workspace form label{margin-bottom:6px}.rv-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:12px}
+.rv-link-controls{display:flex;align-items:center;gap:12px;flex-wrap:wrap}.rv-link-controls label{flex:1}.rv-link-controls select{margin-bottom:0!important}
+.rv-checkbox{display:flex;gap:8px;align-items:center;font-weight:400}.rv-checkbox input{margin:0;width:auto}
+.rv-record{padding:12px 10px;border-bottom:1px solid var(--line);overflow-wrap:anywhere}.rv-record-selected{background:var(--accent-soft);border-radius:var(--radius)}
+.rv-record>button:first-child{display:block;width:100%;padding:0;white-space:normal}.rv-record strong,.rv-record span{display:block}.rv-record span{font-size:13px;margin-top:6px;color:var(--ink-2)}.rv-record p{margin:8px 0 0}
+.reviewer-dialog pre{white-space:pre-wrap;overflow-wrap:anywhere;background:var(--sunk);padding:16px;border-radius:var(--radius);font:13px/1.6 var(--font-ui);max-height:360px;overflow:auto}.rv-history-entry{margin-block:12px}.rv-history-entry summary{font-size:13px;color:var(--ink-2)}
+.rv-export{border-top:1px solid var(--line);padding:20px 24px;display:flex;align-items:end;gap:16px;flex-wrap:wrap}.rv-export label{flex:1;min-width:180px}.rv-export input{display:block;width:100%}.rv-export p{flex-basis:100%;margin:0}
+.rv-export .rv-checkbox{flex-basis:100%;margin:0}.rv-export .rv-checkbox input{display:inline;width:auto}
+@media(max-width:760px){.rv-workspace{grid-template-columns:1fr;padding:16px}.rv-workspace>aside{position:static;max-height:220px;border-bottom:1px solid var(--line)}.reviewer-dialog .rv-header,.rv-export{padding:16px}.rv-link-controls{align-items:stretch;flex-direction:column}.rv-export{align-items:stretch}.rv-export>.button{width:100%}}

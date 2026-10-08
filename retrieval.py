@@ -243,6 +243,13 @@ class Retrieval:
                 "notice": "Source-linked semantic similarity only; read the original context and verify every claim."}
 
     def _ocr(self, payload):
+        # OCR shares the PDF library with import, rendering and backup preview.
+        # Keep the whole PDF object lifetime in the same serialization boundary.
+        with self.store.lock:
+            self.store._ensure_open()
+            return self._ocr_locked(payload)
+
+    def _ocr_locked(self, payload):
         import backend as b
         language = payload.get("language", "eng")
         tessdata = tessdata_for(language)

@@ -2,7 +2,7 @@
 
 Use the fixed CLI or MCP stdio adapter to control the running local app. Start Kosh first. The bundled edition needs no system Python: use `.\runtime\python.exe -E -s agent.py ...` from its installation. The examples below use `python.exe` for a source edition; substitute the bundled interpreter as appropriate.
 
-This interface describes Kosh 0.4.0 beta. An older installation keeps its previous commands until upgraded to the matching package.
+This interface targets Kosh 0.5.0 beta. Six additions for project/reviewer records and backup/update status require 0.5.0; an older installation keeps its previous commands until upgraded to a matching package.
 
 Only current user authority for the named workspace, files and actions permits access. Local tools are not permission for private-data inspection, provider sends, formal screening, clinical abstraction or submission.
 
@@ -43,6 +43,31 @@ Imports read only explicit files, not neighbouring folders. General files have a
 `document --original --output ...` downloads the managed original. PDF `--page` images identify actual file pages. Other extracted units are not native Word pagination. Markdown markers `[[source:ID:PAGE]]` retain actual supplied locations; `[[reference:ID]]` is a document-level bibliography citation with no file locator. Scientific support remains unverified.
 
 Metadata JSON supports explicit publication fields, family/given author objects or `{"literal":"Group name"}`, rather than guessed name splitting. Inspect the current schema/desktop fields; unsupported metadata is refused. Writing check is saved-version mechanical diagnosis, not plagiarism/statistical/scientific approval.
+
+## Project review, reviewer records and status — 0.5.0
+
+```powershell
+python.exe agent.py project-review --workspace WORKSPACE_ID
+python.exe agent.py reviewer-state --workspace WORKSPACE_ID
+python.exe agent.py reviewer-save --workspace WORKSPACE_ID --version REVIEWER_VERSION --file 'C:\selected\reviewer change.json'
+python.exe agent.py reviewer-export --workspace WORKSPACE_ID --version REVIEWER_VERSION --output 'C:\existing\outputs\response letter.txt'
+python.exe agent.py backup-status
+python.exe agent.py update-status
+```
+
+`project-review` reads all saved drafts and active recorded claim reviews in one selected workspace. It reports its check time, drafts without reviews, source-needed/stale/current checked claims, unresolved references, missing cited-source metadata and individual writing checks. Counts can overlap; unrecorded claims are unassessed. A failed draft check retains its error and makes incomplete reference/metadata totals unknown rather than zero. This is not scientific-support or readiness certification. The CLI reads saved state and cannot flush another browser's unsaved text. The desktop **More → Project review → Save & refresh** saves that window first.
+
+`reviewer-state` returns `{schema_version, workspace_id, version, comments}` with current manuscript-link `stale`, `stale_reasons`, `current_note_version` and `revised_verification` fields. Its `version` belongs to the workspace's reviewer records, separately from note and reading-state versions. Read it before a write/export and use the returned `REVIEWER_VERSION`; read saved state again after a write.
+
+`reviewer-save` reads one explicitly selected UTF-8 JSON object, at most 128 KiB. Omit `workspace_id` and `expected_version`: the flags provide those fields. Creating a comment requires `note_id`, `note_version`, `passage_start`, `passage_end`, `passage`, `reviewer` and `comment`. The passage must match the saved manuscript at the exact offsets and version. Offsets count Unicode characters from zero; the end is exclusive. Choose the intended occurrence when wording repeats. Optional manual fields are `planned_text`, `revised_text`, `response`, `status` and boolean `archived`.
+
+Updating a comment requires its `id` and the explicitly changed fields. The saved comment stays linked to its original note. Explicit relinking supplies all four anchor fields together: `note_version`, `passage_start`, `passage_end`, `passage`. Progress values are `open`, `planned`, `revised` or `responded`; revised/responded require non-empty revised wording/response respectively. Every actual field/link change retains its prior snapshot. Archive/unarchive is reversible. The state has a 4 MiB bound, up to 1,000 comments and up to 200 retained changes per comment; an exceeded limit refuses without pruning history. A stale expected version returns 409 without replacing saved records; keep the selected JSON, reload and review before retrying.
+
+These are manual reviewer-response records, not manuscript edits or attributed reviewer approval. Make actual manuscript changes through the normal versioned note workflow. `reviewer-export` writes a local `.txt` response letter from the expected saved reviewer version, excluding archived records and pending browser fields. It uses the existing explicit-output/no-clobber rules. The desktop export can choose a title and explicitly select **Include archived comments in the letter**, which starts unchecked; **Show archived comments** changes the list only and does not affect export inclusion. Both letter paths report stale links and whether recorded revised wording is exactly present in the current saved manuscript; a match does not establish its location, context or adequacy. Review the manuscript/letter before sharing; no provider call, email or submission occurs.
+
+`backup-status` reads application-wide automatic backup preferences, last attempt/success/failure, last completed set path, next due time and errors. It creates no backup, changes no preferences and restores nothing. Desktop **Settings → Automatic local backups** is the separate opt-in flow: user-selected existing local folder outside application/data paths, runs while the app is open with one catch-up on launch, all workspace ZIPs with history, 47 MiB per workspace and no pruning/Windows scheduled task. Completed sets retain byte/hash/count/build receipts. Exact validated restore preview precedes creation of a fresh workspace. ZIPs contain saved data, not unsaved browser recovery or pending reviewer fields.
+
+`update-status` reads locally known update/receipt/previous-installation information only. It contacts no network, downloads no file and executes nothing. Desktop **Settings → Kosh updates** separately requires an explicit public GitHub release check, installer/checksum download and installed-package execution approval. **Download matches the SHA-256 published in the same GitHub release. This does not verify the publisher; installers are unsigned.** Installation saves/closes, waits for the stopped service/browser, copies into a fresh sibling install and verifies startup before matching shortcut retargeting. After a close-wait timeout, the desktop may offer **Save, close and resume retained update**: fresh explicit unsigned/job approval rechecks the retained installer without downloading again, then waits for the window to close. A still-running worker refuses another start; uncertain partial installation requires receipt-based recovery. Resume/activation remain desktop actions and have no CLI/MCP execution tool. Old installation/data remain retained; opening an older version shows older data and can create diverged histories. These global status reads do not grant an agent automatic backup/update write authority.
 
 ## Reading organisation, annotations and personal claim reviews
 
@@ -190,11 +215,11 @@ Outputs need explicit filenames/existing parents, refuse existing files unless `
 
 The UI/CLI export uses authenticated POST `/api/export` with JSON fields `workspace_id`, optional `note_id`, `format`, `citation_style`, optional `citation_language`, `note_placement`, `word_style`, `template` and optional `audit`. Frontmatter stays out of URL query strings. GET `/api/export/options` returns `{profiles, defaults, locales, word_styles, compiler, outlines}`. POST `/api/citation/styles/retrieve` takes `{style_id|style|locale, approved:true}`; POST `/api/citation/locales/import` takes `{xml}`. These are fixed local service routes, not a generic agent HTTP escape hatch.
 
-Backup defaults to current originals/notes/metadata/chats/evidence and reading organisation, resume position, annotations, claims and retained attachment history. Saved note/evidence revision history is opt-in; neither option prunes local revisions. Restore validates nested reading records and remaps their source/note IDs into a fresh workspace. The 47 MiB ZIP limit fits the bounded restore envelope. Browser drafts/profile, external-folder journals, the separate assistance-job/result journal and rebuildable embedding cache are excluded. Save browser edits first; CLI cannot flush another window. Complete copy-only upgrade preserves the whole stopped data tree; it is a separate helper, not a running MCP action. See USER_GUIDE.md.
+Backup defaults to current originals/notes/metadata/chats/evidence and reading organisation, resume position, annotations, claims and retained attachment history. Kosh 0.5.0 also includes saved reviewer comments, passage snapshots and retained changes even when ordinary note revision history is excluded. Saved note/evidence revision history is opt-in for manual ZIPs; automatic sets include it. Neither option prunes local revisions. Restore validates nested reading/reviewer records and remaps their source/note IDs into a fresh workspace. Old 0.4.0 backups restore in 0.5.0 with empty reviewer records; new ZIPs have a `reviewer` manifest field unsupported by Kosh 0.4.0, so use 0.5.0 to restore them. The 47 MiB per-workspace ZIP limit fits the bounded restore envelope; ZIPs are unencrypted. Automatic scheduling runs only while Kosh is open, with catch-up on launch. Browser drafts/profile, external-folder journals, the separate assistance-job/result journal and rebuildable embedding cache are excluded. Save browser edits first; CLI cannot flush another window. Complete copy-only upgrade preserves the whole stopped data tree; it is a separate helper, not a running MCP action. See USER_GUIDE.md.
 
 ## MCP stdio configuration
 
-`mcp_server.py` exposes **57 tools**, verified from its current fixed registry. The seven additions cover reading-state/duplicate/geometry reads and source/resume/annotation/claim saves. It uses standard-library JSON-RPC stdio and the same authenticated CLI operations, with supported protocol versions `2024-11-05`, `2025-03-26`, `2025-06-18`. It does not register itself or edit Codex/Claude settings. Configure a chosen client explicitly; a typical configuration shape is:
+`mcp_server.py` exposes **63 tools** in Kosh 0.5.0's fixed registry. Version 0.4.0 has 57, including seven reading-state/duplicate/geometry reads and source/resume/annotation/claim saves. The six additions in 0.5.0 are project review, reviewer state/save/export and backup/update status. It uses standard-library JSON-RPC stdio and the same authenticated CLI operations, with supported protocol versions `2024-11-05`, `2025-03-26`, `2025-06-18`. It does not register itself or edit Codex/Claude settings. Configure a chosen client explicitly; a typical configuration shape is:
 
 ```json
 {"mcpServers":{"kosh":{"command":"C:\\chosen\\Kosh\\runtime\\python.exe","args":["-E","-s","C:\\chosen\\Kosh\\mcp_server.py"]}}}
@@ -205,6 +230,9 @@ For a separate data directory, append `--data-dir` and its explicit path. Start 
 | Tools | Corresponding CLI / effect |
 |---|---|
 | `kosh_health`, `kosh_workspaces`, `kosh_workspace_state` | Identity, workspace metadata or explicitly scoped state reads |
+| `kosh_project_review` | Selected-workspace saved-draft and recorded-claim checks, with Unknown incomplete totals; no readiness certification |
+| `kosh_reviewer_state`, `kosh_reviewer_save`, `kosh_reviewer_export` | Selected-workspace response reads, reviewed JSON/version save or explicit local saved-text export; manuscript text is unchanged |
+| `kosh_backup_status`, `kosh_update_status` | Global local status reads only; no preference write, backup/restore, network check/download or installation |
 | `kosh_reading_state`, `kosh_reading_duplicates`, `kosh_reading_geometry` | Scoped reading records, read-only duplicate candidates or actual PDF word geometry |
 | `kosh_reading_source_save`, `kosh_reading_resume_save`, `kosh_reading_annotation_save`, `kosh_reading_claim_save` | Selected JSON changes with expected reading-state version; personal checked status is caller attestation |
 | `kosh_models`, `kosh_installed_agents` | Local inventory/detection; no generation/download |

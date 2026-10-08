@@ -2,7 +2,7 @@
 
 Kosh is a local Windows research desk with original application code and an attributed offline citation processor, CSL styles and runtimes. Its library starts empty. It adapts research/writing workflows; another research product's accounts, subscriptions, application code and cloud infrastructure are not included. [CREDITS.md](CREDITS.md) and [THIRD_PARTY.md](THIRD_PARTY.md) identify the included dependencies.
 
-This describes Kosh 0.4.0. Older installations require an upgrade to gain these controls. Source, synthetic tests, rendered output, the installed release and a different clean computer are separate proof layers; consult the matching release receipts for build identity and acceptance.
+This describes Kosh 0.5.0. Automatic backups, in-app updates, reviewer responses, project review and six additional agent tools require 0.5.0. Older installations retain their previous behavior until upgraded to a matching package. Source, synthetic tests, rendered output, the installed release and a different clean computer are separate proof layers; consult the matching release receipts for build identity and acceptance.
 
 ## Available workflow
 
@@ -24,9 +24,13 @@ This describes Kosh 0.4.0. Older installations require an upgrade to gain these 
 | Export | MD/static DOCX/editable native Word/PDF/compiled LaTeX PDF/TEX/TeX ZIP/BIB/RIS/CSL JSON/CSV/HTML/reading ZIP | Saved scope; audit opt-in; native Word styles separate from CSL |
 | Format manuscript | Configurable research/review/case-report layout and optional blank outline | User supplies frontmatter; blinding omits supplied author frontmatter only; no named-journal compliance claim |
 | Recover | Note/job history; current/history workspace ZIP; fresh restore; copy-only upgrade | Unencrypted; workspace ZIP excludes browser/folder/job journals and embedding cache |
-| Use agents | Fixed CLI and 57 local MCP tools, including seven reading/claim-record operations | Explicit scopes/versions; no arbitrary SQL/routes/shell or automatic client configuration |
+| Use agents | Fixed CLI and 63 MCP tools in 0.5.0; 0.4.0 has 57 | Six additions cover selected-workspace project/reviewer records and read-only backup/update status; explicit scopes/versions |
 | Edit files | Exact local diffs and optional chosen-file model proposals | Separate approval; retained originals; per-file publication may leave a partial batch |
 | Use desktop | Getting started, Help, hover explanations, three layouts, light/dark | Preferences do not change research records |
+
+## New in 0.5.0
+
+Settings adds **Automatic local backups** and **Kosh updates**. More adds **Reviewer responses** and **Project review**. Backups retain saved workspace history; reviewer records stay separate from manuscript edits; project checks expose unknown results; update execution requires separate unsigned-publisher approval. Six agent additions bring the fixed registry to 63 tools. Details and limits follow the retained 0.4.0 overview.
 
 ## Reading and writing additions for 0.4.0
 
@@ -41,6 +45,23 @@ Reading adds exact PDF word selection/highlight geometry, saved quoted passages/
 Focus writing retains the title/editor/writing controls and hides surrounding navigation, export and formatting controls, with visible Exit and Escape. Section arrows swap adjacent complete Markdown sections and keep nested content/markers together. The preamble remains in place; a missing final newline refuses the move rather than changing characters. Preview/conflicted drafts disable moves.
 
 Claim review is user-driven: select an exact sentence, attach a passage from an actual source page/section, then personally mark it checked. Saved note/version, wording and source changes can make the record stale; unsaved edits are also marked stale in the current window. Changing a checked attachment requires review again and retains earlier attachments. Reading records are included in current/history workspace backups and remapped during fresh-workspace restore. Use Kosh 0.4.0 to access these controls.
+
+## Backup, reviewer and update workflows in 0.5.0
+
+These four workflows require Kosh 0.5.0. Their controls are found in Settings or More as shown below.
+
+| Workflow | Current-source behavior | Practical boundary |
+|---|---|---|
+| Automatic local backups — Settings | Explicit opt-in, user-selected existing local folder, 15-minute–7-day interval, one launch catch-up, complete sets for all workspaces with history, readback/restore validation, last success/failure and exact restore preview; also available in Exports & backup | Runs only while Kosh is open; 47 MiB per workspace ZIP; no pruning or Windows scheduled task; browser-only recovery is excluded; failure retains prior backups |
+| Kosh updates — Settings | Separate public GitHub release check, named installer/checksum download and unsigned execution approval; fresh sibling installation, stopped data copy, startup/build/database checks before shortcut retarget | Installed-package execution only; old copy/data retained; interrupted work needs explicit resume/recovery; newer candidate records block automatic shortcut rollback |
+| Reviewer responses — More | Exact saved manuscript passage/version/occurrence, manual comment/planned/revised/response fields, expected reviewer version, retained field/link changes, archive/restore and saved local text-letter export | Records do not edit the manuscript; stale links and revised-wording presence are disclosed; pending fields remain separate browser recovery; no provider request or submission |
+| Project review — More | On-demand saved draft/active recorded-claim review across the selected workspace, timestamp, per-draft checks, unresolved references, missing metadata, stale/source-needed/current checked claim counts and draft navigation | Counts can overlap; unrecorded claims are unassessed; failed checks show reasons and Unknown incomplete totals; no scientific-support or readiness certification |
+
+Update transfer wording is fixed: **Download matches the SHA-256 published in the same GitHub release. This does not verify the publisher; installers are unsigned.** Reading update status makes no network request. Checks, downloads and execution require separate user actions; library/notes/account information is not sent.
+
+Kosh 0.5.0 ZIPs include reviewer passage snapshots and retained comment changes even with ordinary note revision history excluded. Old 0.4.0 ZIPs restore in 0.5.0 with empty reviewer state. New ZIPs carry the `reviewer` manifest field and cannot be restored by Kosh 0.4.0; use 0.5.0 to restore them. Workspace ZIPs remain unencrypted and distinct from a complete stopped-installation data copy.
+
+Six new fixed CLI/MCP operations bring Kosh 0.5.0 to **63 tools**: selected-workspace project review, reviewer state/save/text export, automatic backup status and local update status. Backup/update tools read status only; they do not change preferences, run a backup, restore, contact GitHub, download or install. See [the agent interface](AGENT_API.md) for exact scopes and file/version contracts.
 
 ## Complete original 22-item ledger
 
@@ -97,7 +118,7 @@ The original approved Beeblio inspection produced these rows. Included means wor
 | 42 | Portable reading | HTML or HTML/figure ZIP; manuscript, workspace backup and software are distinct packages |
 | 43 | Copy-only upgrade | Verified fresh install; stopped complete data copy; staged SQLite backup/hashes/recovery |
 | 44 | Shortcut retarget | Explicit flag; exact old-launcher targets only, retained backups/readback |
-| 45 | MCP | 57 fixed schemas, including scoped reading records/geometry/duplicate candidates and versioned saves; no generic command escape hatch or unsolicited registration |
+| 45 | MCP | 57 schemas in 0.4.0; 63 in 0.5.0 with six project/reviewer/status additions; no generic command escape hatch or unsolicited registration |
 | 46 | Free source/distribution | AGPL route including citeproc-js option, CSL CC-BY-SA-3.0 attribution, Node executable/licence/matching source, retained dependency notices and source receipts |
 | 47 | Editable Word citations | Document-local sources and native CITATION/BIBLIOGRAPHY fields; IEEE/APA sixth edition/ISO 690 numerical; refresh in Word |
 | 48 | Manuscript layout | User-chosen page/font/spacing/margins/numbering/frontmatter; profiles are not named-journal certification; explicit optional outline append |
@@ -110,6 +131,10 @@ The original approved Beeblio inspection produced these rows. Included means wor
 | 55 | Duplicate review | Read-only matching title/DOI candidates; no merge/delete/citation-ID rewrite |
 | 56 | Focus and sections | Visible Exit/Escape; complete adjacent Markdown section moves through ordinary save/recovery |
 | 57 | Personal claim review | Exact saved sentence/source passage, personal review states, stale guards, retained attachment history and archive/restore; no machine support certification |
+| 58 | Automatic backup — 0.5.0 | Opt-in local sets for every workspace with history, honest success/failure and exact restore preview; app-open scheduling/catch-up, no pruning, 47 MiB per workspace |
+| 59 | In-app updates — 0.5.0 | Separate check/download/unsigned execution approvals, stopped complete copy, verified startup before shortcut change; retained old version/data and bounded rollback |
+| 60 | Reviewer responses — 0.5.0 | Exact passage occurrence/version, manual planned/revised/response records, retained changes and saved text-letter export; no manuscript mutation or submission |
+| 61 | Project review — 0.5.0 | Selected-workspace saved draft/recorded-claim checks with timestamp and Unknown incomplete totals; no support/readiness certification |
 
 ## Other approved references
 

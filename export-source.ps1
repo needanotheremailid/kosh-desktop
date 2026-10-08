@@ -23,7 +23,7 @@ foreach ($asset in @('assets/App.ico','assets/Kosh.svg','assets/Kosh.png')) {
     if (Test-Path -LiteralPath (Join-Path $appRoot $asset) -PathType Leaf) { $files += $asset }
 }
 if (Test-Path -LiteralPath (Join-Path $appRoot 'assets/screenshots') -PathType Container) {
-    foreach ($screenshot in Get-ChildItem -LiteralPath (Join-Path $appRoot 'assets/screenshots') -Filter '*.png' -File) {
+    foreach ($screenshot in Get-ChildItem -LiteralPath (Join-Path $appRoot 'assets/screenshots') -File | Where-Object { $_.Extension -in @('.png', '.jpg') }) {
         $files += $screenshot.FullName.Substring($appRoot.Length + 1).Replace('\','/')
     }
 }

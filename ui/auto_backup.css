@@ -1,0 +1,14 @@
+#auto-backup-dialog{width:680px}
+#auto-backup-dialog>label:not(.backup-history),#auto-backup-dialog section>label:not(.backup-history){display:block;margin:14px 0 6px}
+#auto-backup-dialog>input,#auto-backup-dialog select{width:100%;margin-bottom:8px}
+#auto-backup-dialog .backup-history{margin:14px 0;align-items:flex-start}
+#auto-backup-dialog .backup-history input{margin-top:4px}
+#auto-backup-dialog [hidden]{display:none}
+.auto-backup-facts{display:grid;grid-template-columns:130px minmax(0,1fr);gap:8px 16px;font-size:14px}
+.auto-backup-facts dt{color:var(--ink-3)}
+.auto-backup-facts dd{margin:0;overflow-wrap:anywhere}
+.auto-backup-path{font:12px/1.7 var(--font-mono);overflow-wrap:anywhere}
+#auto-backup-preview-details{margin-top:18px;background:var(--sunk);padding:0 14px}
+#auto-backup-preview-details:not(:empty){padding:14px}
+#auto-backup-preview-details h4{margin:0 0 10px}
+@media(max-width:700px){.auto-backup-facts{grid-template-columns:1fr;gap:3px}.auto-backup-facts dd{margin-bottom:10px}#auto-backup-dialog .dialog-actions{justify-content:stretch}#auto-backup-dialog .dialog-actions .button{flex:1}}

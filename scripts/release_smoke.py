@@ -10,6 +10,35 @@ import tempfile
 import zipfile
 
 
+def check_next_workflows(store, temporary, installed):
+    from updater import Updater
+    workspace = store.dispatch('POST', '/api/workspaces', {'title':'Review release check'})['id']
+    note = store.dispatch('POST', '/api/notes', {'workspace_id':workspace,'title':'Widget draft','body':'Widgets are blue.'})
+    reviewed = store.dispatch('POST', '/api/reviewer/comment', {'workspace_id':workspace,'expected_version':0,
+        'note_id':note['id'],'note_version':1,'passage_start':0,'passage_end':17,'passage':'Widgets are blue.',
+        'reviewer':'Reviewer 1','comment':'Explain the comparison.','response':'Comparison will be clarified.','status':'responded'})
+    assert len(reviewed['comments']) == 1 and not reviewed['comments'][0]['stale']
+    letter = store.dispatch('POST', '/api/reviewer/export', {'workspace_id':workspace,'expected_version':1})
+    assert 'Comparison will be clarified.' in letter['content'] and letter['count'] == 1
+    dashboard = store.dispatch('GET', '/api/project-review?workspace_id='+workspace)
+    assert dashboard['totals']['drafts'] == 1 and dashboard['totals']['drafts_without_reviews'] == 1
+    destination = Path(temporary)/'backups'; destination.mkdir()
+    backups = store.auto_backups
+    backups.build = manifest['build']
+    backups.configure({'enabled':True,'destination':str(destination),'interval_minutes':1440})
+    saved = backups.run_now()
+    assert saved['ok'] and backups.status()['last_success']
+    preview = backups.preview_restore({'set_id':saved['set_id'],'workspace_id':workspace})
+    assert preview['reviewer_comments'] == 1 and preview['notes'] == 1
+    restored = backups.restore({'preview_id':preview['preview_id'],'approve':True})
+    result = store.dispatch('GET','/api/reviewer?workspace_id='+restored['workspace_id'])
+    assert result['comments'][0]['note_id'] != note['id'] and not result['comments'][0]['stale']
+    updates = Updater(installed,cache_dir=Path(temporary)/'updates')
+    status = updates.status()
+    assert status['current_version'] == '0.5.0' and status['phase'] == 'idle' and status['signature'] == 'not_verified'
+    return {'reviewer_letter':True,'dashboard':True,'automatic_backup_restore':True,'update_status_no_network':True}
+
+
 def check_reading_workflow(store):
     """Exercise persisted reading records and restored identities in a temp store."""
     workspace = store.dispatch('POST', '/api/workspaces', {'title': 'Synthetic reading release check'})['id']
@@ -123,6 +152,7 @@ with tempfile.TemporaryDirectory(prefix='kosh-release-smoke-') as temporary:
     try:
         assert store.dispatch('GET', '/api/workspaces', {})['workspaces'] == []
         reading_checks = check_reading_workflow(store)
+        next_checks = check_next_workflows(store, temporary, root)
     finally:
         store.close()
     library = csl_styles.StyleLibrary(Path(temporary) / 'styles')
@@ -162,5 +192,6 @@ with zipfile.ZipFile(io.BytesIO(word)) as archive:
 print(json.dumps({'ok':True,'build':manifest['build'],'verified_payload_files':len(manifest['files']),
                   'bundled_origins':True,'empty_library':True,'csl_locales':63,
                   'reading_workflow':reading_checks,
+                  'next_workflows':next_checks,
                   'offline_compiled_pdf_pages':pages,'default_chicago_pdf_pages':chicago_pages,'native_word_fields':True,
                   'scope':'Fresh installed runtime checks; synthetic inputs; no desktop UI or native Word automation.'}))

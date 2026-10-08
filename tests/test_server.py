@@ -4,6 +4,8 @@ import json
 import sys
 import threading
 import unittest
+from types import SimpleNamespace
+from unittest.mock import patch
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
@@ -11,6 +13,8 @@ from server import LocalServer
 
 
 class SyntheticStore:
+    def __init__(self):
+        self.auto_backups = SimpleNamespace(build='')
     def dispatch(self, method, path, body):
         return {'fixture': True, 'method': method, 'path': path}
     def file_response(self, path, query):
@@ -18,6 +22,15 @@ class SyntheticStore:
 
 
 class BoundaryTests(unittest.TestCase):
+    def test_unavailable_update_cache_does_not_block_local_app(self):
+        from updater import UpdateError
+        with patch('updater.Updater', side_effect=UpdateError('Private update cache unavailable')):
+            server = LocalServer(('127.0.0.1', 0), SyntheticStore())
+        try:
+            self.assertIsNone(server.updater)
+            self.assertIn('unavailable', server.updater_error)
+        finally:
+            server.server_close()
     @classmethod
     def setUpClass(cls):
         cls.server = LocalServer(('127.0.0.1', 0), SyntheticStore())

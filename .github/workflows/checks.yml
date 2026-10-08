@@ -39,6 +39,14 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Reading UI checks failed.' }
           node tests/test_writing_review_ui.js
           if ($LASTEXITCODE -ne 0) { throw 'Writing review checks failed.' }
+          foreach ($module in @('auto_backup','reviewer','project_review','updater','maintenance')) {
+            node --check "ui/$module.js"
+            if ($LASTEXITCODE -ne 0) { throw "Syntax check failed: $module" }
+          }
+          node tests/test_reviewer_ui.js
+          if ($LASTEXITCODE -ne 0) { throw 'Reviewer UI checks failed.' }
+          node tests/test_project_review_ui.js
+          if ($LASTEXITCODE -ne 0) { throw 'Project review UI checks failed.' }
       - name: Check bibliography parsing and folder recovery
         shell: pwsh
         run: |

@@ -2,11 +2,11 @@
 
 ## First launch and a first useful session
 
-**[Download the Kosh 0.4.0 Windows beta installer](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.4.0/Kosh-0.4.0-Setup.exe)** from [this repository's release](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v0.4.0). Use 64-bit Windows 11 with Microsoft Edge and .NET Framework. The installer is unsigned; Windows may warn about an unknown publisher. Check the release origin and published checksum before deciding whether to run it. Keep a backup and try a permitted non-sensitive paper first. No separate Python, Node, TeX, AI account or model is required for the ordinary bundled reading/writing/export workflow.
+**[Download the Kosh 0.5.0 Windows beta installer](https://github.com/needanotheremailid/kosh-desktop/releases/download/v0.5.0/Kosh-0.5.0-Setup.exe)** from [this repository's release](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v0.5.0). Use 64-bit Windows 11 with Microsoft Edge and .NET Framework. The installer is unsigned; Windows may warn about an unknown publisher. Check the release origin and published checksum before deciding whether to run it. Keep a backup and try a permitted non-sensitive paper first. No separate Python, Node, TeX, AI account or model is required for the ordinary bundled reading/writing/export workflow.
 
-The bundled edition installs with `Kosh-0.4.0-Setup.exe` into a new folder for your Windows user. Edge and .NET Framework are prerequisites; the prepared Python/document runtime and Node.js 24.14.1 local citation tool are included. Installation does not need an administrator or download packages. Existing shortcuts are preserved.
+The bundled edition installs with `Kosh-0.5.0-Setup.exe` into a new folder for your Windows user. Edge and .NET Framework are prerequisites; the prepared Python/document runtime and Node.js 24.14.1 local citation tool are included. Installation does not need an administrator or download packages. Existing shortcuts are preserved.
 
-This guide describes Kosh 0.4.0. Older installations keep their prior behavior until upgraded. The optional [signing workflow](SIGNING.md) requires an already provisioned trusted publisher identity; the installer is not signed just because that workflow is available. Tests on one computer do not prove another clean Windows computer or every real manuscript.
+This guide targets Kosh 0.5.0. Automatic backups, in-app updates, reviewer responses and project review require version 0.5.0; earlier reading/writing controls retain their introduction versions below. Older installations keep their prior behavior until upgraded to a matching package. The optional [signing workflow](SIGNING.md) requires an already provisioned trusted publisher identity; the installer is not signed just because that workflow is available. Tests on one computer do not prove another clean Windows computer or every real manuscript.
 
 The library starts empty. Open the Kosh shortcut after setup; automatic launch is off by default so an upgrade can copy data before first use. Getting started opens on first use and can be reopened from Help. Skip/reopen it without changing research. Help explains reading, source locations, saving and controls. Choose Broadsheet, Stacks or Commonplace in the status-bar Layout control. Settings changes light/dark appearance and optional hover explanations; these are browser preferences, not changes to your papers.
 
@@ -184,6 +184,52 @@ Workspace backup is different: current originals/notes/metadata/chats/evidence p
 Bounds include 32 MiB per imported file, 47 MiB per export/backup ZIP, 1,000 items per main backup collection and 5,000 included revisions, with separate extraction/manifest limits. Oversized history/archive is refused without deleting records.
 
 After restore, PDF/Word quotes that no longer match the current text extractor are retained in chat audit history as unverified and excluded from active citations. The restore warning reports their count. Original files and notes still recover; inspect the originals before relying on old answers. Identity, hash and source-bound checks still apply. A workspace ZIP is not an authenticity signature.
+
+## New in 0.5.0
+
+The following four workflows require **Kosh 0.5.0**. The manual bundled-installation upgrade instructions follow them.
+
+### Automatic local backups
+
+Open **Settings → Automatic local backups**, or **Exports & backup → Automatic backup preferences & restore**. Enable backups, paste the absolute path of an existing local folder outside Kosh's application/data folders, choose an interval from 15 minutes to 7 days and save the preferences. A separate drive provides better protection against loss of this computer. Fixed or removable local drives are supported; network shares, mapped network drives and linked/reparse paths are refused.
+
+While Kosh is open, the scheduler makes a separate set containing one ZIP for every workspace, always including saved revision history. It catches up once on launch when due, rather than creating one set for every missed interval. No Windows scheduled task is installed. **Back up saved work now** first saves pending edits in this window. Automatic background backups contain server-saved records; unsaved browser drafts and pending reviewer fields remain in browser recovery and are not in a ZIP.
+
+Status shows the last success, last failure, destination/set path, next due time and any current error. Each completed set retains a manifest with build identity, workspace counts, ZIP sizes and SHA-256 values. ZIP bytes are read back and fully restore-validated before success is recorded. A failed or oversized workspace prevents publication of a completed set; the error remains visible alongside any earlier success date. An unavailable drive can still be disabled. A future saved success timestamp is flagged and treated as due. Each workspace ZIP remains subject to the 47 MiB limit and record/history limits above.
+
+Refresh the saved sets, select a workspace and choose **Validate restore preview**. Review its title, counts, included history and any unverified citations. Preview changes no workspace. Approve that exact preview, then choose **Restore into new workspace**; Kosh rechecks the ZIP and creates a separate restored workspace. It does not merge or replace existing work. Changed, corrupt or expired previews require another preview.
+
+Earlier backups and incomplete output are retained; nothing is pruned or deleted automatically. Workspace ZIPs remain unencrypted and exclude the browser profile/recovery, external-folder journals, separate assistance-job history and embedding cache. Manual ZIP download and browser recovery remain available.
+
+### Reviewer comments and response letters
+
+Open **More → Reviewer responses**. Choose **New comment**, select a saved manuscript, enter the reviewer/editor label and comment, and provide the exact saved manuscript passage. If it appears more than once, choose its matching occurrence before **Link saved passage**. Save manuscript edits and resolve conflicts before linking. The record retains the saved manuscript version, exact Unicode character offsets and passage, so repeated wording is not silently linked to the first occurrence.
+
+Record **Planned wording / action**, **Revised wording** and **Response for the letter**, then choose **Save comment & response**. Progress is your own record: Open, Planned, Revised wording recorded or Response recorded. Revised status requires recorded revised wording; response status requires a response. These fields do not edit the manuscript. Make and save the actual changes in Write, then explicitly relink the passage when required.
+
+Earlier saved fields and links remain in **Latest saved record & retained changes**. **Archive comment** hides it while retaining its complete record; **Show archived comments** allows review/restoration. Version conflicts retain pending fields and show the latest saved record for comparison. Pending fields are scoped to the workspace and retained in the window/browser recovery; they require an explicit save and are not exported as saved records.
+
+**Export response letter (.txt)** prepares a local text letter from saved records. Archived comments are excluded unless you explicitly select **Include archived comments in the letter**, which starts unchecked. **Show archived comments** changes the list only and does not include them in an export. The letter reports stale manuscript links and whether the recorded revised wording is exactly present in the current saved manuscript. Presence is a text match, not proof of location, context, scientific adequacy or completion of the reviewer's request. Check the actual manuscript and letter before sharing; no submission or message is sent.
+
+Kosh 0.5.0 workspace ZIPs include saved reviewer records, their passage snapshots and retained changes even when ordinary note revision history is excluded. Restore validates/remaps manuscript identities. Old 0.4.0 ZIPs restore in 0.5.0 with empty reviewer records. New ZIPs contain a `reviewer` manifest field that Kosh 0.4.0 does not support; restore them with Kosh 0.5.0 rather than the 0.4.0 installer.
+
+### Project review
+
+Open **More → Project review** for the active workspace. **Save & refresh** saves this window's pending edits, then checks all saved drafts and active recorded claim reviews in that workspace. It displays a check time, drafts without recorded reviews, claims needing a source, stale/current checked claims, unresolved reference occurrences, missing cited-source metadata and per-draft writing checks. Select **Open draft** to address the saved result, or **Reviewer responses** to work on reviewer records.
+
+This is an on-demand saved-state report for one selected workspace. Counts can overlap, and unrecorded claims have not been assessed. A failed draft check displays its reason; incomplete reference/metadata totals are Unknown, not zero. Resolve save conflicts or unavailable checks and refresh. A current claim marked Checked by you records your prior review; the report does not certify entailment, scientific support or submission readiness. It changes no manuscript or source and does not run a provider request.
+
+### In-app updates
+
+Open **Settings → Kosh updates**. Status reads local information only. **Check for updates** explicitly contacts the public `needanotheremailid/kosh-desktop` GitHub releases API. It sends no library, notes or account information. A release must have a newer numeric version; beta/prerelease status is shown. A separate **Download installer and checksum** action retrieves the named release installer and its checksum, with bounded HTTPS host/size checks.
+
+**Download matches the SHA-256 published in the same GitHub release. This does not verify the publisher; installers are unsigned.** A matching size/hash proves transfer consistency, not a trusted publisher identity. Changed or incomplete downloads are retained and refused execution.
+
+In a matching installed Windows package, explicitly accept the unsigned publisher status and choose **Save, close and install**. Kosh saves edits, stops its service and backup scheduler, then waits for the dedicated browser window/profile to close. A detached worker installs into a new sibling folder, copies the complete stopped data tree with the existing copy-only helper, verifies candidate startup/build/database, and only then retargets matching shortcuts. The old installation, data and recovery remain intact. A source/development copy can check/download but cannot perform this installed-package action.
+
+If the wait for closing the old window expires, reopen the old Kosh copy and inspect **Settings → Kosh updates**. When a recoverable job is offered, explicitly approve its retained unsigned installer and choose **Save, close and resume retained update**, then close the dedicated window promptly. Kosh rechecks the retained job/installer and resumes without another download. A still-running worker cannot be started again; a partial candidate or uncertain copy/startup needs receipt-based recovery rather than a fresh overwrite. If a checked new copy is awaiting activation, **Finish opening this updated copy** verifies its recorded startup state before enabling edits and its configured backup schedule.
+
+Read the local update receipt on interruption or failure; partial files/candidate staging are retained and no automatic retry overwrites them. Automatic shortcut restoration is limited to an unchanged candidate before ordinary use; newer candidate records refuse that rollback. **Previous installation retained** names the old/current data paths when a valid upgrade receipt is present. Opening an older version shows its older data: newer changes are not copied back, and editing both versions creates separate histories. Choosing to reopen an older installation remains an explicit decision.
 
 ## Upgrade a bundled installation
 

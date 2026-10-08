@@ -1,0 +1,5 @@
+.project-review-totals{display:grid;grid-template-columns:repeat(auto-fit,minmax(var(--list-w),1fr));gap:var(--radius-lg);margin-block:var(--pad)}
+.project-review-totals>div{display:flex;justify-content:space-between;gap:var(--radius-lg);border-bottom:1px solid var(--line);padding:var(--radius-lg)}
+.project-review-totals dd{font-weight:700;margin:0;color:var(--ink)}
+#project-review-dialog{width:calc(100% - var(--pad));max-width:calc(var(--list-w) * 4)}
+#project-review-content{overflow-wrap:anywhere}

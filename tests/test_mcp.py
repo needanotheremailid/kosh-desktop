@@ -46,7 +46,7 @@ class McpTests(unittest.TestCase):
 
     def test_tools_have_explicit_schemas_and_exclude_global_state_or_generic_routes(self):
         tools = self.rpc('tools/list')['result']['tools']
-        self.assertEqual(len(tools), 57)
+        self.assertEqual(len(tools), 63)
         self.assertNotIn('kosh_state', {tool['name'] for tool in tools})
         self.assertNotIn('request', {tool['name'] for tool in tools})
         for tool in tools:

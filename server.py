@@ -35,12 +35,23 @@ class LocalServer(ThreadingHTTPServer):
         self.store = store
         self.token = secrets.token_urlsafe(32)
         self.build = source_hash()
+        self.store.auto_backups.build = self.build
         self.authority = f'127.0.0.1:{self.server_port}'
         self.origin = f'http://{self.authority}'
         self.last_activity = time.monotonic()
         self.active_jobs = 0
         self.job_lock = threading.Lock()
         self.idle_seconds = idle_minutes * 60
+        from updater import Updater, UpdateError
+        from upgrade import UpgradeError
+        self.updater_error = ''
+        try:
+            self.updater = Updater(ROOT)
+        except (UpdateError, UpgradeError, OSError):
+            self.updater = None
+            self.updater_error = 'In-app updates are unavailable because the local update cache could not be accessed. Your research workspace remains available.'
+        self.update_handoff = False
+        self.update_verification = False
 
     def watchdog(self):
         while True:
@@ -108,7 +119,7 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_content({'error': 'Unsupported route.'}, 404)
                 return
             allowed = {'/': ('index.html', 'text/html; charset=utf-8'), '/app.js': ('app.js', 'text/javascript; charset=utf-8'), '/app.css': ('app.css', 'text/css; charset=utf-8')}
-            allowed.update({('/'+name): (name, 'text/javascript; charset=utf-8' if name.endswith('.js') else 'text/css; charset=utf-8') for name in ('reading.js', 'reading.css', 'writing_review.js', 'writing_review.css')})
+            allowed.update({('/'+name): (name, 'text/javascript; charset=utf-8' if name.endswith('.js') else 'text/css; charset=utf-8') for name in ('reading.js', 'reading.css', 'writing_review.js', 'writing_review.css', 'project_review.js', 'project_review.css', 'auto_backup.js', 'auto_backup.css', 'reviewer.js', 'reviewer.css', 'maintenance.js', 'updater.js', 'updater.css')})
             if path not in allowed:
                 self.send_content({'error': 'Not found.'}, 404)
                 return
@@ -158,10 +169,57 @@ class Handler(BaseHTTPRequestHandler):
                 self.send_content({'ok': True})
                 threading.Thread(target=self.server.shutdown, daemon=True).start()
                 return
+            if self.server.update_verification and self.command == 'POST' and path != '/api/updates/activate':
+                raise AppError('Update startup is being verified. Editing is paused until activation.', 409)
             with self.server.job_lock:
+                if self.server.update_handoff:
+                    raise AppError('An update is starting. Close this Kosh window; existing data is retained.', 409)
                 self.server.active_jobs += 1
             try:
                 query = {k: v[0] for k, v in parse_qs(parsed.query).items()}
+                if path.startswith('/api/updates/'):
+                    from updater import UpdateError
+                    from upgrade import UpgradeError
+                    try:
+                        if self.server.updater is None:
+                            raise AppError(self.server.updater_error, 409)
+                        if self.command == 'GET' and path == '/api/updates/status':
+                            result = self.server.updater.status()
+                            result['activation_required'] = self.server.update_verification
+                        elif self.command == 'POST' and path == '/api/updates/activate':
+                            if body:
+                                raise AppError('Activation expects an empty request.')
+                            if self.server.update_verification:
+                                from updater import activation_ready
+                                if not activation_ready(ROOT, self.server.build):
+                                    raise AppError('This updated copy has no verified completion receipt. Reopen the previous Kosh and resume or recover the retained update.', 409)
+                            self.server.update_verification = False
+                            self.server.store.auto_backups.start()
+                            result = {'activated': True, 'build': self.server.build}
+                        elif self.command == 'POST' and path in {'/api/updates/check', '/api/updates/download'}:
+                            if set(body) != {'consent'}:
+                                raise AppError('An explicit release-source consent is required.')
+                            operation = self.server.updater.check if path.endswith('/check') else self.server.updater.download
+                            result = operation(consent=body['consent'])
+                        elif self.command == 'POST' and path in {'/api/updates/install', '/api/updates/resume'}:
+                            if set(body) != {'approve', 'accept_unsigned'}:
+                                raise AppError('Explicit install and unsigned-publisher approval are required.')
+                            with self.server.job_lock:
+                                if self.server.active_jobs != 1 or self.server.store.active_asks or self.server.store.auto_backups.status()['running']:
+                                    raise AppError('Wait for current app operations to finish before installing.', 409)
+                                operation = self.server.updater.resume if path.endswith('/resume') else self.server.updater.install
+                                result = operation(approve=body['approve'], accept_unsigned=body['accept_unsigned'])
+                                self.server.update_handoff = True
+                        else:
+                            raise AppError('Update operation is unavailable.', 404)
+                        try:
+                            self.send_content(result)
+                        finally:
+                            if self.server.update_handoff:
+                                threading.Thread(target=self.server.shutdown, daemon=True).start()
+                        return
+                    except (UpdateError, UpgradeError) as error:
+                        raise AppError(str(error), 409) from None
                 binaries = {'/api/file', '/api/page', '/api/export', '/api/backup'}
                 if (self.command == 'GET' and path in binaries) or (self.command == 'POST' and path == '/api/export'):
                     content, mime, filename = self.server.store.file_response(path, body if self.command == 'POST' else query)
@@ -197,6 +255,7 @@ def main():
     parser.add_argument('--port', type=int)
     parser.add_argument('--ready-file', type=Path)
     parser.add_argument('--idle-minutes', type=int, default=30)
+    parser.add_argument('--update-verification', action='store_true')
     args = parser.parse_args()
     from backend import Store
     store = Store(args.data_dir.resolve())
@@ -233,7 +292,11 @@ def main():
         tmp.write_text(json.dumps(ready), encoding='utf-8')
         os.replace(tmp, args.ready_file)
     print(f'Research Desktop ready on port {server.server_port}', flush=True)
+    from updater import verification_required
+    server.update_verification = verification_required(ROOT, server.build, args.update_verification)
     threading.Thread(target=server.watchdog, daemon=True).start()
+    if not server.update_verification:
+        store.auto_backups.start()
     try:
         server.serve_forever()
     finally:
