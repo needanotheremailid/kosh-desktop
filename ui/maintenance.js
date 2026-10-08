@@ -22,7 +22,7 @@ document.querySelector('#settings-dialog').addEventListener('toggle',async()=>{
  if(!document.querySelector('#settings-dialog').open)return;
  healthSummary.textContent='Reading local backup status…';
  try{const backup=await request('/auto-backup');healthSummary.textContent=(backup.enabled?'Automatic backups on. ':'Automatic backups off. ')+(backup.last_error?'Last attempt needs attention: '+backup.last_error:backup.last_success?'Last successful set: '+new Date(backup.last_success*1000).toLocaleString()+'.':'No successful automatic backup recorded.')+' Open Project review from More for manuscript checks.';}
- catch(error){healthSummary.textContent='Backup status unavailable: '+error.message;}
+ catch(error){if(state.stopped)return;healthSummary.textContent='Backup status unavailable: '+error.message;}
  applyHints();KoshUpdater.refresh();
 });
 const updateHost=document.createElement('div');

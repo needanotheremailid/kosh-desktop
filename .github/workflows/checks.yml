@@ -57,6 +57,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Missing-detail completion checks failed.' }
           node tests/test_reference_paste_ui.js
           if ($LASTEXITCODE -ne 0) { throw 'Reference paste checks failed.' }
+          node tests/test_rc5_ui.js
+          if ($LASTEXITCODE -ne 0) { throw 'Interface contract checks failed.' }
       - name: Compile the Windows launcher without running a native dialog
         shell: pwsh
         run: |

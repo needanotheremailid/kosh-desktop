@@ -20,7 +20,7 @@ const KoshProjectReview=(()=>{
    dialog.close();state.note=target.dataset.reviewNote;state.view='write';render();
    document.querySelector('#draft-body')?.focus();
   });
-  document.querySelector('.more-menu .menu').insertAdjacentHTML('afterbegin','<button type="button" id="open-project-review">Project review</button><button type="button" id="open-reviewer-responses">Reviewer responses</button>');
+  (document.querySelector('#menu-review-slot')||document.querySelector('.more-menu .menu')).insertAdjacentHTML('afterbegin','<button type="button" id="open-project-review">Project review</button><button type="button" id="open-reviewer-responses">Reviewer responses</button>');
   document.querySelector('#open-project-review').onclick=()=>open();
   document.querySelector('#open-reviewer-responses').onclick=()=>KoshReviewer.open();
  }
@@ -35,7 +35,7 @@ const KoshProjectReview=(()=>{
    const result=await request('/project-review?workspace_id='+encodeURIComponent(workspace));
    if(ticket!==sequence||state.workspace!==workspace||!dialog.open)return;
    report=result;renderReport();document.querySelector('#project-review-status').textContent='Checked '+result.totals.drafts+' saved drafts. '+(result.totals.failed_checks?'Some checks failed; affected totals are unknown.':'Review the findings below.');
-  }catch(error){if(ticket===sequence&&state.workspace===workspace){document.querySelector('#project-review-status').textContent='Review unavailable.';content.textContent='Review unavailable: '+error.message+'. Use Save & refresh to retry.';}}
+  }catch(error){if(state.stopped)return;if(ticket===sequence&&state.workspace===workspace){document.querySelector('#project-review-status').textContent='Review unavailable.';content.textContent='Review unavailable: '+error.message+'. Use Save & refresh to retry.';}}
  }
  function renderReport(){
   const totals=report.totals;
