@@ -21,7 +21,7 @@ body:
     attributes:
       label: Kosh version or source revision
       description: Include whether you used the bundled installer or source edition.
-      placeholder: "1.0.0-rc.3, bundled Windows installer; or exact source commit"
+      placeholder: "1.0.0-rc.4, bundled Windows installer; or exact source commit"
     validations:
       required: true
   - type: input

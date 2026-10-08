@@ -1,6 +1,6 @@
 # Contributing
 
-This checkout targets **1.0.0-rc.3**. Candidate source and passing checks do not establish a published final 1.0 release, independent human acceptance, or a signed installer. The release record owns those claims. Signing remains pending.
+This checkout targets **1.0.0-rc.4**. Candidate source and passing checks do not establish a published final 1.0 release, independent human acceptance, or a signed installer. The release record owns those claims. Signing remains pending.
 
 A useful contribution starts with a concrete problem, a focused change and evidence that the affected workflow still works. Documentation improvements, small synthetic reproductions and tests are useful first contributions; assembling the whole installer is not a prerequisite.
 

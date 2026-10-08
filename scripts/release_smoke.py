@@ -37,7 +37,7 @@ def check_next_workflows(store, temporary, installed):
     assert result['comments'][0]['note_id'] != note['id'] and not result['comments'][0]['stale']
     updates = Updater(installed,cache_dir=Path(temporary)/'updates')
     status = updates.status()
-    assert status['current_version'] == '1.0.0-rc.3' and status['phase'] == 'idle' and status['signature'] == 'not_verified'
+    assert status['current_version'] == '1.0.0-rc.4' and status['phase'] == 'idle' and status['signature'] == 'not_verified'
     return {'reviewer_letter':True,'dashboard':True,'automatic_backup_restore':True,'update_status_no_network':True}
 
 
@@ -190,7 +190,7 @@ for row in manifest['files']:
 sys.path.insert(0, str(root))
 import backend, csl_engine, csl_styles, manuscript, manuscript_templates, reading, tex_compile, word_citations
 from installation_health import check as installation_check
-diagnostics = installation_check(root, app_version='1.0.0-rc.3', app_build=manifest['build'])
+diagnostics = installation_check(root, app_version='1.0.0-rc.4', app_build=manifest['build'])
 assert all(row['status'] == 'available' for row in diagnostics['components'].values() if row['requirement'] == 'required')
 import pymupdf, docx, lxml
 for module in (backend, csl_engine, csl_styles, manuscript, manuscript_templates, reading,

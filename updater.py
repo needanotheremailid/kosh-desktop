@@ -22,7 +22,7 @@ import uuid
 
 import upgrade
 
-CURRENT_VERSION = '1.0.0-rc.3'
+CURRENT_VERSION = '1.0.0-rc.4'
 REPOSITORY = 'needanotheremailid/kosh-desktop'
 RELEASES_URL = 'https://api.github.com/repos/' + REPOSITORY + '/releases?per_page=10'
 RELEASE_BASE = 'https://github.com/' + REPOSITORY + '/releases/'

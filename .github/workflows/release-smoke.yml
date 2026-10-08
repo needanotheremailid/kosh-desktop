@@ -19,14 +19,14 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Checkout failed.' }
           git checkout --detach "$env:GITHUB_SHA"
           if ($LASTEXITCODE -ne 0) { throw 'Revision checkout failed.' }
-          gh release download v1.0.0-rc.3 --repo "$env:GITHUB_REPOSITORY" --pattern Kosh-1.0.0-rc.3-Setup.exe --pattern SHA256SUMS.txt --dir "$env:RUNNER_TEMP\release"
+          gh release download v1.0.0-rc.4 --repo "$env:GITHUB_REPOSITORY" --pattern Kosh-1.0.0-rc.4-Setup.exe --pattern SHA256SUMS.txt --dir "$env:RUNNER_TEMP\release"
           if ($LASTEXITCODE -ne 0) { throw 'Release download failed.' }
       - name: Verify and install into an empty folder
         shell: pwsh
         run: |
-          $installer = Join-Path $env:RUNNER_TEMP 'release\Kosh-1.0.0-rc.3-Setup.exe'
+          $installer = Join-Path $env:RUNNER_TEMP 'release\Kosh-1.0.0-rc.4-Setup.exe'
           $sums = Get-Content -LiteralPath (Join-Path $env:RUNNER_TEMP 'release\SHA256SUMS.txt')
-          $entry = @($sums | Where-Object { $_ -match '^[a-f0-9]{64}  Kosh-1\.0\.0-rc\.3-Setup\.exe$' })
+          $entry = @($sums | Where-Object { $_ -match '^[a-f0-9]{64}  Kosh-1\.0\.0-rc\.4-Setup\.exe$' })
           if ($entry.Count -ne 1) { throw 'Missing or ambiguous installer checksum.' }
           if ((Get-FileHash -LiteralPath $installer -Algorithm SHA256).Hash.ToLowerInvariant() -ne $entry[0].Substring(0,64)) { throw 'Installer checksum mismatch.' }
           $target = Join-Path $env:RUNNER_TEMP 'Kosh-smoke'
