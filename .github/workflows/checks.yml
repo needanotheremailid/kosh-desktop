@@ -53,6 +53,8 @@ jobs:
           if ($LASTEXITCODE -ne 0) { throw 'Revision comparison UI checks failed.' }
           node tests/test_installation_health_ui.js
           if ($LASTEXITCODE -ne 0) { throw 'Installation diagnostics UI checks failed.' }
+          node tests/test_complete_details_ui.js
+          if ($LASTEXITCODE -ne 0) { throw 'Missing-detail completion checks failed.' }
       - name: Compile the Windows launcher without running a native dialog
         shell: pwsh
         run: |

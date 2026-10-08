@@ -23,7 +23,8 @@ class AgentExtensions(unittest.TestCase):
     def execute(self, argv):
         client = Client()
         agent.execute(agent.build_parser().parse_args(argv), client)
-        return client.calls[-1]
+        exports = [call for call in client.calls if call[0] == '/api/export']
+        return exports[-1] if exports else client.calls[-1]
 
     def test_citation_styles_list_and_import_use_fixed_local_routes(self):
         self.assertEqual(self.execute(['citation-styles']), ('/api/citation/styles', None, False))
@@ -106,6 +107,34 @@ class AgentExtensions(unittest.TestCase):
                 self.assertEqual(target.read_bytes(), b'Synthetic export')
                 with self.assertRaises(agent.AgentError):
                     self.execute(['export', '--workspace', 'w', '--format', format, '--output', str(target)])
+
+
+    def test_export_names_incomplete_references_for_draft_and_workspace(self):
+        missing = {'document_id': 'a' * 32, 'name': 'invented.pdf', 'fields': ['year']}
+        class Reviewing(Client):
+            def request(inner, path, body=None, binary=False):
+                inner.calls.append((path, body, binary))
+                if binary:
+                    return (b'Synthetic export', 'text/plain')
+                if path.startswith('/api/project-review'):
+                    return {'notes': [{'missing_metadata': [missing]}, {'missing_metadata': [missing]}], 'totals': {'failed_checks': 0}}
+                if path.startswith('/api/state'):
+                    return {'notes': [{'id': 'n', 'version': 4}]}
+                return {'missing_metadata': [missing]}
+        with tempfile.TemporaryDirectory() as folder:
+            client = Reviewing()
+            result = agent.execute(agent.build_parser().parse_args(['export', '--workspace', 'w', '--format', 'docx', '--output', str(Path(folder) / 'all.docx')]), client)
+            self.assertEqual(result['incomplete_references'], [missing])
+            self.assertIn('incomplete', result['warning'])
+            self.assertTrue(client.calls[-1][0].startswith('/api/project-review?'))
+            client = Reviewing()
+            result = agent.execute(agent.build_parser().parse_args(['export', '--workspace', 'w', '--note', 'n', '--format', 'pdf', '--output', str(Path(folder) / 'draft.pdf')]), client)
+            self.assertEqual(client.calls[-1], ('/api/writing-check', {'workspace_id': 'w', 'note_id': 'n', 'version': 4}, False))
+            self.assertEqual(len(result['incomplete_references']), 1)
+            client = Reviewing()
+            result = agent.execute(agent.build_parser().parse_args(['export', '--workspace', 'w', '--format', 'csv', '--output', str(Path(folder) / 'evidence.csv')]), client)
+            self.assertNotIn('warning', result)
+            self.assertEqual(len(client.calls), 1)
 
 
 if __name__ == '__main__':

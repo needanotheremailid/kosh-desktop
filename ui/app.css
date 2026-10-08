@@ -66,3 +66,5 @@ dialog{background:var(--surface);color:var(--ink);border:1px solid var(--line);b
 #writer-citations small{display:block;color:var(--ink-3)}
 #writer-citations code{overflow-wrap:anywhere}
 @media(max-width:800px){.citation-picker-layout{grid-template-columns:minmax(0,1fr)}}
+.complete-fields{display:grid;gap:.35rem;margin:.5rem 0 .75rem}.complete-field{display:flex;align-items:baseline;gap:8px;font-weight:400;overflow-wrap:anywhere}.complete-field input{width:auto;min-height:0;margin:0;flex:none}.complete-field s{color:var(--ink-3)}
+.receipt-guidance{margin-top:1rem}

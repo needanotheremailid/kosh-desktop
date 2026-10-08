@@ -10,6 +10,14 @@ The bundled edition installs with `Kosh-1.0.0-rc.2-Setup.exe` into a new folder 
 
 This guide targets Kosh 1.0.0-rc.2. Historical sections retain their introduction versions. Older installations keep their prior behavior until upgraded to a matching package. The optional [signing workflow](SIGNING.md) requires an already provisioned trusted publisher identity; the installer is not signed just because that workflow is available. Tests on one computer do not prove another clean Windows computer or every real manuscript. Independent trials remain pending in [the acceptance checklist](ACCEPTANCE.md).
 
+## In the source after 1.0.0-rc.2 (next release)
+
+These additions are on the GitHub main branch and will ship in the next installer; the published 1.0.0-rc.2 package does not include them.
+
+- **Complete missing details from a DOI.** Exports, the writing check and Source details offer **Complete missing details** (in Source details: **Fill missing details from this DOI**). Choose **Look up** to send each listed source's saved DOI, and nothing else, to Crossref. Kosh shows only fields the record would add or change: empty fields are ticked, existing values stay unless you tick them. **Save ticked fields** records which fields were copied, the DOI and the retrieval time in the source's provenance. Sources without a DOI link to Source details instead. Catalogue records can be wrong; check each field against the publication.
+- **Whole-workspace export warning.** A workspace export now also names cited sources with missing bibliography fields, using the same saved-draft checks as **More → Project review**. Evidence CSV exports are not checked.
+- **Pointer to Source details after import.** When imported sources lack citation fields, the import receipt says so and opens Source details for the first one. The longer explanation appears only on your first such import.
+
 ## New in 1.0.0-rc.2
 
 - **Reading place kept.** Opening a source from the Library returns to its remembered page instead of page 1; earlier candidates overwrote the saved page a moment after a plain open. Search results, highlights, claim links and citation chips still open their own page.

@@ -154,6 +154,9 @@ The original approved Beeblio inspection produced these rows. Included means wor
 | 68 | Incomplete-reference warning — 1.0.0-rc.2 | Draft exports from Write and the CLI run the saved-version writing check afterwards and report cited sources whose bibliography fields are missing | The export is still written; whole-workspace exports rely on Project review |
 | 69 | Pre-filled editable Word fields — 1.0.0-rc.2 | Editable Word citations and the bibliography carry the rendered default-style text before any field refresh | Plain cached text until Word refreshes into its own style; adjacent fields stay separate |
 | 70 | Labelled revision comparison — 1.0.0-rc.2 | Citation markers display as source titles with the exact marker retained, and changed line pairs highlight the words that moved | Display only; comparison counts and saved text are unchanged |
+| 71 | Complete missing details — after 1.0.0-rc.2 | From an export warning, the writing check or Source details, look up each saved DOI through Crossref and save only the fields you tick; provenance records fields, DOI and retrieval time | Explicit lookup sends only the DOI; catalogue values are unverified; existing values change only when ticked; sources without a DOI go to Source details |
+| 72 | Workspace export warning — after 1.0.0-rc.2 | Whole-workspace exports from the desktop and CLI name cited sources with missing bibliography fields using Project review's saved-draft checks | Saved drafts only; failed draft checks are reported; evidence CSV is not checked |
+| 73 | Import pointer to Source details — after 1.0.0-rc.2 | The import receipt names imported sources missing citation fields and opens Source details for the first | Longer explanation on the first such import only; figures and bibliography files excluded |
 
 ## Other approved references
 

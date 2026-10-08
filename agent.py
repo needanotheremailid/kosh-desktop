@@ -600,17 +600,23 @@ def execute(args, client):
             query['history'] = '1' if args.include_history else '0'
         content, mime = client.request('/api/export',query,binary=True) if command=='export' else client.request('/api/backup?'+urlencode(query), binary=True)
         result = {**save_output(args.output, content, args.overwrite), 'content_type': mime}
-        if command == 'export' and query.get('note_id'):
+        if command == 'export' and query.get('format') != 'csv':
             # Saved-version metadata diagnosis only; the export above is already written.
             try:
-                state = client.request('/api/state?' + urlencode({'workspace_id': args.workspace}))
-                note = next((item for item in state['notes'] if item['id'] == query['note_id']), None)
-                check = client.request('/api/writing-check', {'workspace_id': args.workspace, 'note_id': query['note_id'], 'version': note['version']}) if note else {}
-                missing = check.get('missing_metadata') or []
-                if missing:
-                    result['incomplete_references'] = [{'document_id': item['document_id'], 'name': item['name'], 'fields': item['fields']} for item in missing]
-                    result['warning'] = str(len(missing)) + ' cited source(s) have missing bibliography fields; their reference entries are incomplete in this export.'
-            except AgentError:
+                if query.get('note_id'):
+                    state = client.request('/api/state?' + urlencode({'workspace_id': args.workspace}))
+                    note = next((item for item in state.get('notes') or [] if item.get('id') == query['note_id']), None)
+                    missing = (client.request('/api/writing-check', {'workspace_id': args.workspace, 'note_id': query['note_id'], 'version': note['version']}) if note else {}).get('missing_metadata') or []
+                else:
+                    review = client.request('/api/project-review?' + urlencode({'workspace_id': args.workspace}))
+                    missing = [item for row in review.get('notes') or [] for item in (row.get('missing_metadata') or [])]
+                    if (review.get('totals') or {}).get('failed_checks'):
+                        result['checks_failed'] = review['totals']['failed_checks']
+                unique = list({item['document_id']: item for item in missing}.values())
+                if unique:
+                    result['incomplete_references'] = [{'document_id': item['document_id'], 'name': item['name'], 'fields': item['fields']} for item in unique]
+                    result['warning'] = str(len(unique)) + ' cited source(s) have missing bibliography fields; their reference entries are incomplete in this export.'
+            except (AgentError, KeyError, TypeError, AttributeError):
                 result['warning'] = 'Reference completeness could not be checked for this export.'
         return result
     if command == 'restore':
