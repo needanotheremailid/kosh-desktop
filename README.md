@@ -8,7 +8,7 @@ Kosh is a free, open-source research desk for Windows. Keep your papers, reading
 
 Requires Windows 11 (64-bit), Microsoft Edge and .NET Framework. No administrator rights needed.
 
-![Kosh reading view with a saved passage beside its original PDF page](assets/screenshots/kosh-reading-100rc1.png)
+![Kosh reading view with a highlighted passage and controls for citing the original PDF page](assets/screenshots/kosh-reading-100rc5.png)
 
 *Read the original page, highlight a passage and keep your comment beside it.*
 
@@ -20,13 +20,15 @@ Requires Windows 11 (64-bit), Microsoft Edge and .NET Framework. No administrato
 4. **Choose your format.** Use Vancouver/NLM, APA 7, IEEE, Chicago notes or an imported CSL style. Configure a research article, review or case-report layout.
 5. **Take the manuscript with you.** Export to Word, PDF, Markdown, HTML or LaTeX, including locally compiled LaTeX PDFs. A separate Word export includes editable native citation fields. Export your references as BibTeX, RIS or CSL JSON.
 
-![Kosh focus writing view with source links attached to draft paragraphs](assets/screenshots/kosh-writing-100rc1.png)
+![Kosh draft beside its original PDF source, with citation controls and a highlighted passage](assets/screenshots/kosh-writing-100rc5.png)
 
-*Focus on the draft while keeping its source links available.*
+*Write with the original source beside your draft and cite without leaving the page.*
 
-## New in 1.0.0-rc.5
+## Keep the source beside your writing
 
-Write with a source open beside your draft, cite a page or a selected passage without leaving it, find any command or source with Ctrl+K, and follow a one-line next step. Sources now come in through one **+ Add** menu. See the [user guide](USER_GUIDE.md#new-in-100-rc5) for the full list.
+Open **Source beside** in Write to read, highlight and cite while keeping your draft in view. **Cite this page** and **Cite in draft** insert at your cursor without replacing selected text. Type **@** in a draft to choose a citation.
+
+Find commands, sources, drafts and passages with **Ctrl+K**. Bring files, DOI or PMID lookups, pasted reference lists and bibliography files together through **+ Add**. Next-step tips suggest where to go next and can be hidden for each workspace. [User guide](USER_GUIDE.md).
 
 ## Tools for the whole research workflow
 
@@ -50,7 +52,7 @@ Citation metadata, OCR and generated writing still need your review. Claim-revie
 <details>
 <summary>See citation and export options</summary>
 
-![Kosh export controls for citation styles and document formats](assets/screenshots/kosh-export-options-100rc1.png)
+![Kosh export controls for citation styles and document formats](assets/screenshots/kosh-export-options-100rc5.png)
 
 Choose your citation style, manuscript settings and output format in **Exports & backup**. Native Word citation fields use Word's own bibliography styles; the standard exports use CSL.
 
@@ -69,15 +71,15 @@ Kosh has three layouts, each available in light and dark themes.
 
 **Broadsheet**
 
-![Kosh library in Broadsheet](assets/screenshots/kosh-library-100rc1.png)
+![Kosh library in Broadsheet](assets/screenshots/kosh-library-100rc5.png)
 
 **Stacks**
 
-![Kosh library in Stacks](assets/screenshots/kosh-stacks-100rc1.png)
+![Kosh library in Stacks](assets/screenshots/kosh-stacks-100rc5.png)
 
 **Commonplace**
 
-![Kosh library in Commonplace](assets/screenshots/kosh-commonplace-100rc1.png)
+![Kosh library in Commonplace](assets/screenshots/kosh-commonplace-100rc5.png)
 
 </details>
 
