@@ -1,0 +1,30 @@
+:root{--research-preview-min:260px;--research-preview-max:450px;--research-text-size:13px;--research-leading:1.65;--research-rule:1px;--research-check-size:1rem}
+.research-page{min-width:0;max-width:1040px}
+.research-section{min-width:0;border-top:var(--research-rule) solid var(--line);padding-block:var(--pad)}
+.research-section:last-child{padding-bottom:0}
+.research-section>p{max-width:80ch}
+.research-source-list{border-block:var(--research-rule) solid var(--line)}
+.research-source{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:var(--radius-lg);padding:var(--radius-lg) 0;border-bottom:var(--research-rule) solid var(--line);overflow-wrap:anywhere;min-width:0}
+.research-source[hidden],#research-filter-empty[hidden]{display:none}
+.research-source:last-child{border-bottom:0}
+.research-source label{display:flex;align-items:baseline;gap:var(--radius-lg);min-width:0;margin:0}
+.research-source label input[type=checkbox]{flex:0 0 var(--research-check-size);width:var(--research-check-size);height:var(--research-check-size);min-height:0;margin:0}
+.research-source label strong{min-width:0}
+.research-source .research-source-meta{grid-column:1;margin:0;padding-left:calc(var(--research-check-size) + var(--radius-lg))}
+.research-source-meta .text-button{display:inline;min-height:0;padding:0;font-size:inherit;line-height:inherit;text-decoration:underline;color:var(--accent);white-space:normal}
+.research-source-open{grid-column:2;grid-row:1 / span 2;align-self:start;min-height:24px;padding:2px 0;font-size:12px}
+.research-source-controls{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:var(--radius-lg);margin-bottom:var(--radius-lg)}
+.research-source-controls label{flex:1;max-width:var(--panel-w);margin:0}
+#research-source-filter{display:block;width:100%;margin-top:var(--radius)}
+#research-selection-count{margin:0}
+.research-recipes button{display:block;text-align:left}
+.research-actions{display:flex;flex-wrap:wrap;gap:var(--radius-lg);margin:calc(var(--pad)/2) 0}
+.research-recipes p{margin-block:calc(var(--pad)/2)}
+#research-budget{display:block;margin-block:var(--radius-lg)}
+#research-question{display:block;width:100%;margin-block:var(--radius-lg)}
+#research-preview{width:100%;min-height:var(--research-preview-min);max-height:var(--research-preview-max);resize:vertical;font:var(--research-text-size)/var(--research-leading) var(--font-mono);white-space:pre-wrap}
+#research-output{overflow-wrap:anywhere}
+.research-page :is(button,input,textarea,select):focus-visible{outline:2px solid var(--focus);outline-offset:3px}
+.research-coverage{padding-left:var(--pad)}
+.research-coverage li{margin-block:var(--radius-lg)}
+@media(max-width:760px){.research-page .button{white-space:normal;text-align:left}}

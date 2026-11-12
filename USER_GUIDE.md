@@ -1,14 +1,84 @@
 # Kosh user guide
 
+## New in 1.0.0-rc.6
+
+The sidebar follows the research path. Choose a workspace first; use All sources for the library and Search (Ctrl K) to find commands, sources and drafts.
+
+| Old place | Place in Kosh 1.0.0-rc.6 |
+| --- | --- |
+| Discover references | Find |
+| Import files | Find → Import files |
+| Look up a DOI or PMID | Find → Look up a DOI or PMID |
+| Paste a reference list | Find → Paste a reference list |
+| Import a bibliography file | Find → Import a bibliography file |
+| Research workflows | Synthesise |
+| Project review | Settings → Advanced → Project review |
+| Reviewer responses | Settings → Advanced → Reviewer responses |
+| Exports & backup | Sidebar → Exports & backup |
+| Getting started / Help | Sidebar → Help → Getting started or Help |
+| Agent assistance / control | Settings → Advanced → Agent assistance or Agent control |
+| Folder edits | Settings → Advanced → Folder edits |
+| Settings | Sidebar → Settings |
+| Refresh workspace | Settings → Advanced → Refresh workspace |
+| Quit | Sidebar → Quit |
+| Next-step strip | Overview shows the suggested next action; the strip and its hide/show control are gone. |
+
+### Overview
+
+See saved progress and a suggested next action; choose a page to continue. It displays counts from saved records and does not certify the science. It does not create a research decision.
+
+### 1 Find
+
+Search indexes, look up a DOI or PMID, paste references, or import chosen files and bibliography records. Review results and explicitly add records; imported files become managed copies and a search record can be saved as a draft. Catalogue results are not full papers, and a bounded search is not an exhaustive review.
+
+### 2 Screen
+
+Enter and save eligibility criteria, then make your own Include, Maybe or Exclude decisions at title/abstract and full-text stages. Full-text decisions require Include or Maybe at title/abstract; excluding at full text requires a reason. Filter the list or use i, m and e on a focused row. Decisions, reasons and replaced-decision history are saved; flow counts exclude archived sources. Screening is manual only: nothing is screened automatically. Counts describe saved records, not scientific validity or a certified review.
+
+Backups made by 1.0.0-rc.6 include screening decisions and criteria. Kosh 1.0.0-rc.5 or older refuses to restore them, while older backups restore into rc.6. Keep the older installation and its backups for recovery.
+
+### 3 Read
+
+Choose a source from the Read list, inspect its original PDF pages or extracted text sections, and save highlights, passages or source-linked notes. The saved reading place and annotations are separate from the original. Extracted sections are not Word page numbers, and extracted text can be incomplete.
+
+### 4 Extract
+
+Record your own source-linked question, design, findings and limitations in the evidence matrix and save the row. These fields are your notes; Kosh does not verify the study or infer missing findings.
+
+### 5 Synthesise
+
+Choose sources to prepare a reading packet, compare saved evidence, start a checklist or hand a question to Agent assistance. Preview and explicitly save a separate draft or download available output. It does not automatically analyse studies or send an agent request; a separate preview and approval are needed for a provider send.
+
+### 6 Write
+
+Create and edit drafts, open a source beside writing, insert citations and export saved work. Drafts and citation markers are saved with revision and recovery support. A marker is a route to a source, not proof that the source supports the text.
+
+### 7 Verify
+
+Choose a saved draft to inspect claim links, citations, the writing check and references needing details. Open sources and record a claim as checked after your own review. Citation markers and claim links are stored separately, so Verify cannot tell which claim a citation supports. Its counts and checks describe saved records and do not certify the science; unsaved edits are not included.
+
+### Research workflows
+
+In **Synthesise**, choose one to ten sources from the current workspace. Each row shows whether searchable text is available, how many manual evidence rows exist, and which saved drafts link to it. Open a source or a linked draft to continue checking it.
+
+- **Prepare reading packet** collects exact extracted text with page/section links into one reviewable note. Choose the character budget first. Each source gets an equal share, and the result states what was included and left out. “All extracted text included” does not mean all figures/equations were extracted or that the whole paper was read. Catalogue references without full text are labelled separately. Review the result, then **Save as a separate draft** or **Download Markdown**.
+- **Compare saved evidence** uses only the fields you saved in Evidence [now **Extract**]. The table includes source links and saved row versions. Blank fields say **Not recorded**, which does not mean the paper lacks that information. Saving creates a separate draft and leaves the underlying rows and existing writing intact.
+- **Ask a question about the selected sources** passes your explicit source choice and question to the existing Agent assistance dialog. Choose an installed provider and prepare the exact prompt preview. It uses matching excerpts, not entire papers. Nothing is sent until you approve that separate send action; the existing provider/privacy limits still apply.
+- **Start from a research checklist** creates an editable procedure for reading, searching, synthesis, manuscripts, analysis planning, presentation planning or reviewer responses. Read the preview and save it explicitly. A checklist does not run an agent, analyse data, create slides or submit anything.
+
+After an explicit search in **Find**, **Save this search record** saves the query, retrieval date, returned references, separate index totals and partial failures as a draft. It does not save your queries automatically or turn a first-page search into an exhaustive literature review. A completely failed request has no successful search record. Saved notes and packet/comparison drafts use the existing local note-history and backup system.
+
+Built-in analysis-code execution is deferred: use the existing analysis tool separately, keeping the planned method and outputs reviewable. Research packets, comparisons, source-use views and checklist preparation run locally and make no model request.
+
 Start with [installation](#first-launch-and-a-first-useful-session) and [your first workspace](#your-first-workspace). Return to [reading](#reading-place-organisation-and-saved-passages), [writing](#drafting-material-and-history), [citations](#citations-and-evidence), [exports](#exports-reading-bundles-and-workspace-transfer), [backup and recovery](#new-in-100-rc1), [upgrading](#upgrade-a-bundled-installation) or [troubleshooting](#troubleshooting-and-privacy) when needed.
 
 ## First launch and a first useful session
 
-**[Download the Kosh 1.0.0-rc.5 Windows installer](https://github.com/needanotheremailid/kosh-desktop/releases/download/v1.0.0-rc.5/Kosh-1.0.0-rc.5-Setup.exe)** from [this repository's release](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v1.0.0-rc.5). Use 64-bit Windows 11 with Microsoft Edge and .NET Framework. The installer is unsigned; Windows may warn about an unknown publisher. Check the release origin and published checksum before deciding whether to run it. Keep a backup and try a permitted non-sensitive paper first. No separate Python, Node, TeX, AI account or model is required for the ordinary bundled reading/writing/export workflow.
+**[Download the Kosh 1.0.0-rc.6 Windows installer](https://github.com/needanotheremailid/kosh-desktop/releases/download/v1.0.0-rc.6/Kosh-1.0.0-rc.6-Setup.exe)** from [this repository's release](https://github.com/needanotheremailid/kosh-desktop/releases/tag/v1.0.0-rc.6). Use 64-bit Windows 11 with Microsoft Edge and .NET Framework. The installer is unsigned; Windows may warn about an unknown publisher. Check the release origin and published checksum before deciding whether to run it. Keep a backup and try a permitted non-sensitive paper first. No separate Python, Node, TeX, AI account or model is required for the ordinary bundled reading/writing/export workflow.
 
-The bundled edition installs with `Kosh-1.0.0-rc.5-Setup.exe` into a new folder for your Windows user. Edge and .NET Framework are prerequisites; the prepared Python/document runtime and Node.js 24.14.1 local citation tool are included. Installation does not need an administrator or download packages. Existing shortcuts are preserved.
+The bundled edition installs with `Kosh-1.0.0-rc.6-Setup.exe` into a new folder for your Windows user. Edge and .NET Framework are prerequisites; the prepared Python/document runtime and Node.js 24.14.1 local citation tool are included. Installation does not need an administrator or download packages. Existing shortcuts are preserved.
 
-This guide targets Kosh 1.0.0-rc.5. Historical sections retain their introduction versions. Older installations keep their prior behavior until upgraded to a matching package. The optional [signing workflow](SIGNING.md) requires an already provisioned trusted publisher identity; the installer is not signed just because that workflow is available. Tests on one computer do not prove another clean Windows computer or every real manuscript. Independent trials remain pending in [the acceptance checklist](ACCEPTANCE.md).
+This guide targets Kosh 1.0.0-rc.6. Historical sections retain their introduction versions. Older installations keep their prior behavior until upgraded to a matching package. The optional [signing workflow](SIGNING.md) requires an already provisioned trusted publisher identity; the installer is not signed just because that workflow is available. Tests on one computer do not prove another clean Windows computer or every real manuscript. Independent trials remain pending in [the acceptance checklist](ACCEPTANCE.md).
 
 ## New in 1.0.0-rc.5
 
@@ -19,29 +89,29 @@ This release changes how Kosh is laid out, not what it stores. Workspaces, sourc
 - **Selection bar.** Selecting words on a page shows **Save highlight**, **Cite in draft** and **Ask about this**. Selecting text no longer changes the Ask scope on its own.
 - **Type @ to cite.** In a draft, typing @ at the start of a line or after a space opens the citation picker, and the chosen citation replaces the @. **Cancel** keeps the @. An email address never opens the picker.
 - **Search and commands (Ctrl+K).** One box finds commands, sources, drafts and passages inside sources. Use the arrow keys and Enter to choose.
-- **One + Add menu.** Import files, look up a DOI or PMID, paste a reference list, search PubMed and the other indexes, or import a bibliography file. Before a workspace exists the menu says why it is unavailable. Dropping files on the window imports them, and unsupported file types are named and not sent; dropping text into a draft inserts the text.
-- **Next step.** A short line under the top bar suggests the next useful step for the workspace: add a source, start a draft, cite, export. It never blocks anything. **Hide tips** turns it off for that workspace, and **Help → Show next-step tips** brings it back.
+- **One + Add menu.** Import files, look up a DOI or PMID, paste a reference list, search PubMed and the other indexes, or import a bibliography file. Before a workspace exists the menu says why it is unavailable. Dropping files on the window imports them, and unsupported file types are named and not sent; dropping text into a draft inserts the text. [These actions are now on **Find**.]
+- **Next step.** A short line under the top bar suggested the next useful step and could be hidden or shown again. [The strip and its controls are gone; the suggested action is now on **Overview**.]
 - **One-row Write toolbar.** **Insert citation**, **Format**, **Preview**, **Source beside**, **Check**, **Export** and **⋯** (Save now, writing help, outlines, history, comparison, Focus writing and claim review). Each menu closes when you choose an item or click elsewhere.
-- **Grouped More menu; layout in Settings.** More is grouped into Find & review, Export & backup, Help, Advanced and App. Layout moved from the status bar to **Settings → Layout**, with Broadsheet as the default.
+- **Grouped More menu; layout in Settings.** More was grouped into Find & review, Export & backup, Help, Advanced and App. [Its actions are now in the sidebar or **Settings → Advanced**.] Layout moved from the status bar to **Settings → Layout**, with Broadsheet as the default. [In this source choose **Settings → Appearance style**.]
 - **Clearer messages.** Import receipts summarise what was added, use plain statuses, show the import warning and give each file an **Open** button. The incomplete-reference warning after an export carries its own **Complete missing details** button. **Archive** offers **Undo**. **Fill missing details** saves what you typed in Source details first. The Ask answer mode is grouped into **No AI**, **On this computer** and **Installed agents · may send to their provider**.
 - **Quit says it stopped.** After **Quit app**, the window stops all activity and says you can close it, instead of reporting a lost connection.
 
 ## New in 1.0.0-rc.4
 
 - **Complete details from a PMID.** Source details now has a **PMID** field. When a source has a PMID but no DOI, **Fill missing details from this PMID** and **Complete missing details** send that PMID, and nothing else, to PubMed, then show the same field-by-field review. A saved DOI is still used first.
-- **Paste a reference list.** In **More → Discover references → Lookup exact DOI or PMID**, open **Paste a reference list**, paste a reference section and choose **Find identifiers**. Kosh finds DOIs, PMIDs and PubMed links on this computer and shows them before anything is sent, skipping any already in the workspace. **Look up** sends each new DOI to Crossref and each PMID to PubMed, one second apart, and **Stop** ends the batch before the next request. Review the listed records, then add them one at a time or with **Add all**. A bare number counts as a PMID only on a line of its own, and up to 50 new identifiers are looked up per paste.
+- **Paste a reference list.** In **More → Discover references → Lookup exact DOI or PMID** [now **Find → Lookup exact DOI or PMID**], open **Paste a reference list**, paste a reference section and choose **Find identifiers**. Kosh finds DOIs, PMIDs and PubMed links on this computer and shows them before anything is sent, skipping any already in the workspace. **Look up** sends each new DOI to Crossref and each PMID to PubMed, one second apart, and **Stop** ends the batch before the next request. Review the listed records, then add them one at a time or with **Add all**. A bare number counts as a PMID only on a line of its own, and up to 50 new identifiers are looked up per paste.
 - **Steadier lookups.** Completing several sources no longer runs into the one-second limit per index. Ticks you change stay put while other results arrive, a failed lookup offers **Try again**, and long field labels no longer split. References saved from PubMed keep their PMID and are not saved twice.
 
 ## New in 1.0.0-rc.3
 
 - **Complete missing details from a DOI.** Exports, the writing check and Source details offer **Complete missing details** (in Source details: **Fill missing details from this DOI**). Choose **Look up** to send each listed source's saved DOI, and nothing else, to Crossref. Kosh shows only fields the record would add or change: empty fields are ticked, existing values stay unless you tick them. **Save ticked fields** records which fields were copied, the DOI and the retrieval time in the source's provenance. Sources without a DOI link to Source details instead. Catalogue records can be wrong; check each field against the publication.
-- **Whole-workspace export warning.** A workspace export now also names cited sources with missing bibliography fields, using the same saved-draft checks as **More → Project review**. Evidence CSV exports are not checked.
+- **Whole-workspace export warning.** A workspace export now also names cited sources with missing bibliography fields, using the same saved-draft checks as **More → Project review** [now **Settings → Advanced → Project review**]. Evidence CSV exports are not checked.
 - **Pointer to Source details after import.** When imported sources lack citation fields, the import receipt says so and opens Source details for the first one. The longer explanation appears only on your first such import.
 
 ## New in 1.0.0-rc.2
 
-- **Reading place kept.** Opening a source from the Library returns to its remembered page instead of page 1; earlier candidates overwrote the saved page a moment after a plain open. Search results, highlights, claim links and citation chips still open their own page.
-- **Suggested PDF details.** Importing a PDF fills an empty title from the file's embedded details and a DOI found on its first two pages. Source details shows a provenance line for these suggestions; verify them against the publication, or use the DOI in **More → Discover references → Lookup exact DOI or PMID** to fetch catalogue metadata. No author or year is guessed and nothing is sent anywhere.
+- **Reading place kept.** Opening a source from the Library [now **All sources**] returns to its remembered page instead of page 1; earlier candidates overwrote the saved page a moment after a plain open. Search results, highlights, claim links and citation chips still open their own page.
+- **Suggested PDF details.** Importing a PDF fills an empty title from the file's embedded details and a DOI found on its first two pages. Source details shows a provenance line for these suggestions; verify them against the publication, or use the DOI in **More → Discover references → Lookup exact DOI or PMID** [now **Find → Lookup exact DOI or PMID**] to fetch catalogue metadata. No author or year is guessed and nothing is sent anywhere.
 - **Incomplete-reference warning.** After a draft export, Kosh runs the saved-version writing check and names cited sources whose bibliography fields are missing, because their reference entries are incomplete in that file. The CLI `export --note` command returns the same warning.
 - **Editable Word fields read correctly before refresh.** Citations and the bibliography carry the rendered default-style text, so reviewers without a field refresh still see numbers and references; Word regenerates them into its own style on update.
 - **Clearer revision comparison.** Citation markers display as source titles (the exact marker stays in the tooltip) and swapped words within a changed line pair are highlighted.
@@ -83,7 +153,7 @@ One local Windows run used 256 four-page PDFs, 50 drafts of about 60,000 charact
 
 ## Your first workspace
 
-The library starts empty. Open the Kosh shortcut after setup; automatic launch is off by default so an upgrade can copy data before first use. Getting started opens on first use and can be reopened from Help. Skip/reopen it without changing research. Help explains reading, source locations, saving and controls. Choose Broadsheet (the default), Stacks or Commonplace in **Settings → Layout**; before 1.0.0-rc.5 this control sat in the status bar. Settings changes light/dark appearance and optional hover explanations; these are browser preferences, not changes to your papers.
+The library starts empty. Open the Kosh shortcut after setup; automatic launch is off by default so an upgrade can copy data before first use. Getting started opens on first use and can be reopened from Help. Skip/reopen it without changing research. Help explains reading, source locations, saving and controls. Choose Broadsheet (the default), Stacks or Commonplace in **Settings → Appearance style**; before 1.0.0-rc.5 this control sat in the status bar. Settings changes light/dark appearance and optional hover explanations; these are browser preferences, not changes to your papers.
 
 1. Create a workspace for one project.
 2. Import one trusted source you have permission to use; read its receipt.
@@ -107,7 +177,7 @@ Enter/check bibliographic fields against the publication. Use explicit family/gi
 
 ## Reading, exact search and OCR
 
-**Filter source details** narrows the library by saved title, filename, author, year or DOI as you type. Words may match across fields; matching ignores case and accents. Combine it with **File type**, or sort by recently imported, title or publication year. Year sorting uses a four-digit saved year, newest first, with missing or nonnumeric years last. These controls change only the displayed list, not your records. Filters survive opening a source and returning; changing workspace clears them. **Clear filters** restores the full active or archived list. The Stacks reading sidebar continues to show all active sources.
+**Filter source details** narrows the library by saved title, filename, author, year or DOI as you type. Words may match across fields; matching ignores case and accents. Combine it with **File type**, or sort by recently imported, title or publication year. Year sorting uses a four-digit saved year, newest first, with missing or nonnumeric years last. These controls change only the displayed list, not your records. Filters survive opening a source and returning; changing workspace clears them. **Clear filters** restores the full active or archived list. The Read page shows active sources.
 
 **Search passages** is separate: it searches extracted text across all active sources in the workspace, regardless of list filters. Its results show that scope explicitly. List controls pause while searching or showing passage results; **Source list** restores your existing filters and keeps your query available. Editing the passage query clears old results before the next submission. Clearing, cancelling or changing scope discards late responses; a failed search shows a retry action. From 1.0.0-rc.5, Ctrl+K opens **Search and commands**, which also searches inside sources. These library improvements require Kosh 0.4.0; installer 0.3.1 retains its earlier controls.
 
@@ -123,7 +193,7 @@ The bundled Windows installer includes English, Hindi and Punjabi OCR data and i
 
 ## Reading place, organisation and saved passages
 
-In Read, expand **Reading place and organization**. Choose **Unread**, **Reading** or **Read**, mark a favorite, enter comma-separated tags and one collection label, and record a next action. Choose **Save reading place and details** to save those fields. Opening a source page remembers its reading position automatically. Opening that source again from the Library, or through the Library's **Continue reading**, returns to the saved page; search results, highlights and citation links open their own page instead. A next action is your own note, not a scheduled task.
+In Read, expand **Reading place and organization**. Choose **Unread**, **Reading** or **Read**, mark a favorite, enter comma-separated tags and one collection label, and record a next action. Choose **Save reading place and details** to save those fields. Opening a source page remembers its reading position automatically. Opening that source again from **All sources**, or through its **Continue reading**, returns to the saved page; search results, highlights and citation links open their own page instead. A next action is your own note, not a scheduled task.
 
 Library filters for reading state, favorites, an exact tag and collection narrow the displayed source list alongside the existing metadata/type controls. Tags are multiple labels; Collection is one label per source, not a nested folder tree. Switching workspace clears the display filters. Passage search still searches all active sources and pauses the list filters.
 
@@ -131,7 +201,7 @@ For a PDF with extracted words, select complete words over the original page ima
 
 Saved passages show the exact quote and your separate comment. **Go to passage** opens the saved location; PDF highlights overlay that page in Kosh. **New note from passage** (called **Create cited note** before 1.0.0-rc.5) creates a separate Markdown note containing the source locator, quoted passage and comment; **Insert in draft** adds the same cited passage at the open draft's cursor. Annotations are stored separately from the source: Kosh does not write highlights or comments into the original PDF or replace its bytes. Saving a passage is not verification of its meaning. Failed or conflicting saves retain the capture for review and retry.
 
-In Library, expand **Review possible duplicate sources** and choose **Find review candidates**. Kosh compares saved title and DOI values and displays possible pairs with source details. This is a read-only suggestion list: matching metadata does not establish identical papers, and Kosh never merges records, rewrites citation IDs or deletes originals automatically.
+In **All sources**, expand **Review possible duplicate sources** and choose **Find review candidates**. Kosh compares saved title and DOI values and displays possible pairs with source details. This is a read-only suggestion list: matching metadata does not establish identical papers, and Kosh never merges records, rewrites citation IDs or deletes originals automatically.
 
 ## Optional semantic retrieval
 
@@ -192,13 +262,13 @@ Saved reviews show claim and source passage side by side. Changing the saved not
 
 Default manuscript exports replace markers using the offline citeproc-js CSL processor and include cited-only references. Built-in pinned styles are APA 7, IEEE and Vancouver using the official NLM citation-sequence independent parent. The selected style controls numbering or author-date text, sorting, citation grouping and ambiguity resolution across the chosen export scope. Valid DOI duplicates share a reference. Citation superscripts/subscripts are preserved in the supported manuscript export formats.
 
-To use another citation style, open **More → Exports & backup → Import journal CSL style**, select a permitted local `.csl` file, and choose the imported style before exporting. Chicago notes is bundled alongside the in-text styles. Choose Footnotes or Endnotes for a note style; in-text styles remain in the text. CSL language choices include 63 bundled locales, a style-default option and locally imported locale XML. Language changes citation terms/date formatting, not manuscript prose.
+To use another citation style, open **Exports & backup → Import journal CSL style**, select a permitted local `.csl` file, and choose the imported style before exporting. Chicago notes is bundled alongside the in-text styles. Choose Footnotes or Endnotes for a note style; in-text styles remain in the text. CSL language choices include 63 bundled locales, a style-default option and locally imported locale XML. Language changes citation terms/date formatting, not manuscript prose.
 
 A dependent style links to an independent parent rather than containing formatting rules. Missing parents/locales block formatting until available locally. In **CSL styles and languages**, import local files or enter an official style ID/locale code and explicitly check the retrieval consent. Retrieval contacts the pinned official CSL repositories for those files and required dependencies; it sends no research content. Consent resets after the operation. Exports never perform network retrieval automatically. CSL formatting does not verify publication metadata or establish journal compliance; inspect the actual result.
 
 File locators stay in optional audit material. Bibliography pages are not reconstructed from captured file pages. Ordinary Word export (`docx`) contains static CSL results; changing a draft later requires another export. **Word with editable citations** (`docxlive`) instead embeds native Word fields and document-local source records. In Word use Ctrl+A, then F9 to regenerate citations and bibliography, and References → Manage Sources to edit metadata. Choose its separate native style: IEEE, APA sixth edition or ISO 690 numerical. These are not equivalents of CSL APA 7, Vancouver or an imported journal style. After deleting a citation, remaining citations renumber; remove its uncited source from Word's Current List if its bibliography entry should also disappear. Review missing-field/type/author/journal warnings before submission.
 
-Evidence rows are manual notes for a source, question, reported design, findings and limitations. A model extraction proposal has exact quote/citation anchors but unverified interpretation. Review each quote and every proposed field before saving evidence. Kosh does not conduct formal screening or restricted clinical abstraction.
+Evidence rows are manual notes for a source, question, reported design, findings and limitations. A model extraction proposal has exact quote/citation anchors but unverified interpretation. Review each quote and every proposed field before saving evidence. Screening decisions are manual; Kosh does not screen automatically or conduct restricted clinical abstraction.
 
 Writing check reads the exact saved draft version, reporting headings, words, unresolved locations and incomplete metadata. It changes no content. It is not plagiarism detection, statistical review, scientific fact checking or submission approval.
 
@@ -226,7 +296,7 @@ Each target is rechecked; originals/receipts stay in app data. Publication is at
 
 ## Exports, reading bundles and workspace transfer
 
-Save first. Writer exports the selected saved draft; Tools can export the workspace's notes/evidence. Default presentation contains title/body/References, without app instructions or internal file locators. Use explicit audit output for metadata/provenance warnings and separate genuine evidence/document references.
+Save first. Write exports the selected saved draft; Exports & backup can export the workspace's notes/evidence. Default presentation contains title/body/References, without app instructions or internal file locators. Use explicit audit output for metadata/provenance warnings and separate genuine evidence/document references.
 
 **Export options** retains per-workspace choices in this browser. Choose no template, research article, review or case report; A4/Letter, Times New Roman/Arial/Calibri, 9–14 pt, line spacing 1–3 and margins 15–40 mm. Page/line numbers, a title page and a running title are optional. Authors, affiliations, correspondence, abstract and keywords begin empty. You supply them; Kosh invents no frontmatter. Blinding omits supplied authors/affiliations/correspondence only, leaving the body, figures and references untouched. Review identifying content yourself. A configurable profile is not a named-journal template or submission certificate. Appending a profile outline is a separate explicit draft edit; changing export options alone never adds saved headings.
 
@@ -294,7 +364,7 @@ Earlier backups and incomplete output are retained; nothing is pruned or deleted
 
 ### Reviewer comments and response letters
 
-Open **More → Reviewer responses**. Choose **New comment**, select a saved manuscript, enter the reviewer/editor label and comment, and provide the exact saved manuscript passage. If it appears more than once, choose its matching occurrence before **Link saved passage**. Save manuscript edits and resolve conflicts before linking. The record retains the saved manuscript version, exact Unicode character offsets and passage, so repeated wording is not silently linked to the first occurrence.
+Open **Settings → Advanced → Reviewer responses**. Choose **New comment**, select a saved manuscript, enter the reviewer/editor label and comment, and provide the exact saved manuscript passage. If it appears more than once, choose its matching occurrence before **Link saved passage**. Save manuscript edits and resolve conflicts before linking. The record retains the saved manuscript version, exact Unicode character offsets and passage, so repeated wording is not silently linked to the first occurrence.
 
 Record **Planned wording / action**, **Revised wording** and **Response for the letter**, then choose **Save comment & response**. Progress is your own record: Open, Planned, Revised wording recorded or Response recorded. Revised status requires recorded revised wording; response status requires a response. These fields do not edit the manuscript. Make and save the actual changes in Write, then explicitly relink the passage when required.
 
@@ -306,7 +376,7 @@ Kosh 0.5.0 workspace ZIPs include saved reviewer records, their passage snapshot
 
 ### Project review
 
-Open **More → Project review** for the active workspace. **Save & refresh** saves this window's pending edits, then checks all saved drafts and active recorded claim reviews in that workspace. It displays a check time, drafts without recorded reviews, claims needing a source, stale/current checked claims, unresolved reference occurrences, missing cited-source metadata and per-draft writing checks. Select **Open draft** to address the saved result, or **Reviewer responses** to work on reviewer records.
+Open **Settings → Advanced → Project review** for the active workspace. **Save & refresh** saves this window's pending edits, then checks all saved drafts and active recorded claim reviews in that workspace. It displays a check time, drafts without recorded reviews, claims needing a source, stale/current checked claims, unresolved reference occurrences, missing cited-source metadata and per-draft writing checks. Select **Open draft** to address the saved result, or **Reviewer responses** to work on reviewer records.
 
 This is an on-demand saved-state report for one selected workspace. Counts can overlap, and unrecorded claims have not been assessed. A failed draft check displays its reason; incomplete reference/metadata totals are Unknown, not zero. Resolve save conflicts or unavailable checks and refresh. A current claim marked Checked by you records your prior review; the report does not certify entailment, scientific support or submission readiness. It changes no manuscript or source and does not run a provider request.
 

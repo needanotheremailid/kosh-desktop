@@ -1,5 +1,5 @@
 'use strict';
-// rc.5 interaction contracts: split routing, open intent, insert-at-cursor, @ trigger, next step, palette, stopped gate, reachability, drops.
+// Interaction contracts retained across the research-path shell redesign.
 const assert=require('node:assert/strict');
 const fs=require('node:fs');
 const path=require('node:path');
@@ -50,21 +50,21 @@ function load(context,source,...names){vm.createContext(context);vm.runInContext
 {const c=load({},app,'citationTriggerAt');
  assert.equal(c.citationTriggerAt('@',1),0);assert.equal(c.citationTriggerAt('see @',5),4);assert.equal(c.citationTriggerAt('me@x',3),-1,'Email addresses do not trigger');assert.equal(c.citationTriggerAt('a\n@',3),2);assert.equal(c.citationTriggerAt('abc',0),-1);}
 
-// Next step: derived from loaded data; unknown never shows as undone; hidden per workspace.
+// Overview suggestion: saved records drive guidance; unloaded/export-unknown is not undone.
 {const store=new Map();const state={data:{workspaces:[{id:'w'}]},workspace:'w',stopped:false,view:'library',editors:new Map(),preview:false};let docs=[],notesList=[];
  const c=load({state,localStorage:{getItem:k=>store.get(k)??null},documents:()=>docs,notes:()=>notesList,activeEditor:()=>null},app,'nextStep');
- assert.equal(c.nextStep().action,'import');docs=[{id:'d'}];assert.equal(c.nextStep().action,'new-note');
- notesList=[{id:'n',body:'text'}];assert.equal(c.nextStep().view,'write');
+ assert.equal(c.nextStep().view,'discover');docs=[{id:'d',archived:true}];assert.equal(c.nextStep().view,'discover','Archived sources do not complete Find');
+ docs=[{id:'d'}];assert.equal(c.nextStep().action,'new-note');notesList=[{id:'n',body:'text'}];assert.equal(c.nextStep().view,'write');
  state.editors.set('n',{body:'see [[source:d:1]]'});assert.match(c.nextStep().text,/Export/);
  store.set('kosh-exported:w','1');assert.equal(c.nextStep(),null);
- store.delete('kosh-exported:w');store.set('kosh-tips-hidden:w','1');assert.equal(c.nextStep(),null);
+ store.delete('kosh-exported:w');c.localStorage.getItem=()=>{throw new Error('Unavailable');};assert.equal(c.nextStep(),null,'Unknown export state is not shown as undone');
  state.data={};assert.equal(c.nextStep(),null,'Without loaded data there is no suggestion');}
 
 // Palette: every command reaches a handled action or a real view.
 {const block=app.slice(app.indexOf('const paletteCommands=['),app.indexOf('];',app.indexOf('const paletteCommands=[')));
  const actions=[...block.matchAll(/action:'([a-z-]+)'/g)].map(m=>m[1]),views=[...block.matchAll(/view:'([a-z]+)'/g)].map(m=>m[1]);
  assert.ok(actions.length>10);for(const name of actions)assert.ok(app.includes("name==='"+name+"'"),'Palette action without a handler: '+name);
- for(const view of views)assert.ok(['library','read','write','evidence','discover'].includes(view),view);}
+ for(const view of views)assert.ok(['overview','library','read','write','evidence','discover','screen','synthesise','verify'].includes(view),view);}
 
 // Stopped gate: every catch/finally that writes the page directly checks state.stopped first.
 {const allowed=new Set(['reviewer.js:21']);const failures=[];
@@ -99,6 +99,6 @@ function load(context,source,...names){vm.createContext(context);vm.runInContext
  c.readingSyncOwner('w:read');assert.equal(gate(),true,'Repainting the same view keeps ownership');
  c.readingSyncOwner('w:split');assert.equal(gate(),false,'Write beside a source owns the place now');}
 
-// Chrome: one Add menu, Search opens the palette, layout lives in Settings.
-assert.ok(html.includes('id="add-menu"')&&!html.includes('id="import-button"'));assert.ok(html.includes('data-action="palette"'));assert.ok(/<dialog id="settings-dialog"[\s\S]*id="design-select"/.test(html));
+// Chrome: research-path sidebar, Search opens the palette, appearance lives in Settings.
+assert.ok(html.includes('id="view-nav"')&&!html.includes('id="add-menu"')&&!html.includes('class="more-menu'));assert.ok(!html.includes('id="next-step"'));assert.ok(html.includes('data-action="palette"'));assert.ok(/<dialog id="settings-dialog"[\s\S]*id="design-select"/.test(html));
 console.log('rc.5 UI contract checks passed');

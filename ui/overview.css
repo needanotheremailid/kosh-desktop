@@ -1,0 +1,16 @@
+/* Plain research-path rows inherit the shell's type, spacing and colour tokens. */
+#main-view[data-view=overview]{padding:var(--pad);overflow:auto}
+.overview-next{display:flex;align-items:center;justify-content:space-between;gap:var(--pad);padding-bottom:var(--pad);border-bottom:1px solid var(--line-strong)}
+.overview-next h2,.overview-start h2,.overview-step h2{font:inherit;font-weight:600;margin:0 0 var(--radius)}
+.overview-next p,.overview-start p,.overview-step p{margin:0;color:var(--ink-2)}
+.overview-next .button,.overview-step>.button{flex-shrink:0}
+.overview-start{padding:var(--pad) 0;border-top:1px solid var(--line)}
+.overview-start .button{margin-top:var(--radius-lg)}
+.overview-path{list-style:decimal;margin:0;padding-left:var(--pad)}
+.overview-step{position:relative;padding:var(--radius-lg) 0 var(--radius-lg) var(--radius);border-bottom:1px solid var(--line)}
+.overview-step::marker{color:var(--ink-3);font-family:var(--font-mono)}
+.overview-step-copy{padding-right:calc(var(--list-w) - var(--pad));overflow-wrap:anywhere}
+.overview-step>.button{position:absolute;right:0;top:var(--radius-lg)}
+.overview-step .overview-progress{color:var(--ink-3);margin-top:var(--radius)}
+.overview-footnote,.overview-load-error{margin-top:var(--radius-lg);overflow-wrap:anywhere}
+@media(max-width:800px){.overview-next{align-items:flex-start;flex-direction:column;gap:var(--radius-lg)}.overview-step-copy{padding-right:0}.overview-step>.button{position:static;margin-top:var(--radius-lg)}}

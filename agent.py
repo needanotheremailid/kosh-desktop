@@ -182,12 +182,18 @@ def build_parser():
         if name == 'state':
             item.add_argument('--workspace', help='Return only this workspace; omit for explicitly requested global state')
     commands.add_parser('folder-history',help='Read retained folder-edit receipts; no target writes')
-    for name in ('reading-state', 'reading-duplicates', 'reading-geometry', 'project-review', 'reviewer-state'):
+    for name in ('reading-state', 'reading-duplicates', 'reading-geometry', 'project-review', 'reviewer-state', 'research-overview'):
         item = commands.add_parser(name, help='Read explicitly scoped local reading records; no provider call')
         item.add_argument('--workspace', required=True)
         if name == 'reading-geometry':
             item.add_argument('--document', required=True)
             item.add_argument('--page', type=int, required=True)
+    for name in ('research-packet', 'research-comparison'):
+        item = commands.add_parser(name, help='Prepare local source-linked research Markdown; no provider call or note write')
+        item.add_argument('--workspace', required=True)
+        item.add_argument('--document', action='append', required=True)
+        if name == 'research-packet':
+            item.add_argument('--max-chars', type=int, default=24000)
     commands.add_parser('backup-status', help='Read automatic backup status; no files or preferences changed')
     commands.add_parser('update-status', help='Read local update status; no network request')
     item = commands.add_parser('reviewer-save', help='Save explicitly reviewed response fields without changing manuscript text')
@@ -384,9 +390,13 @@ def execute(args, client):
         return client.request('/api/workspaces')
     if command in ('backup-status', 'update-status'):
         return client.request('/api/auto-backup' if command == 'backup-status' else '/api/updates/status')
-    if command in ('reading-state', 'reading-duplicates', 'reading-geometry', 'project-review', 'reviewer-state'):
+    if command in ('research-packet', 'research-comparison'):
+        body = {'workspace_id': args.workspace, 'document_ids': args.document}
+        if command == 'research-packet': body['max_chars'] = args.max_chars
+        return client.request('/api/research/' + command.split('-', 1)[1], body)
+    if command in ('reading-state', 'reading-duplicates', 'reading-geometry', 'project-review', 'reviewer-state', 'research-overview'):
         query = {'workspace_id': args.workspace}
-        route = {'reading-state':'/api/reading', 'reading-duplicates':'/api/reading/duplicates', 'reading-geometry':'/api/reading/geometry', 'project-review':'/api/project-review', 'reviewer-state':'/api/reviewer'}[command]
+        route = {'reading-state':'/api/reading', 'reading-duplicates':'/api/reading/duplicates', 'reading-geometry':'/api/reading/geometry', 'project-review':'/api/project-review', 'reviewer-state':'/api/reviewer', 'research-overview':'/api/research/overview'}[command]
         if command == 'reading-geometry': query.update(document_id=args.document, page=args.page)
         return client.request(route+'?'+urlencode(query))
     if command == 'reviewer-export':

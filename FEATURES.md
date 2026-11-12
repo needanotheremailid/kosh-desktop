@@ -1,19 +1,54 @@
 # Kosh: capabilities and comparison
 
+## New in 1.0.0-rc.6
+
+These additions are in the rc.6 package. Local tests and rendered checks used invented data; there has been no independent user trial. Package and publication checks are recorded separately.
+
+| # | Workflow | New source behavior | Boundary |
+| --- | --- | --- | --- |
+| 85 | Research path and Overview — rc.6 | One sidebar follows Find, Screen, Read, Extract, Synthesise, Write and Verify; Overview shows saved progress and a suggested action | Counts describe saved records and do not certify science |
+| 86 | Find and Read — rc.6 | Find gathers discovery and import actions; Read offers a source list | Catalogue results are not full papers; extracted text can be incomplete |
+| 87 | Manual screening — rc.6 | Record criteria, two-stage decisions, reasons and history; show flow counts | Nothing is screened automatically; full-text exclusion requires a reason; rc.5 or older cannot restore backups with screening |
+| 88 | Synthesise — rc.6 | Research workflows open as a page for packets, comparisons, checklists and a selected-source question | Explicit save and separate provider approval remain necessary |
+| 89 | Verify — rc.6 | Review saved claim links, citation markers, writing checks and references needing details | Markers and claim links are separate; the page cannot establish which claim a citation supports |
+| 90 | Settings and help — rc.6 | Advanced actions move to Settings; exports, help and quit are in the sidebar | Local tests and rendered checks on invented data; no independent user trial |
+
+### Research workflows — 1.0.0-rc.6
+
+These controls are in the rc.6 package; local tests and rendered checks used invented data, with no independent user trial.
+
+| Workflow | New source behavior | Boundary |
+| --- | --- | --- |
+| Save a literature-search record — rc.6 | Explicit button saves query, index, retrieval date, returned records, separate index totals and partial failures as a new draft | Successful/partially successful bounded query only; not exhaustive search, automatic query history or formal screening |
+| Reading packet — rc.6 | Select 1–10 sources, choose a text budget and preview exact extracted passages with page/section citations and per-source included/omitted coverage | Catalogue metadata stays separate; extraction may omit figures/equations; inclusion does not prove reading or scientific support |
+| Compare saved evidence — rc.6 | Preview a source-linked table of saved manual fields, row identities and versions; save a separate draft | Missing fields say Not recorded; no inferred findings, custom-column system or automatic study assessment |
+| Source use and readiness — rc.6 | Inspect text-bearing units, saved evidence counts and links to drafts using each source | Saved markers and extraction availability only; no external citation graph or verified-read status |
+| Research procedures — rc.6 | Seven editable checklists for search, reading, synthesis, manuscripts, analysis planning, presentation planning and reviewer responses | Explicit creation only; no automatic agent, analysis code, slide/poster creation or submission |
+| Choose sources for an agent question — rc.6 | Selected source IDs and a typed question open the existing exact-preview/consent flow | Matching excerpts only; no send at handoff and no implicit full-paper context |
+| Agent control — rc.6 | Three additional explicit CLI/MCP research reads; source registry has 66 tools | rc.5 had 63; no arbitrary shell, provider send or research write added by these reads |
+
+Built-in analysis execution remains outside this phase. Use a separate analysis tool; no code runner or statistical engine was added.
+
 Kosh is a local Windows research desk with original application code and an attributed offline citation processor, CSL styles and runtimes. Its library starts empty. It adapts research/writing workflows; another research product's accounts, subscriptions, application code and cloud infrastructure are not included. [CREDITS.md](CREDITS.md) and [THIRD_PARTY.md](THIRD_PARTY.md) identify the included dependencies.
 
-This describes Kosh 1.0.0-rc.5, which reorganises the desktop for self-explanatory use and adds a draft-and-source side-by-side view (rows 77-84). Kosh 1.0.0-rc.4 added PMID completion of missing citation details, pasted reference lists and steadier catalogue lookups (rows 74-76). Kosh 1.0.0-rc.3 added reviewed DOI completion of missing citation details, whole-workspace incomplete-reference warnings and an import pointer to Source details (rows 71-73). Kosh 1.0.0-rc.2 corrected a reading-place loss when a source was reopened from the Library, keeps saved automatic-backup sets listable when their folder is unplugged, and adds suggested PDF details on import, incomplete-reference warnings on draft export, pre-filled editable Word fields and labelled revision comparison (rows 67-70). Unified streaming local backup/restore with progress and cancellation, Windows file selection, installation health, previewable diagnostics and durable update activation are RC additions. Saved revision comparison and larger automatic sets arrived in 0.6.0. The fixed agent registry remains at 63 tools. Historical rows retain introduction versions. Older installations keep their behavior until upgraded; 0.6.0 cannot discover RC tags. Source, invented test inputs, rendered output, installed release and independent Windows use are separate proof layers. See [acceptance](ACCEPTANCE.md) and matching release receipts for what was tested.
+This describes Kosh 1.0.0-rc.6, with the research-path sidebar and research workflows described above. Kosh 1.0.0-rc.5 added a draft-and-source side-by-side view (rows 77-84). Kosh 1.0.0-rc.4 added PMID completion of missing citation details, pasted reference lists and steadier catalogue lookups (rows 74-76). Kosh 1.0.0-rc.3 added reviewed DOI completion of missing citation details, whole-workspace incomplete-reference warnings and an import pointer to Source details (rows 71-73). Kosh 1.0.0-rc.2 corrected a reading-place loss when a source was reopened from the Library, keeps saved automatic-backup sets listable when their folder is unplugged, and adds suggested PDF details on import, incomplete-reference warnings on draft export, pre-filled editable Word fields and labelled revision comparison (rows 67-70). Unified streaming local backup/restore with progress and cancellation, Windows file selection, installation health, previewable diagnostics and durable update activation are RC additions. Saved revision comparison and larger automatic sets arrived in 0.6.0. The fixed agent registry has 66 tools. Historical rows retain introduction versions. Older installations keep their behavior until upgraded; 0.6.0 cannot discover RC tags. Source, invented test inputs, rendered output, installed release and independent Windows use are separate proof layers. See [acceptance](ACCEPTANCE.md) and matching release receipts for what was tested.
 
 ## Available workflow
 
 | Task | Capability | Practical boundary |
 |---|---|---|
+| Overview | Saved progress and a suggested next action | Counts do not certify the science |
+| 1 Find | Search indexes, DOI/PMID lookup and imports of files or bibliography records | Explicit searches and imports; catalogue metadata is not the full paper |
+| 2 Screen | Manual criteria, include/maybe/exclude decisions, reasons, history and flow counts | Nothing is screened automatically; full-text exclusion needs a reason |
+| 3 Read | Actual PDF page images/extracted sections, selectable PDF words, saved highlights/comments, cited-note creation and remembered reading place | Annotations are separate records; original PDF bytes stay unchanged; non-PDF units are not native Word pagination |
+| 4 Extract | Source-linked manual evidence rows | Fields are not automatically verified study data |
+| 5 Synthesise | Reading packets, saved-evidence comparisons, checklists and selected-source questions | Preview and explicit save; provider sends need separate consent |
+| 6 Write | Markdown, draft and source side by side, note/draft search, focus mode, section moves, outlines, formatted preview, read-only saved revision comparison and recovery | Comparison uses saved plain text with bounded/coarse/paginated views; edits and restoration remain separate |
+| 7 Verify | Saved claim links, citations, writing check and references needing details | Citation markers and claim links are separate; checks do not establish claim support |
 | Organise | Workspaces, reading state/favorites, multiple tags, one collection label, filters/sorting, archive/unarchive | Collection is not a folder tree; explicit imports; originals/history retained |
 | Import | PDF/DOCX/MD/TXT/CSV/BIB/RIS; bibliography and figure workflows | Per-file receipts; parsing coverage/size limits remain explicit |
-| Read | Actual PDF page images/extracted sections, selectable PDF words, saved highlights/comments, cited-note creation and remembered reading place | Annotations are separate records; original PDF bytes stay unchanged; non-PDF units are not native Word pagination |
 | Search | Lexical passages; optional local embedding index/search | Semantic similarity is a lead, not verified support |
 | OCR | Explicit local scan-to-derived-PDF workflow | Available language data required; recognition requires image review |
-| Write | Markdown, draft and source side by side, note/draft search, focus mode, section moves, outlines, formatted preview, read-only saved revision comparison and recovery | Comparison uses saved plain text with bounded/coarse/paginated views; edits and restoration remain separate |
 | Review claims | Exact selected sentence beside a quoted source passage; Needs source / Source attached / Checked by me; stale detection and archive/restore | Text/location validation does not establish entailment; Checked by me is personal review, not AI verification |
 | Compare duplicates | Read-only pairs from matching saved title/DOI | Suggestions need review; no automatic merge, deletion or citation-ID replacement |
 | Insert | Managed figures, reviewed CSV/TSV tables and limited equations | Captions/data stay user-supplied; no automatic analysis |
@@ -25,9 +60,9 @@ This describes Kosh 1.0.0-rc.5, which reorganises the desktop for self-explanato
 | Format manuscript | Configurable research/review/case-report layout and optional blank outline | User supplies frontmatter; blinding omits supplied author frontmatter only; no named-journal compliance claim |
 | Recover | Note/job history; streaming local ZIPs and automatic sets; progress/cancel before publication; fresh restore; copy-only upgrade | Browser/CLI transfers retain 47 MiB bound; ZIPs exclude browser/folder/job journals and embedding cache |
 | Check installation | Explicit fixed-component availability check and optional previewable diagnostics JSON | No research scan, raw logs, paths, provider call or automatic upload; not a full installation-integrity test |
-| Use agents | Fixed CLI and 63 MCP tools in 1.0.0-rc.5; 0.4.0 has 57 | No arbitrary command escape hatch; existing note-history reads saved versions; explicit scopes/versions |
+| Use agents | Fixed CLI and 66 MCP tools in 1.0.0-rc.6; 0.4.0 has 57 | No arbitrary command escape hatch; existing note-history reads saved versions; explicit scopes/versions |
 | Edit files | Exact local diffs and optional chosen-file model proposals | Separate approval; retained originals; per-file publication may leave a partial batch |
-| Use desktop | Getting started, next-step tips, Ctrl+K search and commands, Help, hover explanations, Broadsheet default with two more layouts in Settings, light/dark | Preferences do not change research records |
+| Use desktop | Getting started, Overview, Ctrl+K search and commands, Help, hover explanations, Broadsheet default with two more styles in Settings, light/dark | Preferences do not change research records |
 
 ## New in 0.6.0
 

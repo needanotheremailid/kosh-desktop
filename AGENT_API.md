@@ -1,8 +1,22 @@
 # Kosh agent interface
 
+Workspace backups from 1.0.0-rc.6 carry a `screening` object. No screening CLI or MCP tool exists; the registry has 66 tools.
+
 Use the fixed CLI or MCP stdio adapter to control the running local app. Start Kosh first. The bundled edition needs no system Python: use `.\runtime\python.exe -E -s agent.py ...` from its installation. The examples below use `python.exe` for a source edition; substitute the bundled interpreter as appropriate.
 
-This source interface targets **Kosh 1.0.0-rc.5** and retains the same 63 tools as 0.6.0 and 0.5.0. This document describes the candidate source, not proof of publication or final 1.0 acceptance. The six additions for project/reviewer records and backup/update status were introduced in 0.5.0; streamed automatic sets and saved revision comparison were introduced in 0.6.0. The RC adds desktop local-file backup jobs and previewable installation diagnostics without adding generic HTTP, shell or execution tools. An older installation keeps its previous behavior until upgraded to a matching package.
+The **Kosh 1.0.0-rc.6** interface has 66 tools; rc.5 had 63. Three read-only research tools prepare local packets/comparisons or read source-use metadata; they do not send to a provider, write a draft, calculate study results or run code. This source documentation is not proof of an installer, publication or final 1.0 acceptance. An existing installation keeps its previous behavior until upgraded to a separately built and verified package.
+
+## New local research reads — 1.0.0-rc.6
+
+```powershell
+python.exe agent.py research-overview --workspace WORKSPACE_ID
+python.exe agent.py research-packet --workspace WORKSPACE_ID --document SOURCE_ID --document SECOND_SOURCE_ID --max-chars 24000
+python.exe agent.py research-comparison --workspace WORKSPACE_ID --document SOURCE_ID
+```
+
+Matching MCP names: `kosh_research_overview`, `kosh_research_packet` and `kosh_research_comparison`. Packet/comparison require one to ten explicit source IDs. A packet returns exact extracted text, file-page/text-section locators, source hashes, and per-source included/omitted character coverage. Its budget is 2,000–100,000 characters, shared equally between sources; it is not a model token limit or evidence that somebody read the complete paper. Catalogue records are marked metadata-only and do not become paper text. Comparison returns only saved manual evidence, with row IDs/versions, reference markers and `Not recorded` for empty fields. Original bytes are checked before either report. Results contain Markdown/JSON; use the existing explicit `save-note` command when the user wants a saved draft, and inspect the output before sending it elsewhere.
+
+Literature lookup/search responses also contain `search_record`: a locally prepared note body with explicit query, UTC retrieval time, returned records, separate index totals and partial failures. It is not saved automatically and does not make the bounded query exhaustive. Preparing any of these results changes no research record or external service.
 
 Only current user authority for the named workspace, files and actions permits access. Local tools are not permission for private-data inspection, provider sends, formal screening, clinical abstraction or submission.
 
@@ -246,7 +260,7 @@ Backup defaults to current originals/notes/metadata/chats/evidence and reading o
 
 ## MCP stdio configuration
 
-`mcp_server.py` exposes **63 tools** in 1.0.0-rc.5, retaining 0.6.0 and 0.5.0's fixed registry. Version 0.4.0 has 57, including seven reading-state/duplicate/geometry reads and source/resume/annotation/claim saves. The six additions in 0.5.0 are project review, reviewer state/save/export and backup/update status; 0.6.0 and this RC add no tools. It uses standard-library JSON-RPC stdio and the same authenticated CLI operations, with supported protocol versions `2024-11-05`, `2025-03-26`, `2025-06-18`. It does not register itself or edit Codex/Claude settings. Configure a chosen client explicitly; a typical configuration shape is:
+`mcp_server.py` exposes **66 tools in 1.0.0-rc.6**, including the three research reads described above; rc.5 had 63. It uses standard-library JSON-RPC stdio and the same authenticated CLI operations, with supported protocol versions `2024-11-05`, `2025-03-26`, `2025-06-18`. It does not register itself or edit Codex/Claude settings. Configure a chosen client explicitly; a typical configuration shape is:
 
 ```json
 {"mcpServers":{"kosh":{"command":"C:\\chosen\\Kosh\\runtime\\python.exe","args":["-E","-s","C:\\chosen\\Kosh\\mcp_server.py"]}}}

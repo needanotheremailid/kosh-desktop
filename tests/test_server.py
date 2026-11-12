@@ -59,6 +59,25 @@ class BoundaryTests(unittest.TestCase):
     def test_document_reads_require_session(self):
         self.assertEqual(self.request('/api/file?id=fixture', token=False)[0], 401)
 
+    def test_research_path_assets_are_served_with_expected_types(self):
+        for name in ('overview', 'screening', 'verify'):
+            for extension, mime in (('js', 'text/javascript'), ('css', 'text/css')):
+                with self.subTest(asset=name + '.' + extension):
+                    status, headers, content = self.request('/' + name + '.' + extension)
+                    self.assertEqual(status, 200)
+                    self.assertTrue(headers['Content-Type'].startswith(mime))
+                    self.assertGreater(len(content), 0)
+                    self.assertEqual(headers['X-Content-Type-Options'], 'nosniff')
+
+    def test_research_assets_load_and_new_data_reads_require_session(self):
+        for path, mime in (('/research_workflows.js', 'text/javascript'), ('/research_workflows.css', 'text/css')):
+            status, headers, content = self.request(path)
+            self.assertEqual(status, 200)
+            self.assertTrue(headers['Content-Type'].startswith(mime))
+            self.assertGreater(len(content), 100)
+        self.assertEqual(self.request('/api/research/overview?workspace_id=' + 'a' * 32, token=False)[0], 401)
+        self.assertEqual(self.request('/api/research/packet', token=False, method='POST', body={'workspace_id': 'a' * 32, 'document_ids': ['b' * 32]})[0], 401)
+
     def test_watchdog_waits_for_background_backup(self):
         from unittest.mock import Mock
         backup = self.server.store.auto_backups

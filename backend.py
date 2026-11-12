@@ -739,6 +739,8 @@ class Store:
                 with self.lock:
                     self.literature_scope = {key:value for key,value in self.literature_scope.items() if value[1] > time.monotonic()}
                     self.literature_scope.update({row["result_id"]:(body["workspace_id"],time.monotonic()+1800) for row in result["results"]})
+                from research_workflows import search_record
+                result['search_record'] = search_record(result, body['workspace_id'])
                 return result
             except (ValueError, LiteratureError) as error:
                 raise AppError(str(error)) from None
@@ -758,6 +760,12 @@ class Store:
             return {"model": model}
         with self.lock:
             self._ensure_open()
+            if method == 'GET' and route == '/api/research/overview':
+                from research_workflows import overview
+                return overview(self, query.get('workspace_id'))
+            if method == 'POST' and route in {'/api/research/packet', '/api/research/comparison'}:
+                from research_workflows import packet, comparison
+                return (packet if route.endswith('/packet') else comparison)(self, body)
             if method == 'GET' and route == '/api/project-review':
                 from project_review import project_review
                 return project_review(self, query.get('workspace_id'))
@@ -767,6 +775,9 @@ class Store:
             from reviewer import Reviewer
             if Reviewer.supports(method, route):
                 return Reviewer(self).dispatch(method, route, body if method == 'POST' else query)
+            from screening import Screening
+            if Screening.supports(method, route):
+                return Screening(self).dispatch(method, route, body if method == 'POST' else query)
             from completion import Completion
             if Completion.supports(method, route):
                 try:
@@ -1445,6 +1456,8 @@ class Store:
             reading_state = Reading(self).load(workspace['id'])
             from reviewer import Reviewer
             reviewer_state = Reviewer(self).load(workspace['id'])
+            from screening import Screening
+            screening_state = Screening(self).load(workspace['id'])
             self.db.commit()
         except Exception:
             self.db.rollback()
@@ -1452,6 +1465,7 @@ class Store:
         snapshot = {"version": 1, "app": "pg-research-desktop", "created_at": now(), "workspace": workspace, "documents": documents, "notes": notes, "matrix": matrix, "chats": chats, "revisions": revisions, "history_included": include_history}
         snapshot['reading'] = reading_state
         snapshot['reviewer'] = reviewer_state
+        snapshot['screening'] = screening_state
         if not include_history:
             snapshot["snapshot_note"] = "Current-state snapshot: earlier edit revisions are excluded from this archive and retained in the original local workspace. Originals, current notes, evidence rows and chats are included."
         return snapshot
@@ -1541,7 +1555,7 @@ class Store:
             if "manifest.json" not in names:
                 raise AppError("Backup manifest is missing.")
             manifest = json.loads(archive.read("manifest.json"))
-            if not isinstance(manifest, dict) or set(manifest) - {"version", "app", "created_at", "workspace", "documents", "notes", "matrix", "chats", "revisions", "history_included", "snapshot_note", "reading", "reviewer"} or manifest.get("version") != 1 or manifest.get("app") != "pg-research-desktop":
+            if not isinstance(manifest, dict) or set(manifest) - {"version", "app", "created_at", "workspace", "documents", "notes", "matrix", "chats", "revisions", "history_included", "snapshot_note", "reading", "reviewer", "screening"} or manifest.get("version") != 1 or manifest.get("app") != "pg-research-desktop":
                 raise AppError("This is not a supported Research Desktop backup.")
             if type(manifest.get("history_included", True)) is not bool:
                 raise AppError("Backup history state is invalid.")
@@ -1721,6 +1735,10 @@ class Store:
             if 'reviewer' in manifest and manifest['reviewer'] is None:
                 raise AppError('Backup reviewer state must be an object.')
             reviewer_state = validate_reviewer(manifest.get('reviewer'), old_workspace_id, collections['notes'])
+            from screening import validate_backup as validate_screening
+            if 'screening' in manifest and manifest['screening'] is None:
+                raise AppError('Backup screening state must be an object.')
+            screening_state = validate_screening(manifest.get('screening'), old_workspace_id, documents)
             for revision in collections["revisions"]:
                 checkpoint(control, 'validating_history')
                 entity = revision.get("entity_type")
@@ -1751,6 +1769,7 @@ class Store:
                     'revisions':len(collections['revisions']), 'history_included':manifest.get('history_included', True),
                     'reading_present':'reading' in manifest, 'reviewer_comments_present':'reviewer' in manifest,
                     'annotations':len(reading_state['annotations']), 'reviewer_comments':len(reviewer_state['comments']),
+                    'screening_present':'screening' in manifest, 'screening_records':len(screening_state['records']),
                     'unverified_citations':sum(chat.get('audit', {}).get('restored_unverified_count', 0) for chat in collections['chats']),
                     'notice':'Validated preview only. Restoring creates a separate workspace; existing workspaces stay unchanged.'}
         mapping = {id_: new_id() for id_ in doc_ids | record_ids["note"] | record_ids["matrix"] | record_ids["chat"]}
@@ -1807,6 +1826,8 @@ class Store:
             Reading(self).save(remap_backup(reading_state, workspace_id, mapping, remap_refs))
             from reviewer import Reviewer, remap_backup as remap_reviewer
             Reviewer(self).save(remap_reviewer(reviewer_state, workspace_id, mapping, remap_refs, collections['notes']))
+            from screening import Screening, remap_backup as remap_screening
+            Screening(self).save(remap_screening(screening_state, workspace_id, mapping))
         return {"workspace_id": workspace_id, "title": restored_title, "documents": len(documents), "notes": len(collections["notes"]),
                 'unverified_citations': sum(chat.get('audit', {}).get('restored_unverified_count', 0) for chat in collections['chats'])}
 

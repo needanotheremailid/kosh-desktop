@@ -108,7 +108,7 @@ class NextWorkflows(unittest.TestCase):
 
     def test_six_new_tools_and_read_only_status_use_real_http_routes(self):
         manifest = self.mcp.handle({'jsonrpc': '2.0', 'id': 3, 'method': 'tools/list'})['result']['tools']
-        self.assertEqual(len(manifest), 63)
+        self.assertEqual(len(manifest), 66)
         actual = {tool['name']: tool for tool in manifest}
         required = {'kosh_project_review': ['workspace'], 'kosh_reviewer_state': ['workspace'],
                     'kosh_reviewer_save': ['workspace', 'version', 'file'],
