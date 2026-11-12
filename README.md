@@ -8,9 +8,9 @@ Kosh is a free, open-source research desk for Windows. Keep your papers, reading
 
 Requires Windows 11 (64-bit), Microsoft Edge and .NET Framework. No administrator rights needed.
 
-![Kosh reading view with a highlighted passage and controls for citing the original PDF page](assets/screenshots/kosh-reading-100rc5.png)
+![Kosh Overview page listing the seven research steps from Find to Verify, each with its saved counts and an Open button](assets/screenshots/kosh-overview-100rc6.png)
 
-*Read the original page, highlight a passage and keep your comment beside it.*
+*Overview shows where the project stands and what to do next. The sidebar follows the same seven steps.*
 
 ## How it works
 
@@ -24,13 +24,26 @@ Choose a workspace. **Overview** shows saved progress and a suggested next actio
 6. **Write.** Draft with a source beside your writing, insert citations and compare saved revisions. Export to Word, PDF, Markdown, HTML or LaTeX, or export reference records.
 7. **Verify.** Review saved claim links, citations, writing checks and references needing details. You decide whether the source supports a claim.
 
-![Kosh draft beside its original PDF source, with citation controls and a highlighted passage](assets/screenshots/kosh-writing-100rc5.png)
+![Kosh Screen page with flow counts, stage filters and Include, Maybe and Exclude buttons beside each example source](assets/screenshots/kosh-screen-100rc6.png)
 
-*Write with the original source beside your draft and cite without leaving the page.*
+*Record your own include, maybe and exclude decisions, with reasons and flow counts.*
+
+<details>
+<summary>See Read and Verify</summary>
+
+![Kosh Read page with a source list beside an example PDF page and controls for citing the page](assets/screenshots/kosh-reading-100rc6.png)
+
+![Kosh Verify page listing the citations in an example draft, each with its sentence, source page and an Open source button](assets/screenshots/kosh-verify-100rc6.png)
+
+</details>
 
 ## Keep the source beside your writing
 
 Open **Source beside** in Write to read, highlight and cite while keeping your draft in view. **Cite this page** and **Cite in draft** insert at your cursor without replacing selected text. Type **@** in a draft to choose a citation.
+
+![Kosh draft beside its original PDF source, with citation controls](assets/screenshots/kosh-writing-100rc6.png)
+
+*Write with the original source beside your draft and cite without leaving the page.*
 
 Find commands, sources, drafts and passages with **Ctrl+K**. Use **Find** for files, DOI or PMID lookups, pasted reference lists and bibliography files. [User guide](USER_GUIDE.md).
 
@@ -56,7 +69,7 @@ Citation metadata, OCR and generated writing still need your review. Claim-revie
 <details>
 <summary>See citation and export options</summary>
 
-![Kosh export controls for citation styles and document formats](assets/screenshots/kosh-export-options-100rc5.png)
+![Kosh export controls for citation styles and document formats](assets/screenshots/kosh-export-options-100rc6.png)
 
 Choose your citation style, manuscript settings and output format in **Exports & backup**. Native Word citation fields use Word's own bibliography styles; the standard exports use CSL.
 
@@ -77,15 +90,15 @@ All three use the same research-path sidebar.
 
 **Broadsheet**
 
-![Kosh library in Broadsheet](assets/screenshots/kosh-library-100rc5.png)
+![Kosh library in Broadsheet](assets/screenshots/kosh-library-100rc6.png)
 
 **Stacks**
 
-![Kosh library in Stacks](assets/screenshots/kosh-stacks-100rc5.png)
+![Kosh library in Stacks](assets/screenshots/kosh-stacks-100rc6.png)
 
 **Commonplace**
 
-![Kosh library in Commonplace](assets/screenshots/kosh-commonplace-100rc5.png)
+![Kosh library in Commonplace](assets/screenshots/kosh-commonplace-100rc6.png)
 
 </details>
 
@@ -93,7 +106,7 @@ All three use the same research-path sidebar.
 
 ![Kosh walkthrough showing reading, writing, export and the three layouts](assets/presentation/Kosh%20Walkthrough.gif)
 
-[Watch or download the 32-second video](https://github.com/needanotheremailid/kosh-desktop/raw/refs/heads/main/assets/presentation/Kosh%20Walkthrough.mp4). A silent, captioned tour of the working app and an actual PDF export.
+[Watch or download the 32-second video](https://github.com/needanotheremailid/kosh-desktop/raw/refs/heads/main/assets/presentation/Kosh%20Walkthrough.mp4). A silent, captioned tour of the working app and an actual PDF export. It was recorded on 1.0.0-rc.1, before the research-path sidebar; the screenshots above show the current interface.
 
 ## Local first, with optional AI
 

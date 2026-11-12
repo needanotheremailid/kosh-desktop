@@ -2,9 +2,13 @@
 
 ## Current README screenshots
 
-The six `*-100rc5.png` captures show the installed **1.0.0-rc.5** runtime, build `50c9fd68571b914e63f962d65d2d52ccea6912fc69e874d5e2afeae6ac06c35a`, captured on 9 October 2026. Views: reading, draft with source beside it, export options, and the library in Broadsheet, Stacks and Commonplace.
+The nine `*-100rc6.png` captures show the installed **1.0.0-rc.6** runtime, build `e1268be17967e1055304a45c9653a79a0645c4c44cffc00760e1de541699558c`, captured on 13 November 2026. Views: Overview, Screen, Read, a draft with its source beside it, Verify, export options, and All sources in Broadsheet, Stacks and Commonplace.
 
-These are unretouched 1280 × 900 browser captures from the shipped local service, using a separate fresh data directory containing three invented nonclinical PDFs, two example drafts and a highlight validated against actual PDF words. No personal library was read or photographed. The website uses these same reading and writing captures. The standalone packaged Edge window was not used for these captures.
+These are unretouched 1280 × 900 browser captures from the shipped local service of a fresh quiet installation, using a separate fresh data directory containing five invented nonclinical PDFs, example screening decisions and criteria, two example evidence rows and one example draft with three citations. No personal library was read or photographed. The website uses the Overview and writing captures from this set. The standalone packaged Edge window was not used for these captures.
+
+## Earlier README screenshots
+
+The six `*-100rc5.png` captures show the installed **1.0.0-rc.5** runtime, build `50c9fd68571b914e63f962d65d2d52ccea6912fc69e874d5e2afeae6ac06c35a`, captured on 9 October 2026, before the research-path sidebar. They are retained and no longer shown in the README.
 
 ## Retained walkthrough source frames
 
